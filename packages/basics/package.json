@@ -1,6 +1,6 @@
 {
-  "name": "basics",
-  "version": "1.0.0",
+  "name": "@taskfolders/open",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {

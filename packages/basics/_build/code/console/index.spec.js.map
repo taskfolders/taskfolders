@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/console/index.spec.ts"],
+  "sourcesContent": ["describe('x', () => {\n  it('x', () => {\n    console.log('yai!')\n  })\n})\n"],
+  "mappings": "AAAA,SAAS,KAAK,MAAM;AAClB,KAAG,KAAK,MAAM;AACZ,YAAQ,IAAI,MAAM;AAAA,EACpB,CAAC;AACH,CAAC;",
+  "names": []
+}
