@@ -1,0 +1,20 @@
+{
+  "name": "tf-open",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "workspaces": [
+    "./packages/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "mocha": "^10.2.0",
+    "typescript": "^5.3.2"
+  }
+}
