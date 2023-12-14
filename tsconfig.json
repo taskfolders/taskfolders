@@ -1,0 +1,27 @@
+{
+  "files": [],
+  "compilerOptions": {
+    "incremental": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "dom"
+    ],
+    "noEmit": true
+  },
+  "exclude": [
+    "**/_build",
+    "**/_dist",
+    "packages/markdown--esm",
+    "packages/*/_build/**",
+    "**/_build/*",
+    "_build/**",
+    "_dist",
+    "src/bogus.ts",
+    "**/_release/*"
+  ],
+  "references": [
+    {
+      "path": "./packages/utils/tsconfig.ref.json"
+    }
+  ]
+}

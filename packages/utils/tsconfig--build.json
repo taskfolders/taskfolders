@@ -1,0 +1,17 @@
+{ 
+  "extends": "./tsconfig.json", 
+  "exclude": [ 
+    "**/*.spec.*", 
+    "**/*.vitest.*", 
+    "**/*.mocha.*", 
+    "**/_play", 
+    "**/_test" 
+  ],
+  "compilerOptions": { 
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "outDir": "./dist/esm", 
+    "module": "esnext"
+   } 
+}

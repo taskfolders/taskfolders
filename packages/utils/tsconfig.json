@@ -1,0 +1,40 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "_build/code",
+    //"target": "es2021",
+    "experimentalDecorators": true,
+
+    "allowJs": true,
+    "checkJs": true,
+
+    //"lib": ["es2021"],
+    "module": "commonjs",
+
+    // WHY otherwise empty default import
+    //  import Path from 'path'
+    //  import * as Path from 'path'
+    //
+    "esModuleInterop": true,
+
+    //"moduleResolution": "Node",
+    "strict": false,
+    // 17 "strictNullChecks": true,
+    // 37 "noImplicitAny": true,
+
+    //"noImplicitOverride": true,
+    // Needed for CommonJS modules: markdown-it, fs-extra
+
+    // "typeRoots": [
+    //   "node_modules/@types",
+    //   "node_modules/@taskfolders/core/typings"
+    // ],
+
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true // enables importers to jump to source
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "lib": [
+      //   "es2021",
+      // TODO ideally just on browser projects
+      "dom",
+
+      // Needed for Headers.entries()
+      "dom.iterable"
+    ],
+    "allowJs": true,
+    "checkJs": true,
+    "declaration": true,
+    //"module": "commonjs",
+    // "module": "node12",
+    "module": "commonjs",
+    // "moduleResolution": "node12",
+    "moduleResolution": "node",
+
+    "removeComments": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
+
+    "experimentalDecorators": true,
+
+    "sourceMap": true,
+    //"inlineSourceMap": true,
+
+    // STRICT
+    "noImplicitThis": true,
+
+    // ...
+    "skipLibCheck": true,
+    "declarationMap": true // enables importers to jump to source
+  },
+  "exclude": ["**/_build/*", "**/_release/*"]
+}
