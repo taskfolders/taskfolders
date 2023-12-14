@@ -1,4 +1,4 @@
-interface PackageJsonType {
+export interface PackageJsonType {
   name: string
   version: string
   keywords: string[]

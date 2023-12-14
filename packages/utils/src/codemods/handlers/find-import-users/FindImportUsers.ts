@@ -4,9 +4,9 @@ import fg from 'fast-glob'
 import * as Path from 'node:path'
 import { parseJtsImports } from '../explain-imports/parseJtsImports'
 import { applyDevInspect } from '../explain-imports/applyDevInspect'
-import { PackageJsonType } from '../../../vendors/npm/PackageJsonType'
 import { JsonFile } from '../../../fs/JsonFile'
 import { ScreenPrinter } from '../../../screen/ScreenPrinter'
+import type {PackageJsonType} from '../../../vendors/npm/PackageJsonType'
 
 export function scanSourceImports(sourceFilePath: string) {
   let body = fs.readFileSync(sourceFilePath).toString()

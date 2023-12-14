@@ -11,7 +11,8 @@
     "declaration": false,
     "declarationMap": false,
     "sourceMap": false,
-    "outDir": "./dist/esm", 
-    "module": "esnext"
+    "outDir": "./dist/tmp", 
+    //"module": "esnext"
+    //"module": "NodeNext"
    } 
 }
