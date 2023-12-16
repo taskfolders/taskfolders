@@ -1,6 +1,6 @@
 // import { delay } from '../native/promise'
-import { expectType } from '@taskfolders/core/types/expectType'
 import { delay } from '../native/promise/delay'
+import { expectType } from '../types/expectType'
 import {
   DependencyContainer,
   DependencyContainer as DC,
