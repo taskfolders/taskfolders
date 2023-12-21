@@ -1,0 +1,23 @@
+{
+  "*.js": { "alternate": "{dirname}/{basename}.test.js" },
+  "*.ts": { "alternate": ["{}.spec.ts", "{}.spec.js", "{}.md", "{}.test.ts"] },
+
+  "*.tsx": { "alternate": ["{}.spec.ts", "{}.spec.tsx", "{}.md"] },
+
+  "*.handler.ts": { "alternate": ["{}.spec.ts"] },
+
+  "*.tape.json": { "alternate": ["{}.spec.ts"] },
+
+  "*.spec.ts": {
+    "alternate": [
+      "{}.pipeline.ts",
+      "{}.handler.ts",
+      "{}.backend.ts",
+      "{}.app.ts",
+      "{}.node.ts",
+      "{}.script.ts"
+    ]
+  },
+
+  "*.message.ts": { "alternate": ["{}.handler.ts"] }
+}
