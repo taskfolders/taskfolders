@@ -1,11 +1,13 @@
 import { ScreenPrinter } from '@taskfolders/utils/screen/ScreenPrinter'
-import { FindCaller } from '../stack/locate/FindCaller'
-import { shellHyperlink } from '../screen/shellHyperlink'
-import { inspect } from 'node:util'
+import { printLogEventInNode } from './_node/printLogEventInNode'
 
 type LogLevels = 'trace' | 'debug' | 'info' | 'dev' | 'warn' | 'error'
 
-let levelColors: Record<LogLevels, string> = {
+function printLogEventInBrowser(ops: { screen: ScreenPrinter; log: LogEvent }) {
+  console.log(...ops.log.args)
+}
+
+export let levelColors: Record<LogLevels, string> = {
   trace: 'grey',
   debug: 'cyan',
   info: 'blue',
@@ -31,7 +33,23 @@ function createLogLevel(level: LogLevels) {
   }
 }
 
-interface LogEvent {
+function isNodeRuntime() {
+  // Check if running in Node.js environment
+  if (
+    // typeof window === 'undefined' &&
+    typeof process !== 'undefined' &&
+    process.versions &&
+    process.versions.node
+  ) {
+    // console.log('Running in Node.js environment')
+    return true
+  } else {
+    //console.log('Running in a browser environment')
+    return false
+  }
+}
+
+export interface LogEvent {
   message?: string
   args?: LogArgs
   level?: string
@@ -51,8 +69,7 @@ export class Logger {
       let envNode = process.env.NODE_ENV
       if (envNode === 'production') {
         this.level = 'warn'
-      }
-      if (envNode === 'test') {
+      } else if (envNode === 'test') {
         this.level = 'error'
       } else {
         this.level = 'info'
@@ -68,36 +85,12 @@ export class Logger {
     if (!has) {
       return
     }
+    let screen = this._screen
 
-    let location = FindCaller.whenNotProduction({ offset: 2 })
-
-    let th = this._screen.style
-    let levelName = kv.level ?? 'info'
-    let color = levelColors[levelName]
-    let colorize = th.color[color] ?? (x => x)
-    let level = colorize(levelName.toUpperCase().padEnd(5))
-
-    //level = th.color[levelColors[level]](level);
-    if (location) {
-      let t1 = shellHyperlink({
-        text: level,
-        path: location.path,
-        lineNumber: location.lineNumber,
-        scheme: 'vscode',
-      })
-      level = t1
-    }
-    level = `[${level}]`
-    let message = kv.args[0]
-    let second
-    if (typeof kv.args[0] === 'object') {
-      message = `{${th.color.magenta('object')}}`
-      second = inspect(kv.args[0], { colors: true })
-    }
-
-    this._screen.log([level, message])
-    if (second) {
-      this._screen.indent().log(second)
+    if (isNodeRuntime()) {
+      printLogEventInNode({ log: kv, screen })
+    } else {
+      printLogEventInBrowser({ log: kv, screen })
     }
   }
 
