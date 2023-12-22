@@ -1,11 +1,54 @@
 import { DC } from './DC'
 import { DependencyMeta } from './DependencyMeta'
+import { delay } from '../native/promise/delay'
+import { FetchAsyncError } from './errors'
 
 // TODO get and hide container in instance
+// TODO global?
+// TODO mocks?
 
 describe('x', () => {
-  // TODO global?
-  // TODO mocks?
+  describe('constructions', () => {
+    it('singleton', async () => {
+      let spy = 0
+      class Panda {
+        constructor() {
+          spy++
+        }
+      }
+      DC.decorate(Panda, { lifetime: 'singleton' })
+
+      let sut = new DC()
+      let res = sut.fetchRaw({ klass: Panda })
+      expect(res.instance).toBeInstanceOf(Panda)
+
+      sut.fetchRaw({ klass: Panda })
+      expect(res.instance).toBeInstanceOf(Panda)
+
+      res = sut.fetchRaw({ klass: Panda })
+      expect(spy).toBe(1)
+    })
+
+    it('transient', async () => {
+      let spy = 0
+      class Panda {
+        constructor() {
+          spy++
+        }
+      }
+      DC.decorate(Panda, { lifetime: 'transient' })
+
+      let sut = new DC()
+      let res = sut.fetchRaw({ klass: Panda })
+      expect(res.instance).toBeInstanceOf(Panda)
+
+      sut.fetchRaw({ klass: Panda })
+      expect(res.instance).toBeInstanceOf(Panda)
+
+      res = sut.fetchRaw({ klass: Panda })
+      expect(spy).toBe(3)
+    })
+  })
 
   it('x main #story', async () => {
     let sut = new DC()
@@ -39,84 +82,74 @@ describe('x', () => {
     $dev(r1)
   })
 
-  describe('x', () => {
-    it.only('x', async () => {
-      class InstanceCollector {
-        instances = new Set()
-        install = (value, { kind }) => {
-          if (kind === 'class') {
-            const _this = this
-            return function (...args) {
-              // (A)
-              const inst = new value(...args) // (B)
-              _this.instances.add(inst)
-              return inst
-            }
-          }
-        }
-      }
-      function bound(
-        originalMethod: any,
-        context: ClassMethodDecoratorContext,
-      ) {}
-
-      const collector = new InstanceCollector()
-
-      //@collector.install
-      class MyClass {
-        @bound
-        foo() {}
-      }
-
-      const inst1 = new MyClass()
-    })
-    it.only('singleton', async () => {
-      let spy = 0
-      function deco(...x) {
-        $dev('...')
-      }
-
-      class Panda {
-        constructor() {
-          spy++
-        }
-      }
-      DC.decorate(Panda, { lifetime: 'singleton' })
-
-      let sut = new DC()
-      let res = sut.fetchRaw({ klass: Panda })
-      expect(res.instance).toBeInstanceOf(Panda)
-
-      sut.fetchRaw({ klass: Panda })
-      expect(res.instance).toBeInstanceOf(Panda)
-
-      res = sut.fetchRaw({ klass: Panda })
-      expect(spy).toBe(1)
-      $dev(Panda)
-    })
-
-    it('x async start', async () => {
-      class ChildAwait {
-        constructor() {
-          $dev('in!')
-        }
+  describe('x async construction', async () => {
+    it('await for start', async () => {
+      class PandaAsync {
+        started
         async start() {
-          //
+          await delay(2)
+          this.started = true
         }
       }
-      DC.decorate(ChildAwait, { start: { method: 'start', type: 'await' } })
+      DC.decorate(PandaAsync, { start: { method: 'start', type: 'await' } })
 
       class Panda {
-        dep = DC.inject(ChildAwait)
+        dep = DC.inject(PandaAsync)
       }
       DC.decorate(Panda, {})
 
       let sut = new DC()
       //let res = sut.fetchRaw({ klass: ChildAwait })
-      let res = sut.fetchRaw({ klass: Panda })
-      $dev(res, null, { depth: 5 })
+
+      let res = await sut.fetchAsync(Panda)
+      //$dev(res, null, { depth: 5 })
+      expect(res.dep.started).toBe(true)
     })
 
+    it('guard fetch to throw on Async fetch', async () => {
+      class PandaAsync {
+        started
+        async start() {
+          await delay(2)
+          this.started = true
+        }
+      }
+      DC.decorate(PandaAsync, { start: { method: 'start', type: 'await' } })
+
+      let sut = new DC()
+      let error: FetchAsyncError
+      try {
+        sut.fetch(PandaAsync)
+      } catch (e) {
+        error = e
+      }
+      expect(error.code).toBe(FetchAsyncError.code)
+    })
+
+    it('background start', async () => {
+      class FooBackground {
+        started
+        async start() {
+          await delay(2)
+          this.started = true
+        }
+      }
+      DC.decorate(FooBackground, {
+        start: { method: 'start', type: 'background' },
+      })
+
+      let sut = new DC()
+      let r1 = await sut.fetchAsync(FooBackground)
+      expect(r1.started).toBe(undefined)
+
+      let r2 = await sut.fetchRaw({ klass: FooBackground })
+      expect(r2.instance.started).toBe(undefined)
+      await r2.started()
+      expect(r2.instance.started).toBe(true)
+    })
+  })
+
+  describe('x', () => {
     it.skip('fetch with Token #todo', async () => {
       class DateNowToken {
         private constructor() {}
