@@ -2,7 +2,7 @@
   "files": [],
   "compilerOptions": {
     "incremental": true,
-    "experimentalDecorators": true,
+    // "experimentalDecorators": true,
     "lib": [
       "dom"
     ],

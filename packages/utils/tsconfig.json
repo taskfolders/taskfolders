@@ -4,7 +4,8 @@
     "rootDir": "src",
     "outDir": "_build/code",
     "target": "es2020",
-    "experimentalDecorators": true,
+
+    "experimentalDecorators": false,
 
     "allowJs": true,
     "checkJs": true,

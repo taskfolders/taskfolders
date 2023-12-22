@@ -14,8 +14,11 @@ class CustomError {
 import { getsert } from '../native/object/getsert'
 import { ExcludeOptionalProps } from '../types/ExcludeOptionalProps'
 import { assertNever } from '../types/assertNever'
+import { InjectMarker } from './InjectMarker'
 
-const SYM_DependencyConfig = Symbol('taskfolders.com:dependency.class-config')
+export const SYM_DependencyConfig = Symbol(
+  'taskfolders.com:dependency.class-config',
+)
 export const SYM_CONTAINER = Symbol('taskfolders.com:dependency-container')
 const SYM_CLASS_START = Symbol('taskfolders.com:dependency.class-start')
 const SYM_STARTED = Symbol('taskfolders.com:dependency.started')
@@ -92,31 +95,6 @@ type ILifeTime =
   | 'transient'
   | 'global'
   | 'auth'
-
-class InjectMarker {
-  __INJECT = true
-  klass: { new (...x) }
-  options
-  passContainer
-
-  get config() {
-    return this.klass[SYM_DependencyConfig]
-  }
-
-  static is(x): x is InjectMarker {
-    return x?.__INJECT === true
-  }
-
-  static build(kv: { klass; ops?; passContainer? }) {
-    let { klass, ops } = kv
-    let obj = new this()
-    obj.klass = klass
-    obj.options = ops
-    obj.passContainer = kv.passContainer
-
-    return obj
-  }
-}
 
 type ICreate = (container: DependencyContainer, buildParams?) => any
 
