@@ -1,8 +1,17 @@
-import { ScreenPrinter } from '@taskfolders/utils/screen/ScreenPrinter'
 import { FindCaller } from '../../stack/locate/FindCaller'
 import { shellHyperlink } from '../../screen/shellHyperlink'
 import { inspect } from 'node:util'
-import { LogEvent, levelColors } from '../Logger'
+import type { LogEvent, LogLevels } from '../Logger'
+import { ScreenPrinter } from '../../screen/ScreenPrinter'
+
+const levelColors: Record<LogLevels, string> = {
+  trace: 'grey',
+  debug: 'cyan',
+  info: 'blue',
+  dev: 'yellow',
+  warn: 'yellow',
+  error: 'red',
+}
 
 export function printLogEventInNode(ops: {
   screen: ScreenPrinter

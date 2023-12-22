@@ -1,19 +1,11 @@
-import { ScreenPrinter } from '@taskfolders/utils/screen/ScreenPrinter'
+import { ScreenPrinter } from '../screen/ScreenPrinter'
 import { printLogEventInNode } from './_node/printLogEventInNode'
+import { isNodeRuntime } from '../runtime/isNodeRuntime'
 
-type LogLevels = 'trace' | 'debug' | 'info' | 'dev' | 'warn' | 'error'
+export type LogLevels = 'trace' | 'debug' | 'info' | 'dev' | 'warn' | 'error'
 
 function printLogEventInBrowser(ops: { screen: ScreenPrinter; log: LogEvent }) {
   console.log(...ops.log.args)
-}
-
-export let levelColors: Record<LogLevels, string> = {
-  trace: 'grey',
-  debug: 'cyan',
-  info: 'blue',
-  dev: 'yellow',
-  warn: 'yellow',
-  error: 'red',
 }
 
 let levelNumbers: Record<LogLevels, number> = {
@@ -30,22 +22,6 @@ type LogArgs = [message: string | Object] | [message: any, obj: any]
 function createLogLevel(level: LogLevels) {
   return function (...args: LogArgs) {
     this.logRaw({ args, level })
-  }
-}
-
-function isNodeRuntime() {
-  // Check if running in Node.js environment
-  if (
-    // typeof window === 'undefined' &&
-    typeof process !== 'undefined' &&
-    process.versions &&
-    process.versions.node
-  ) {
-    // console.log('Running in Node.js environment')
-    return true
-  } else {
-    //console.log('Running in a browser environment')
-    return false
   }
 }
 

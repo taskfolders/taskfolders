@@ -14,13 +14,15 @@ describe('x', () => {
     sut.error('log dev')
   })
 
-  it('x', async () => {
+  it('x log args #todo', async () => {
     let sut = new Logger()
     sut._screen.debug = true
     sut.level = 'info'
     sut.dev('log dev')
     sut.dev({ fox: 1 })
+  })
 
+  it('x log function #todo', async () => {
     // TODO bug?
     // sut.logRaw({
     //   message: "one",
