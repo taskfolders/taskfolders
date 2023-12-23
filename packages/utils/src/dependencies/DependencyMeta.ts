@@ -10,11 +10,12 @@ export type ILifeTime = 'singleton' | 'transient' | 'value'
 
 export class DependencyMeta {
   lifetime: ILifeTime = 'transient'
+  start?: StartDSL<any>
+  mockFor?
+  destroy: boolean
+
   // create?: ICreate
   // stop?: StopConfig
-  // start?: StartConfig
-  start?: StartDSL<any>
-  // mockingClass?
   // value? // ?: SomeClass
 
   // create?(container: DependencyContainer)

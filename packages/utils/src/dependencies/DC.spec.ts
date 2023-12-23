@@ -1,4 +1,4 @@
-import { DC, Container } from './DC'
+import { DC, Container, getAllValuesUp } from './DC'
 import { DependencyToken } from './DependencyToken'
 import { DependencyMeta, ILifeTime } from './DependencyMeta'
 import { delay } from '../native/promise/delay'
@@ -175,8 +175,8 @@ describe('x', () => {
     })
   })
 
-  describe('x mock', async () => {
-    it('single class', async () => {
+  describe('mocks', async () => {
+    it('quick mock', async () => {
       class Panda {
         constructor(public value = 1) {}
       }
@@ -185,8 +185,7 @@ describe('x', () => {
       let sut = new DC()
       let res = sut.fetch(Panda)
       expect(res.value).toBe(1)
-      sut.mockRaw({
-        klass: Panda,
+      sut.mock(Panda, {
         onCreate: () => new Panda(2),
       })
       res = sut.fetch(Panda)
@@ -200,6 +199,72 @@ describe('x', () => {
       })
       res = sut.fetch(Panda)
       expect(res.value).toBe(3)
+    })
+
+    it('replace existing instances', async () => {
+      class Panda {
+        constructor(public value = 1) {}
+      }
+      DC.decorate(Panda)
+
+      let sut = new DC()
+      let r1 = sut.fetch(Panda)
+      expect(r1.value).toBe(1)
+
+      sut.mock(Panda, { onCreate: () => new Panda(2) })
+
+      let r2 = sut.fetch(Panda)
+      expect(r2.value).toBe(2)
+    })
+
+    describe('using a class mock', () => {
+      class RealFS {
+        readFileSync() {
+          return 'real'
+        }
+      }
+
+      class RealFSMock extends RealFS {
+        readFileSync() {
+          return 'fake'
+        }
+      }
+      DC.decorate(RealFSMock, { mockFor: RealFS })
+
+      it('full manual way', async () => {
+        // manual way to do it
+        let sut = new DC()
+        sut.mock(RealFS, {
+          onCreate() {
+            return new RealFSMock()
+          },
+        })
+        let res = sut.fetch(RealFS)
+        expect(res.readFileSync()).toBe('fake')
+      })
+
+      it('x', async () => {
+        {
+          // convenient way to do it
+          let sut = new DC()
+          sut.mock(RealFSMock, {
+            onCreate() {
+              return new RealFSMock()
+            },
+          })
+          let res = sut.fetch(RealFS)
+          expect(res.readFileSync()).toBe('fake')
+        }
+
+        {
+          // quick replace singleton
+          let sut = new DC()
+          sut.mock(new RealFSMock())
+
+          let res = sut.fetch(RealFS)
+          expect(res.readFileSync()).toBe('fake')
+        }
+      })
     })
   })
 
@@ -247,8 +312,7 @@ describe('x', () => {
       expect(r2).toBe(123)
 
       // TODO normal mock?
-      sut.mockRaw({
-        token: DateNowToken,
+      sut.mock(DateNowToken, {
         onCreate() {
           return 1
         },
@@ -275,12 +339,6 @@ describe('x', () => {
       expect(sut).toBeInstanceOf(DC)
       expect(sut.name).toBe('global')
       expect(sut).toBe(Container)
-
-      let r1 = DC.ensure(null)
-      expect(r1).toBeInstanceOf(DC)
-
-      let r2 = DC.ensure(new DC({ name: 'foo' }))
-      expect(r2.name).toBe('foo')
     })
 
     it('x random class fetch #story', async () => {
@@ -294,21 +352,40 @@ describe('x', () => {
       expect(res.value).toBe(1)
     })
 
-    it('x', async () => {
-      let someFS = {
-        readFileSync() {
-          return 'real'
-        },
+    it('x destroy #alpha', async () => {
+      let spy
+      class Panda {
+        value = 1
+        destroy() {
+          spy = true
+        }
       }
-
-      let fakeFS = {
-        readFileSync() {
-          return 'fake'
-        },
-      }
+      DC.decorate(Panda, { lifetime: 'singleton', destroy: true })
 
       let sut = new DC()
-      //sut.fetch(someFS)
+      sut.fetch(Panda)
+
+      await sut.destroy()
+      expect(spy).toBe(true)
+    })
+
+    it('x fork sub containers #alpha', async () => {
+      class Panda {
+        constructor(public value) {}
+      }
+      DC.decorate(Panda, { lifetime: 'singleton' })
+
+      let parent = new DC({ name: 'parent' })
+      let child_1 = parent.fork({ name: 'child-1' })
+      let child_2 = child_1.fork({ name: 'child-2' })
+
+      let r1 = parent.fetch(Panda)
+      r1.value = 123
+
+      let r2 = child_2.fetch(Panda)
+      expect(r2.value).toBe(123)
+
+      expect(inspect(child_2)).toContain('global:parent:child-1')
     })
   })
 })

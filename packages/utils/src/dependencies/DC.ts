@@ -15,6 +15,15 @@ type IDependencyKlass<T> = { new (...x): T; name: string; create?(): never }
 type IDependencyToken<T> = { create(): T; name?: string }
 type IDependency<T> = IDependencyToken<T> | IDependencyKlass<T>
 
+export const getAllValuesUp = (dc: DC, key: keyof DC, acu = []) => {
+  if (!dc) return
+  let value = dc[key]
+  acu = [...acu, value]
+
+  if (!dc._parent) return acu
+  return getAllValuesUp(dc._parent, key, acu)
+}
+
 export type StartInfo = StartDSL<any> & { running: Promise<unknown> }
 export interface DepOutput {
   name
@@ -27,9 +36,13 @@ export class DC {
   _mocksStore = new Map<unknown, { onCreate() }>()
 
   name: string
+  _parent: DC
 
-  constructor(kv: { name?: string } = {}) {
+  constructor(kv: { name?: string; parent?: DC } = {}) {
     this.name = kv.name ?? randomId()
+    if (kv.parent !== null) {
+      this._parent = Container
+    }
   }
 
   static inject<T>(klass: IDependency<T>): T {
@@ -41,12 +54,21 @@ export class DC {
     kv: {
       lifetime?: ILifeTime
       start?: StartDSL<T>
+      mockFor?
+      destroy?: boolean
     } = {},
   ) {
     // $dev('deco!')
     let meta = DependencyMeta.getsert(klass)
     meta.lifetime = kv.lifetime ?? 'transient'
     meta.start = kv.start
+    meta.mockFor = kv.mockFor
+    if (kv.destroy) {
+      if (meta.lifetime !== 'singleton') {
+        throw Error('Destroy method only for singletons')
+      }
+      meta.destroy = true
+    }
     //
   }
 
@@ -54,8 +76,17 @@ export class DC {
     return Container
   }
 
-  static ensure(dc: DC) {
-    return dc ?? this.global
+  _findUp(kv: { instance } | { mock }) {
+    if ('instance' in kv) {
+      let obj = kv.instance
+      let found = this._instanceStore.get(obj)
+      if (found) return found
+    } else if ('mock' in kv) {
+      let obj = kv.mock
+      let found = this._mocksStore.get(obj)
+      if (found) return found
+    }
+    if (this._parent) return this._parent._findUp(kv)
   }
 
   finish(
@@ -123,7 +154,7 @@ export class DC {
       if (!create) {
         switch (meta.lifetime) {
           case 'singleton': {
-            let found = this._instanceStore.get(klass)
+            let found = this._findUp({ instance: klass })
             if (!found) {
               found = new klass()
               this._instanceStore.set(klass, found)
@@ -136,7 +167,7 @@ export class DC {
             break
           }
           case 'value': {
-            let found = this._instanceStore.get(klass)
+            let found = this._findUp({ instance: klass })
             if (!found) {
               throw new UnregisteredValueError()
             }
@@ -159,7 +190,7 @@ export class DC {
             break
           }
           case 'singleton': {
-            let found = this._instanceStore.get(kv.token)
+            let found = this._findUp({ instance: kv.token })
             if (!found) {
               found = kv.token.create()
               this._instanceStore.set(kv.token, found)
@@ -168,7 +199,7 @@ export class DC {
             break
           }
           case 'value': {
-            let found = this._instanceStore.get(kv.token)
+            let found = this._findUp({ instance: kv.token })
             if (!found) {
               throw new UnregisteredValueError()
             }
@@ -210,16 +241,18 @@ export class DC {
     })
   }
 
-  mockRaw<T>(kv: {
-    klass?: IDependencyKlass<T>
-    token?: IDependencyToken<T>
-    onCreate?(): T
-  }) {
-    this._mocksStore.set(kv.klass ?? kv.token, { onCreate: kv.onCreate })
-  }
-
-  mock(thing: IDependency<any>, kv: { onCreate() }) {
-    this._mocksStore.set(thing, { onCreate: kv.onCreate })
+  mock(thing: any, kv?: { onCreate() }) {
+    let target = thing as any
+    if (!kv) {
+      target = thing.constructor
+      kv = { onCreate: () => thing }
+    }
+    let meta = DependencyMeta.get(target)
+    let mockFor = meta?.mockFor
+    if (mockFor) {
+      target = mockFor
+    }
+    this._mocksStore.set(target, { onCreate: kv.onCreate })
   }
 
   fetch<T>(thing: IDependency<T>): T {
@@ -256,10 +289,28 @@ export class DC {
     this._instanceStore.set(thing, kv.value)
   }
 
+  async destroy() {
+    for (let obj of this._instanceStore.values()) {
+      // TODO review weakness/bug
+      //   what if instance from token??? this only works for class
+      let meta = DependencyMeta.get(obj.constructor)
+      if (meta?.destroy) {
+        await obj['destroy']()
+      }
+    }
+  }
+
+  fork(kv: { name?: string } = {}) {
+    let next = new DC({ name: kv.name })
+    next._parent = this
+    return next
+  }
+
   [Symbol.for('nodejs.util.inspect.custom')]() {
-    let parts = [this.name].join(' ')
+    let names = getAllValuesUp(this, 'name').reverse().join(':')
+    let parts = [names].join()
     return `<${this.constructor.name} ${parts}>`
   }
 }
 
-export const Container = new DC({ name: 'global' })
+export const Container = new DC({ name: 'global', parent: null })
