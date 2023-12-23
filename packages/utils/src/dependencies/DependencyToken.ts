@@ -1,8 +1,8 @@
-import type { ILifeTime } from './DependencyMeta'
+import { DependencyMeta, ILifeTime } from './DependencyMeta'
 
 export class DependencyToken<T> {
   name?: string
-  type: ILifeTime
+  meta: DependencyMeta
   create: () => T
 
   static is(thing): thing is DependencyToken<any> {
@@ -16,8 +16,10 @@ export class DependencyToken<T> {
   }): DependencyToken<T> {
     let obj = new this<T>()
     obj.name = kv.name ?? this.constructor.name
-    obj.type = kv.type ?? 'transient'
     obj.create = kv.create
+
+    obj.meta = new DependencyMeta()
+    obj.meta.lifetime = kv.type ?? 'transient'
     return obj
   }
 }

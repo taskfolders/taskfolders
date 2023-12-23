@@ -94,95 +94,74 @@ export class DC {
       keyPath?: any[]
     },
   ): FetchRawResult<T> {
-    let klass: IDependencyKlass<any>
     // @ts-expect-error TODO
     let thing = kv.klass ?? kv.token
     let name: string
     let instance: T
-    let type: ILifeTime
     let create: () => T
+    let meta: DependencyMeta
+
+    let mock = this._mocksStore.get(thing)
+    if (mock) {
+      create = () => mock.onCreate()
+    }
 
     if ('klass' in kv) {
+      let klass: IDependencyKlass<any>
       klass = kv.klass
-      let mock = this._mocksStore.get(klass)
-      if (mock) {
-        create = mock.onCreate
-      } else {
-        create = () => new klass()
+
+      meta = DependencyMeta.get(klass)
+      name = klass.name
+      if (!create) {
+        switch (meta.lifetime) {
+          case 'singleton': {
+            let found = this._klassStore.get(klass)
+            if (!found) {
+              found = new klass()
+              this._klassStore.set(klass, found)
+            }
+            create = () => found
+            break
+          }
+          case 'transient': {
+            create = () => new klass()
+            break
+          }
+          default: {
+            assertNever(meta.lifetime)
+          }
+        }
       }
     } else {
       // TODO #dry on TOKEN
-      type = kv.token.type
       name = kv.token.name
-      switch (type) {
-        case 'transient': {
-          let mock = this._mocksStore.get(kv.token)
-          if (mock) {
-            create = () => {
-              let r1 = mock.onCreate()
-              return r1
-            }
-          } else {
+      meta = kv.token.meta
+      if (!create) {
+        switch (meta.lifetime) {
+          case 'transient': {
             create = () => kv.token.create()
+            break
           }
-          instance = create()
-          break
+          case 'singleton': {
+            let found = this._tokensStore.get(kv.token)
+            if (!found) {
+              found = kv.token.create()
+              this._tokensStore.set(kv.token, found)
+            }
+            create = () => found
+            break
+          }
+          default:
+            assertNever(meta.lifetime)
         }
-        case 'singleton': {
-          let found = this._tokensStore.get(kv.token)
-          instance = found ?? kv.token.create()
-          break
-        }
-        default:
-          assertNever(type)
       }
-      // type = token.type
-
-      instance = create()
-      return FetchRawResult.create({
-        name,
-        type,
-        instance,
-        dependencies: [],
-        start: null,
-      })
     }
 
-    let meta = DependencyMeta.get(klass)
     if (!meta) {
-      throw Error(`No meta for class ${klass.name}`)
+      throw Error(`No meta for class ${name}`)
     }
-    type = meta.lifetime
 
-    switch (type) {
-      case 'singleton': {
-        let found = this._klassStore.get(klass)
-        if (!found) {
-          // TODO:dry-create
-          if ('create' in klass) {
-            found = klass.create()
-          } else {
-            found = create()
-          }
-          this._klassStore.set(klass, found)
-        }
-        instance = found
-        break
-      }
-      case 'transient': {
-        // TODO:dry-create
-        if ('create' in klass) {
-          instance = klass.create()
-        } else {
-          //instance = new klass()
-          instance = create()
-        }
-        break
-      }
-      default: {
-        assertNever(type)
-      }
-    }
+    instance = create()
 
     // ..
     let dependencies = this.finish(instance, {
@@ -192,17 +171,15 @@ export class DC {
     })
 
     // .. async creation steps
-    let start
+    let start: StartInfo
     if (meta.start) {
       let running = instance[meta.start.method]()
       start = { ...meta.start, running }
     }
 
-    // ..
-
     return FetchRawResult.create({
-      name: klass.name,
-      type,
+      name,
+      type: meta.lifetime,
       instance,
       dependencies,
       start,

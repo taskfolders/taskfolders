@@ -21,6 +21,7 @@ export class DependencyMeta {
   static get(thing): DependencyMeta {
     return thing[SYM_DependencyConfig]
   }
+
   static getsert(thing): DependencyMeta {
     thing[SYM_DependencyConfig] ??= {}
     return thing[SYM_DependencyConfig]

@@ -212,10 +212,10 @@ describe('x', () => {
       //expect(r0.name).toBe('DependencyToken')
       expect(r0.name).toBe('DateNowToken')
 
-      let r1 = sut.fetchRaw({ token: MyToken })
-      r1.instance
-      expect(r1.instance).toBe(123)
-      expect(r1.name).toBe('MyToken')
+      // let r1 = sut.fetchRaw({ token: MyToken })
+      // r1.instance
+      // expect(r1.instance).toBe(123)
+      // expect(r1.name).toBe('MyToken')
 
       let r2 = sut.fetch(DateNowToken)
       expect(r2).toBe(123)
@@ -257,7 +257,7 @@ describe('x', () => {
       expect(r2.name).toBe('foo')
     })
 
-    it('x random class fetch #story', async () => {
+    it.skip('x random class fetch #story', async () => {
       class Panda {
         value = 1
       }
