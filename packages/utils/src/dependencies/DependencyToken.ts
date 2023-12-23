@@ -9,14 +9,22 @@ export class DependencyToken<T> {
     return thing instanceof DependencyToken
   }
 
-  static define<T>(kv: {
-    name?: string
-    type?: ILifeTime
-    create(): T
-  }): DependencyToken<T> {
+  static define<T>(
+    kv: {
+      name?: string
+    } & (
+      | {
+          type?: ILifeTime
+          create(): T
+        }
+      | { type: 'value' }
+    ),
+  ): DependencyToken<T> {
     let obj = new this<T>()
     obj.name = kv.name ?? this.constructor.name
-    obj.create = kv.create
+    if (kv.type !== 'value') {
+      obj.create = kv.create
+    }
 
     obj.meta = new DependencyMeta()
     obj.meta.lifetime = kv.type ?? 'transient'

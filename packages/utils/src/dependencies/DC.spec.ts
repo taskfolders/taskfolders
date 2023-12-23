@@ -48,6 +48,23 @@ describe('x', () => {
       res = sut.fetchRaw({ klass: Panda })
       expect(spy).toBe(3)
     })
+
+    it('value', async () => {
+      let token = DependencyToken.define<number>({ type: 'value' })
+      let sut = new DC()
+      sut.register(token, { value: 111 })
+      let r1 = sut.fetch(token)
+      expect(r1).toBe(111)
+
+      class Panda {
+        constructor(public delta) {}
+      }
+      DC.decorate(Panda, { lifetime: 'value' })
+
+      sut.register(Panda, { value: new Panda(222) })
+      let r2 = sut.fetch(Panda)
+      expect(r2.delta).toBe(222)
+    })
   })
 
   it('x main #story', async () => {
@@ -257,13 +274,15 @@ describe('x', () => {
       expect(r2.name).toBe('foo')
     })
 
-    it.skip('x random class fetch #story', async () => {
+    it('x random class fetch #story', async () => {
       class Panda {
         value = 1
       }
 
       let sut = new DC()
-      sut.fetch(Panda)
+      let res = sut.fetch(Panda)
+      expect(res).toBeInstanceOf(Panda)
+      expect(res.value).toBe(1)
     })
 
     it('x', async () => {

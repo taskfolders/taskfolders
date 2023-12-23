@@ -1,5 +1,10 @@
 import { InjectMarker } from './InjectMarker'
-import { ILifeTime, StartType, DependencyMeta } from './DependencyMeta'
+import {
+  ILifeTime,
+  StartType,
+  DependencyMeta,
+  StartDSL,
+} from './DependencyMeta'
 import { assertNever } from '../types/assertNever'
 import { FetchAsyncError } from './errors'
 import { FetchRawResult } from './FetchRawResult'
@@ -10,8 +15,7 @@ type IDependencyKlass<T> = { new (...x): T; name: string; create?(): never }
 type IDependencyToken<T> = { create(): T; name?: string }
 type IDependency<T> = IDependencyToken<T> | IDependencyKlass<T>
 
-type StartDSL<T> = { method: keyof T; type: StartType }
-export type StartInfo = StartDSL<unknown> & { running: Promise<unknown> }
+export type StartInfo = StartDSL<any> & { running: Promise<unknown> }
 export interface DepOutput {
   name
   keyPath: string[]
@@ -111,6 +115,11 @@ export class DC {
       klass = kv.klass
 
       meta = DependencyMeta.get(klass)
+      if (!meta) {
+        // class with no DC config
+        meta = new DependencyMeta()
+      }
+
       name = klass.name
       if (!create) {
         switch (meta.lifetime) {
@@ -125,6 +134,15 @@ export class DC {
           }
           case 'transient': {
             create = () => new klass()
+            break
+          }
+          case 'value': {
+            let found = this._klassStore.get(klass)
+            if (!found) {
+              throw Error('No value registered')
+            }
+            // TODO:new-error
+            create = () => found
             break
           }
           default: {
@@ -147,6 +165,15 @@ export class DC {
             if (!found) {
               found = kv.token.create()
               this._tokensStore.set(kv.token, found)
+            }
+            create = () => found
+            break
+          }
+          case 'value': {
+            let found = this._tokensStore.get(kv.token)
+            if (!found) {
+              // TODO:new-error
+              throw Error('No value registered')
             }
             create = () => found
             break
@@ -223,6 +250,15 @@ export class DC {
 
     //$dev({ allRun })
     return res.instance
+  }
+
+  register<T>(
+    thing: DependencyToken<T> | IDependencyKlass<T>,
+    kv: { value: T },
+  ) {
+    // TODO #now
+    this._tokensStore.set(thing, kv.value)
+    this._klassStore.set(thing, kv.value)
   }
 
   [Symbol.for('nodejs.util.inspect.custom')]() {

@@ -1,22 +1,25 @@
 export type StartType = 'background' | 'await'
+export type StartDSL<T> = { method: keyof T; type: StartType }
+
 const SYM_DependencyConfig = Symbol('taskfolders.com:dependency.class-config')
-export type ILifeTime = 'singleton' | 'transient'
-// | 'value'
+
+export type ILifeTime = 'singleton' | 'transient' | 'value'
 // | 'scope'
 // | 'global'
 // | 'auth'
+
 export class DependencyMeta {
-  lifetime: ILifeTime
+  lifetime: ILifeTime = 'transient'
   // create?: ICreate
   // stop?: StopConfig
   // start?: StartConfig
-  start?
-  mockingClass?
-  value? // ?: SomeClass
+  start?: StartDSL<any>
+  // mockingClass?
+  // value? // ?: SomeClass
 
   // create?(container: DependencyContainer)
   // tags?: string[]
-  passContainer?: boolean
+  // passContainer?: boolean
 
   static get(thing): DependencyMeta {
     return thing[SYM_DependencyConfig]
