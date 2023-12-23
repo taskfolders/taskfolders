@@ -2,65 +2,34 @@ import { InjectMarker } from './InjectMarker'
 import { ILifeTime, StartType, DependencyMeta } from './DependencyMeta'
 import { assertNever } from '../types/assertNever'
 import { FetchAsyncError } from './errors'
+import { FetchRawResult } from './FetchRawResult'
+import { DependencyToken } from './DependencyToken'
+import { randomId } from '../ids/randomId'
 
-type Dependency<T> =
-  | { create(): T; name?: string }
-  | { new (...x): T; name: string; create?(): never }
+type IDependencyKlass<T> = { new (...x): T; name: string; create?(): never }
+type IDependencyToken<T> = { create(): T; name?: string }
+type IDependency<T> = IDependencyToken<T> | IDependencyKlass<T>
 
 type StartDSL<T> = { method: keyof T; type: StartType }
-type StartInfo = StartDSL<unknown> & { running: Promise<unknown> }
-interface DepOutput {
+export type StartInfo = StartDSL<unknown> & { running: Promise<unknown> }
+export interface DepOutput {
   name
   keyPath: string[]
   start: StartInfo
 }
 
-class FetchRawResult {
-  name: string
-  type: ILifeTime
-  instance
-  dependencies: DepOutput[]
-  start: StartInfo
-
-  static create(kv: {
-    name: string
-    type: ILifeTime
-    instance
-    dependencies: DepOutput[]
-    start: StartInfo
-  }) {
-    let obj = new this()
-    Object.assign(obj, kv)
-    return obj
-  }
-
-  allRunning(kv: { type?: StartType } = {}) {
-    let allStart = this.dependencies
-      .map(x => x.start)
-      .concat(this.start)
-      .filter(Boolean)
-
-    let allRun = allStart
-      .filter(x => {
-        if (kv.type) return x.type === kv.type
-        return true
-      })
-      .map(x => {
-        return x.running
-      })
-
-    return allRun
-  }
-
-  async started() {
-    await Promise.allSettled(this.allRunning())
-  }
-}
-
 export class DC {
-  _content = new Map<any, any>()
+  _klassStore = new Map<{ new (...x) }, any>()
+  _tokensStore = new Map<DependencyToken<any>, any>()
+  _mocksStore = new Map<any, { onCreate }>()
 
-  static inject<T>(klass: Dependency<T>): T {
+  name: string
+
+  constructor(kv: { name?: string } = {}) {
+    this.name = kv.name ?? randomId()
+  }
+
+  static inject<T>(klass: IDependency<T>): T {
     return InjectMarker.build({ klass }) as T
   }
 
@@ -69,13 +38,21 @@ export class DC {
     kv: {
       lifetime?: ILifeTime
       start?: StartDSL<T>
-    },
+    } = {},
   ) {
     // $dev('deco!')
     let meta = DependencyMeta.getsert(klass)
     meta.lifetime = kv.lifetime ?? 'transient'
     meta.start = kv.start
     //
+  }
+
+  static get global() {
+    return Container
+  }
+
+  static ensure(dc: DC) {
+    return dc ?? this.global
   }
 
   finish(
@@ -104,39 +81,101 @@ export class DC {
     return acu
   }
 
-  fetchRaw<T>(kv: {
-    klass: Dependency<T>
-    dependencies?: any[]
-    keyPath?: any[]
-  }): FetchRawResult {
-    let meta = DependencyMeta.get(kv.klass)
-    if (!meta) {
-      throw Error(`No meta for class ${kv.klass.name}`)
-    }
-    let type = meta.lifetime
-
+  fetchRaw<T>(
+    kv: (
+      | {
+          klass: IDependencyKlass<T>
+        }
+      | {
+          token: DependencyToken<T>
+        }
+    ) & {
+      dependencies?: any[]
+      keyPath?: any[]
+    },
+  ): FetchRawResult<T> {
+    let klass: IDependencyKlass<any>
+    // @ts-expect-error TODO
+    let thing = kv.klass ?? kv.token
+    let name: string
     let instance: T
+    let type: ILifeTime
+    let create: () => T
+
+    if ('klass' in kv) {
+      klass = kv.klass
+      let mock = this._mocksStore.get(klass)
+      if (mock) {
+        create = mock.onCreate
+      } else {
+        create = () => new klass()
+      }
+    } else {
+      // TODO #dry on TOKEN
+      type = kv.token.type
+      name = kv.token.name
+      switch (type) {
+        case 'transient': {
+          let mock = this._mocksStore.get(kv.token)
+          if (mock) {
+            create = () => {
+              let r1 = mock.onCreate()
+              return r1
+            }
+          } else {
+            create = () => kv.token.create()
+          }
+          instance = create()
+          break
+        }
+        case 'singleton': {
+          let found = this._tokensStore.get(kv.token)
+          instance = found ?? kv.token.create()
+          break
+        }
+        default:
+          assertNever(type)
+      }
+      // type = token.type
+
+      instance = create()
+      return FetchRawResult.create({
+        name,
+        type,
+        instance,
+        dependencies: [],
+        start: null,
+      })
+    }
+
+    let meta = DependencyMeta.get(klass)
+    if (!meta) {
+      throw Error(`No meta for class ${klass.name}`)
+    }
+    type = meta.lifetime
+
     switch (type) {
       case 'singleton': {
-        let found = this._content.get(kv.klass)
+        let found = this._klassStore.get(klass)
         if (!found) {
           // TODO:dry-create
-          if ('create' in kv.klass) {
-            found = kv.klass.create()
+          if ('create' in klass) {
+            found = klass.create()
           } else {
-            found = new kv.klass()
+            found = create()
           }
-          this._content.set(kv.klass, found)
+          this._klassStore.set(klass, found)
         }
         instance = found
         break
       }
       case 'transient': {
         // TODO:dry-create
-        if ('create' in kv.klass) {
-          instance = kv.klass.create()
+        if ('create' in klass) {
+          instance = klass.create()
         } else {
-          instance = new kv.klass()
+          //instance = new klass()
+          instance = create()
         }
         break
       }
@@ -144,6 +183,7 @@ export class DC {
         assertNever(type)
       }
     }
+
     // ..
     let dependencies = this.finish(instance, {
       dependencies: kv.dependencies,
@@ -161,7 +201,7 @@ export class DC {
     // ..
 
     return FetchRawResult.create({
-      name: kv.klass.name,
+      name: klass.name,
       type,
       instance,
       dependencies,
@@ -169,8 +209,29 @@ export class DC {
     })
   }
 
-  fetch<T>(klass: Dependency<T>): T {
-    let res = this.fetchRaw({ klass })
+  mockRaw<T>(kv: {
+    klass?: IDependencyKlass<T>
+    token?: IDependencyToken<T>
+    onCreate?(): T
+  }) {
+    this._mocksStore.set(kv.klass ?? kv.token, { onCreate: kv.onCreate })
+  }
+
+  mock(thing: IDependency<any>, kv: { onCreate() }) {
+    this._mocksStore.set(thing, { onCreate: kv.onCreate })
+  }
+
+  fetch<T>(thing: IDependency<T>): T {
+    let res
+    if (DependencyToken.is(thing)) {
+      res = this.fetchRaw({
+        token: thing,
+      })
+    } else {
+      res = this.fetchRaw({
+        klass: thing as IDependencyKlass<any>,
+      })
+    }
     let all = res.allRunning({ type: 'await' })
     if (all.length > 0) {
       throw new FetchAsyncError()
@@ -178,7 +239,7 @@ export class DC {
     return res.instance
   }
 
-  async fetchAsync<T>(klass: Dependency<T>): Promise<T> {
+  async fetchAsync<T>(klass: IDependencyKlass<T>): Promise<T> {
     let res = this.fetchRaw({ klass })
 
     await Promise.all(res.allRunning({ type: 'await' }))
@@ -186,4 +247,11 @@ export class DC {
     //$dev({ allRun })
     return res.instance
   }
+
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    let parts = [this.name].join(' ')
+    return `<${this.constructor.name} ${parts}>`
+  }
 }
+
+export const Container = new DC({ name: 'global' })
