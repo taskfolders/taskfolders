@@ -2,7 +2,7 @@ import { DC, Container } from './DC'
 import { DependencyToken } from './DependencyToken'
 import { DependencyMeta, ILifeTime } from './DependencyMeta'
 import { delay } from '../native/promise/delay'
-import { FetchAsyncError } from './errors'
+import { FetchAsyncError, UnregisteredValueError } from './errors'
 import { inspect } from 'node:util'
 
 // TODO global?
@@ -52,6 +52,15 @@ describe('x', () => {
     it('value', async () => {
       let token = DependencyToken.define<number>({ type: 'value' })
       let sut = new DC()
+
+      let error
+      try {
+        sut.fetch(token)
+      } catch (e) {
+        error = e
+      }
+      expect(error).toBeInstanceOf(UnregisteredValueError)
+
       sut.register(token, { value: 111 })
       let r1 = sut.fetch(token)
       expect(r1).toBe(111)

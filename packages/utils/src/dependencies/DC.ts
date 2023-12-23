@@ -6,7 +6,7 @@ import {
   StartDSL,
 } from './DependencyMeta'
 import { assertNever } from '../types/assertNever'
-import { FetchAsyncError } from './errors'
+import { FetchAsyncError, UnregisteredValueError } from './errors'
 import { FetchRawResult } from './FetchRawResult'
 import { DependencyToken } from './DependencyToken'
 import { randomId } from '../ids/randomId'
@@ -23,9 +23,8 @@ export interface DepOutput {
 }
 
 export class DC {
-  _klassStore = new Map<{ new (...x) }, any>()
-  _tokensStore = new Map<DependencyToken<any>, any>()
-  _mocksStore = new Map<any, { onCreate }>()
+  _instanceStore = new Map<unknown, any>()
+  _mocksStore = new Map<unknown, { onCreate() }>()
 
   name: string
 
@@ -124,10 +123,10 @@ export class DC {
       if (!create) {
         switch (meta.lifetime) {
           case 'singleton': {
-            let found = this._klassStore.get(klass)
+            let found = this._instanceStore.get(klass)
             if (!found) {
               found = new klass()
-              this._klassStore.set(klass, found)
+              this._instanceStore.set(klass, found)
             }
             create = () => found
             break
@@ -137,11 +136,10 @@ export class DC {
             break
           }
           case 'value': {
-            let found = this._klassStore.get(klass)
+            let found = this._instanceStore.get(klass)
             if (!found) {
-              throw Error('No value registered')
+              throw new UnregisteredValueError()
             }
-            // TODO:new-error
             create = () => found
             break
           }
@@ -161,19 +159,18 @@ export class DC {
             break
           }
           case 'singleton': {
-            let found = this._tokensStore.get(kv.token)
+            let found = this._instanceStore.get(kv.token)
             if (!found) {
               found = kv.token.create()
-              this._tokensStore.set(kv.token, found)
+              this._instanceStore.set(kv.token, found)
             }
             create = () => found
             break
           }
           case 'value': {
-            let found = this._tokensStore.get(kv.token)
+            let found = this._instanceStore.get(kv.token)
             if (!found) {
-              // TODO:new-error
-              throw Error('No value registered')
+              throw new UnregisteredValueError()
             }
             create = () => found
             break
@@ -256,9 +253,7 @@ export class DC {
     thing: DependencyToken<T> | IDependencyKlass<T>,
     kv: { value: T },
   ) {
-    // TODO #now
-    this._tokensStore.set(thing, kv.value)
-    this._klassStore.set(thing, kv.value)
+    this._instanceStore.set(thing, kv.value)
   }
 
   [Symbol.for('nodejs.util.inspect.custom')]() {
