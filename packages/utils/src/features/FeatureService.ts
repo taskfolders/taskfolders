@@ -1,8 +1,9 @@
 import { DC } from '../dependencies/DC'
 import { FeatureDefinition } from './FeatureFlag'
+import { FeatureId, FeatureRef } from './FeatureRef'
 
 export class FeatureService {
-  _featuresByKlass = new Map<any, { enabled }>()
+  _featuresByString = new Map<string, { enabled: boolean; value? }>()
 
   static get global() {
     return DC.global.fetch(this)
@@ -12,22 +13,33 @@ export class FeatureService {
   //   return DC.global.fetch(this).isEnabled(feature)
   // }
 
-  isEnabled(feature: FeatureDefinition) {
-    let found = this._featuresByKlass.get(feature)
+  isEnabled(thing: FeatureDefinition | string) {
+    let ref = FeatureRef.from(thing)
+    let found = this._featuresByString.get(ref.id)
     if (!found) {
-      let next = feature
-      found = { enabled: next.isEnabled() }
-      this._featuresByKlass.set(feature, found)
+      found = { enabled: ref.feature?.isEnabled() ?? false }
+      this._featuresByString.set(ref.id, found)
     }
     return found.enabled
   }
 
-  disable(feature: FeatureDefinition) {
-    this._featuresByKlass.set(feature, { enabled: false })
+  disable(feat: FeatureDefinition | string) {
+    let ref = FeatureRef.from(feat)
+    this._featuresByString.set(ref.id, { enabled: false })
   }
 
-  enable(feature: FeatureDefinition) {
-    this._featuresByKlass.set(feature, { enabled: true })
+  enable(feat: FeatureDefinition | string) {
+    let ref = FeatureRef.from(feat)
+    this._featuresByString.set(ref.id, { enabled: true })
+  }
+
+  setValue(feat: FeatureId, value) {
+    let ref = FeatureRef.from(feat)
+    let found = this._featuresByString.get(ref.id)
+    if (found) {
+      found = { enabled: ref.feature.isEnabled() ?? false, value }
+    }
+    this._featuresByString.set(ref.id, found)
   }
 }
 
