@@ -20,10 +20,15 @@ export class IssueItem<T = unknown, Params = void> {
 
   static create(
     kv: { code: string } & Partial<
-      Pick<IssueItem<any, any>, 'message' | 'severity'>
+      Pick<IssueItem<any, any>, 'message' | 'severity' | 'fix' | 'data'>
     >,
   ) {
     let obj = new this(kv)
+
+    // TODO review or #rf up
+    if (kv.fix) obj.fix = kv.fix
+    if (kv.data) obj.data = kv.data
+
     return obj
   }
 
