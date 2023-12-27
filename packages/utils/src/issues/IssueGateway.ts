@@ -5,7 +5,7 @@ interface CheckContext<T> {
   message?: string
 }
 export class IssueGateway {
-  config = {}
+  config: Record<string, { status: 'off' | 'warning' | 'error' }> = {}
 
   // check<T, P>(
   //   issue: typeof IssueItem<T, P>,
@@ -82,9 +82,14 @@ export class IssueGateway {
         }
         return this
       },
+
       done() {
         return Promise.all(col as any)
       },
     }
+  }
+
+  isEnabled(issue: typeof IssueItem<any, any>) {
+    return this.config[issue.code]?.status !== 'off'
   }
 }

@@ -39,7 +39,6 @@ describe('x', () => {
     // col.push(i2)
 
     let gw = new IssueGateway()
-    gw.config['foo-code-1'] = { enabled: true }
 
     col.push(
       gw.check(Panda, () => {
