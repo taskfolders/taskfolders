@@ -18,6 +18,10 @@ export class IssueItem<T = unknown, Params = void> {
   fix?
   sourceCode?: CodePosition
 
+  static is(issue: IssueItem) {
+    return issue.code === this.code
+  }
+
   static create(
     kv: { code: string } & Partial<
       Pick<IssueItem<any, any>, 'message' | 'severity' | 'fix' | 'data'>
@@ -60,5 +64,9 @@ export class IssueItem<T = unknown, Params = void> {
       this.message = kv.message
     }
     this.sourceCode = FindCaller.whenNotProduction({ offset: 2 })
+  }
+
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    return `<Issue "${this.code}">`
   }
 }
