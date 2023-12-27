@@ -12,21 +12,34 @@ export class IssueGateway {
   //   cb: (t: CheckContext<T>) => T extends void ? Boolean | void : T,
   // ): IssueItem<T, P>
 
-  // check<T, P>(
-  //   issue: typeof IssueItem<T, P>,
-  //   cb: (t: CheckContext<T>) => Promise<T extends void ? Boolean | void : T>,
-  // ): Promise<IssueItem<T, P>>
+  // check<tData, tTest extends Record<string, any>>(
+  //   issue: typeof IssueItem<any, any>,
+  //   testData: tTest,
+  // ): IssueItem<tData, tTest>
 
-  check<T, P, Res>(
-    issue: typeof IssueItem<T, P>,
+  check<tData, tTest, Res>(
+    issue: typeof IssueItem<tData, tTest>,
     //cb: (t: CheckContext<T>) => Promise<T> | T,
-    cb: (t: CheckContext<T>) => Res,
-  ): Res extends Promise<any> ? Promise<IssueItem<T, P>> : IssueItem<T, P> {
+    cb: ((t: CheckContext<tData>) => Res) | tTest,
+  ): Res extends Promise<any>
+    ? Promise<IssueItem<tData, tTest>>
+    : IssueItem<tData, tTest>
+
+  check<tData, tTest, Res>(
+    issue: typeof IssueItem<tData, tTest>,
+    //cb: (t: CheckContext<T>) => Promise<T> | T,
+    cb: (t: CheckContext<tData>) => Res,
+  ) {
     if (issue.code) {
       if (this.config[issue.code]?.status === 'off') return
     }
-    let ctx: CheckContext<T> = {}
-    let r1 = cb(ctx)
+    let ctx: CheckContext<tData> = {}
+    let r1
+    if (typeof cb === 'function') {
+      r1 = cb(ctx)
+    } else {
+      r1 = issue.test(cb)
+    }
     if (isPromise(r1)) {
       return r1.then(r1 => {
         if (r1 === false || typeof r1 === 'object') {
@@ -36,7 +49,7 @@ export class IssueGateway {
           }
           return res
         }
-      })
+      }) as Promise<IssueItem<tData, tTest>>
     } else {
       if (r1 === false || typeof r1 === 'object') {
         let res = new issue({ code: issue.code, message: ctx.message })

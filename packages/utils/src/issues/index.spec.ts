@@ -7,7 +7,7 @@ describe('x', () => {
     const Foo = IssueItem.define<{ delta }, { fox }>({
       code: 'foo-1',
       test(par) {
-        return false
+        return { delta: 1 }
       },
     })
     let f1 = new Foo()
@@ -43,7 +43,7 @@ describe('x', () => {
 
     col.push(
       gw.check(Panda, () => {
-        return false as any
+        return { delta: 1 }
       }),
     )
     // .push(

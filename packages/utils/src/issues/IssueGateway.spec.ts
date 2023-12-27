@@ -5,7 +5,14 @@ import { isPromise } from '../native/promise/isPromise'
 
 const BasicIssue = IssueItem.define({ code: 'basic-1' })
 const DataIssue = IssueItem.define<{ fox }>({ code: 'typed-1' })
-const TestIssue = IssueItem.define<any, { delta: number }>({ code: 'typed-1' })
+const TestIssue = IssueItem.define<{ bar: number }, { delta: number }>({
+  code: 'typed-1',
+  test(t) {
+    if (t.delta > 1) {
+      return { bar: t.delta }
+    }
+  },
+})
 
 describe('x', () => {
   it('x gateway', async () => {
@@ -42,17 +49,11 @@ describe('x', () => {
   it('force user to provide issue data', async () => {
     const Panda = IssueItem.define<{ fox }>({ code: 'panda' })
     let sut = new IssueGateway()
-    let res = sut.check(Panda, t => {
+    let res = sut.check(Panda, () => {
       return { fox: 1 }
     })
     expect(res.code).toBe('panda')
     expect(res.data).toEqual({ fox: 1 })
-
-    sut.check(
-      Panda,
-      // @ts-expect-error TEST
-      t => {},
-    )
   })
 
   xit('x #robustness #type #todo', async () => {
@@ -125,6 +126,18 @@ describe('x', () => {
 
       expect(all[0].code).toEqual('panda')
       expect(all[0].data).toEqual({ fox: 1 })
+    })
+  })
+
+  describe('x', () => {
+    it('x with issue test type', async () => {
+      let sut = new IssueGateway()
+      let res = sut.check(TestIssue, { delta: 2 })
+      expect(res.data).toEqual({ bar: 2 })
+
+      // TODO should fail ts
+      // @ts-expect-error
+      res.data.bogus
     })
   })
 })

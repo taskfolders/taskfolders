@@ -15,7 +15,9 @@ describe('x', () => {
     const Panda = IssueItem.define<{ delta: number }, { fox }>({
       code: 'foo-1',
       test(x) {
-        return x.fox > 1
+        if (x.fox > 1) {
+          return { delta: 1 }
+        }
       },
     })
 

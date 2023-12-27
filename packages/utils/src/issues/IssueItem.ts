@@ -18,6 +18,8 @@ export class IssueItem<T = unknown, Params = void> {
   fix?
   sourceCode?: CodePosition
 
+  static test: (x) => any
+
   static is(issue: IssueItem) {
     return issue.code === this.code
   }
@@ -38,7 +40,7 @@ export class IssueItem<T = unknown, Params = void> {
 
   static define<X, Y = void>(kv: {
     code: string
-    test?(x: Y)
+    test?(x: Y): void | X
     message?: string
     url?: string
   }) {
