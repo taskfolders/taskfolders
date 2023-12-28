@@ -12,7 +12,7 @@ import '../../../native/groupBy.polyfill'
 import { getsert } from '../../../native/object/getsert'
 import { when } from '../../../native/flow/when'
 import { ScreenPrinter } from '../../../screen/ScreenPrinter'
-import { shellHyperlink } from '../../../screen/shellHyperlink'
+import { shellHyperlink } from '../../../screen/shellHyperlink/shellHyperlink'
 
 /* convert import path into exact file path
  * - add file extension

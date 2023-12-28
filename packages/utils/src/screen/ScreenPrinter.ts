@@ -19,7 +19,7 @@ import { stripAnsiCodes } from '../native/string/stripAnsiCodes'
 // import { nodeEnv } from '../../runtime/isNodeEnv'
 // import { FindCaller } from '../../stack'
 // import { UserEditorLink } from '../../_draft'
-import { shellHyperlink } from './shellHyperlink'
+import { shellHyperlink } from './shellHyperlink/shellHyperlink'
 import { FindCaller } from '../stack/locate/FindCaller'
 const sanitizeString = x => x
 const isPromise = x => false

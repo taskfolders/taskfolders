@@ -1,4 +1,4 @@
-tags: post
+tags: post, docs
 
 In some utilities, it is very useful having a link to the source related to that utility:
 

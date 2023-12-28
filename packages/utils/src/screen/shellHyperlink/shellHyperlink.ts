@@ -1,5 +1,8 @@
 import ansiEscapes from 'ansi-escapes'
 import { relative } from 'node:path'
+import { assertNever } from '../../types/assertNever'
+
+// cspell:word webstorm
 
 class UserEditorLink {
   static fromSource(x) {
@@ -32,6 +35,8 @@ export function shellHyperlink(
   kv: {
     text?: string
     source?: ISourcePosition
+
+    template?: 'default' | 'file' | 'mscode' | 'vscode' | 'sublime' | 'webstorm'
 
     // must have one
     editor?: boolean
@@ -78,6 +83,41 @@ export function shellHyperlink(
   let text = kv.text || relative(kv.cwd ?? '', filePath)
   let link = kv.link
 
+  if (kv.template) {
+    let template = kv.template
+    if (kv.template === 'default') {
+      template = kv.template ?? process.env.TF_HYPERLINKS ?? ('file' as any)
+    }
+
+    switch (template) {
+      case 'mscode': {
+        let link = `mscode://${filePath}:${lineNumber}`
+        return ansiEscapes.link(text, link)
+      }
+      case 'vscode': {
+        // vscode://file/Users/username/Documents/myfile.txt?lineNumber=50
+        let link = `vscode://file/${filePath}?lineNumber=${lineNumber}`
+        return ansiEscapes.link(text, link)
+      }
+      case 'sublime': {
+        // vscode://file/Users/username/Documents/myfile.txt?lineNumber=50
+        let link = `sublime://file/${filePath}?lineNumber=${lineNumber}`
+        return ansiEscapes.link(text, link)
+      }
+      case 'webstorm': {
+        // webstorm://open/file/path/to/file/file.ext?lineNumber=50
+        let link = `webstorm://open/${filePath}?lineNumber=${lineNumber}`
+        return ansiEscapes.link(text, link)
+      }
+
+      case 'default': {
+        throw Error('Default not defined')
+      }
+      default:
+        assertNever(template)
+    }
+  }
+
   // TODO boo!!! clean this, scheme is set in hyperlink_OLD
   let scheme = kv.scheme ?? 'file'
   if (kv.scheme === null) {
@@ -108,3 +148,12 @@ export function shellHyperlink(
 
   return hyperlink_OLD(text, link, { schema: scheme })
 }
+
+export class ShellHyperlink {
+  static singleton() {
+    return single
+  }
+
+  static create = shellHyperlink
+}
+const single = new ShellHyperlink()

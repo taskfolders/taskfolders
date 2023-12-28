@@ -1,20 +1,12 @@
 import { Logger } from './Logger'
-import { LogServer } from './LogServer'
-import { printLogEventInNode } from './_node/printLogEventInNode'
-import { ScreenPrinter } from '../screen/ScreenPrinter'
+import { setupLogger } from './_test/setupLogger'
 
 describe('x', () => {
   it.only('x', async () => {
-    let screen = new ScreenPrinter()
-    screen.debug = true
+    let { sut } = setupLogger({ debug: true })
 
-    let server = LogServer.request()
-    server.printLog = printLogEventInNode(screen)
-
-    let sut = new Logger()
-    sut.server = server
-
-    sut.error('boom')
+    let res = sut.dev({ fox: 1 })
+    $dev(res)
   })
 
   it('x #scaffold', async () => {
