@@ -52,7 +52,7 @@ describe('x', () => {
     IssueItem.create({ code: 'one' })
 
     BasicIssue.create({
-      // @ts-expect-error
+      // @ts-expect-error TEST
       code: 'one',
       message: 'foo',
     })

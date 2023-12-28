@@ -16,17 +16,6 @@ export class IssueCollection {
     return this
   }
 
-  // Gateway
-  _gateway: IssueGateway
-  gate(gw: IssueGateway) {
-    this._gateway = gw
-    return this
-  }
-  check(klass, cb) {
-    this._gateway.check(klass, cb)
-    return this
-  }
-
   // ..
   find<T, P>(klass: typeof IssueItem<T, P>): IssueItem<T, P> {
     return this.all.find(x => x.code === klass.code)

@@ -45,8 +45,8 @@ export class IssueItem<T = unknown, Params = void> {
     let obj = new this(kv)
 
     // TODO review or #rf up
-    if (kv.fix) obj.fix = kv.fix
-    if (kv.data) obj.data = kv.data
+    if (kv?.fix) obj.fix = kv.fix
+    if (kv?.data) obj.data = kv.data
 
     return obj
   }

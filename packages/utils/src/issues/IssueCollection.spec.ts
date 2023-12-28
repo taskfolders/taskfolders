@@ -82,6 +82,7 @@ describe('collection', () => {
       expect(res).toEqual(['one', 'two'])
     })
   })
+
   describe('x', () => {
     it('with gateway #draft', async () => {
       let gw = new IssueGateway()
