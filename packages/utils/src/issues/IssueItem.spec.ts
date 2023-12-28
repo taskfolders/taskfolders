@@ -1,4 +1,5 @@
 import { IssueItem } from './IssueItem'
+import { BasicIssue } from './_test/samples'
 
 describe('x', () => {
   it('x - issues', async () => {
@@ -45,5 +46,16 @@ describe('x', () => {
     // TODO #now create requesting T type
     // TODO #now create with static self test? or yield null
     $dev({ Bamboo, n: new Bamboo() })
+  })
+
+  it('x reject code on sub-issues but not adhoc #ts', async () => {
+    IssueItem.create({ code: 'one' })
+
+    BasicIssue.create({
+      // @ts-expect-error
+      code: 'one',
+      message: 'foo',
+    })
+    BasicIssue.create()
   })
 })

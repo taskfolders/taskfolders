@@ -3,6 +3,8 @@ import { CodePosition } from '../stack/locate/getCallerFile'
 
 type IssueSeverity = 'error' | 'warning' | 'info' | 'update'
 
+type IsSubclass<T, U> = T extends U ? (U extends T ? never : T) : never
+
 /**
  */
 
@@ -26,7 +28,16 @@ export class IssueItem<T = unknown, Params = void> {
     return issue.code === this.code
   }
 
-  static create(
+  static foo<T extends typeof IssueItem>(
+    this: T,
+    // This type parameter is required only when calling from the base class
+    param: T extends IsSubclass<IssueItem, T> ? string : number,
+  ) {
+    //
+  }
+
+  static create<T extends IssueItem>(
+    this: { new (x): T },
     kv: { code: string } & Partial<
       Pick<IssueItem<any, any>, 'message' | 'severity' | 'fix' | 'data'>
     >,
@@ -48,6 +59,7 @@ export class IssueItem<T = unknown, Params = void> {
   }) {
     return class extends IssueItem<X, Y> {
       static override code = kv.code
+
       constructor(
         // TODO #ts
         par = {} as any,
@@ -57,6 +69,17 @@ export class IssueItem<T = unknown, Params = void> {
         // TODO move up into super?
         this.url = kv.url
       }
+
+      static create<T extends IssueItem>(
+        this: { new (x): T },
+        kv?: Partial<
+          Pick<IssueItem<any, any>, 'message' | 'severity' | 'fix' | 'data'>
+        >,
+      ) {
+        super.create(kv as any)
+        return null
+      }
+
       static test = kv.test
     }
   }
