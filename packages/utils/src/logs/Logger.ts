@@ -26,12 +26,6 @@ export class Logger {
     this.server.handleLog(kv)
   }
 
-  // TODO #review
-  __bug(msg) {
-    console.log('FOX', msg)
-    getCallerFile({ offset: 2, debug: true })
-  }
-
   trace = createLogLevelFunction('trace')
   debug = createLogLevelFunction('debug')
   info = createLogLevelFunction('info')

@@ -214,15 +214,17 @@ export class ScreenPrinter {
 
     if (this.debugLive && process.env.SCREEN !== '0') {
       let loc = FindCaller.whenDevelopment()
-
-      // let loc = myGetCaller()
-      // let link = UserEditorLink.fromSource(loc).link()
-      let label = shellHyperlink({
-        text: 'screen',
-        path: loc?.path,
-        scheme: 'vscode',
-        lineNumber: loc?.lineNumber,
-      })
+      let label = 'screen'
+      if (loc) {
+        // let loc = myGetCaller()
+        // let link = UserEditorLink.fromSource(loc).link()
+        label = shellHyperlink({
+          text: label,
+          path: loc?.path,
+          scheme: 'vscode',
+          lineNumber: loc?.lineNumber,
+        })
+      }
 
       // eslint-disable-next-line
       console.log(ConsoleTheme.devToolPrefixed(label, line, true))

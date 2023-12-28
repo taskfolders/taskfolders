@@ -1,7 +1,9 @@
 // TODO:utils-dedup
+//
 
 // import { tryGetSourceFile } from './tryGetSourceFile.node'
 import { getCallerFile, CodePosition, FindCallerParams } from './getCallerFile'
+import { isDeveloperMode } from '../../runtime/isDeveloperMode'
 const tryGetSourceFile = null
 export class SourcePosition {
   file: string
@@ -44,12 +46,17 @@ export class FindCaller {
 
   /** @deprecated use .whenDevelopment */
   static whenNotProduction(kv: FindCallerParams = {}): CodePosition | null {
-    if (process.env.NODE_ENV === 'production') return null
-    return getCallerFile({ offset: 3, ...kv })
+    // if (process.env.NODE_ENV === 'production') return null
+    // return getCallerFile({ offset: 3, ...kv })
+    let env = process.env.NODE_ENV
+    if (env === 'development' || process.env.TF_DEV === '1') {
+      return getCallerFile({ offset: 3, ...kv })
+    }
   }
   static whenDevelopment(kv: FindCallerParams = {}): CodePosition | null {
-    if (process.env.NODE_ENV === 'production') return null
-    return getCallerFile({ offset: 3, ...kv })
+    if (isDeveloperMode()) {
+      return getCallerFile({ offset: 3, ...kv })
+    }
   }
 
   /** @deprecated use .here */
