@@ -1,5 +1,7 @@
+import { FindCaller } from '../stack/locate/FindCaller'
 import { LogServer } from './LogServer'
 import { LogLevelName } from './helpers'
+import { getCallerFile } from '../stack/locate/getCallerFile'
 
 type LogArgs = [message: string | Object] | [message: any, obj: any]
 
@@ -22,6 +24,12 @@ export class Logger {
 
   logRaw(kv: LogEvent) {
     this.server.handleLog(kv)
+  }
+
+  // TODO #review
+  __bug(msg) {
+    console.log('FOX', msg)
+    getCallerFile({ offset: 2, debug: true })
   }
 
   trace = createLogLevelFunction('trace')

@@ -10,19 +10,19 @@
 // https://www.npmjs.com/package/callsites
 
 // import { smp } from './smp.node'
-import smp from "source-map-support";
+import smp from 'source-map-support'
 
 const toClearStackFrame = (all: ICallSite[] | ICallSite) => {
   let toClear = (x: ICallSite) => {
-    return { path: x.getFileName(), lineNumber: x.getLineNumber() };
-  };
-  if (!Array.isArray(all)) {
-    return toClear(all);
+    return { path: x.getFileName(), lineNumber: x.getLineNumber() }
   }
-  return all.map((x) => {
-    return toClear(x);
-  });
-};
+  if (!Array.isArray(all)) {
+    return toClear(all)
+  }
+  return all.map(x => {
+    return toClear(x)
+  })
+}
 
 /* TODO get file tree call?
  *
@@ -32,27 +32,27 @@ const toClearStackFrame = (all: ICallSite[] | ICallSite) => {
  * we want a 'unique' list of file calls
  */
 export class CodePosition {
-  path: string;
-  fileBuild: string;
-  lineNumber: number;
-  columnNumber: number;
-  context: string;
-  stackIndex: number;
-  stack: any[] = [];
+  path: string
+  fileBuild: string
+  lineNumber: number
+  columnNumber: number
+  context: string
+  stackIndex: number
+  stack: any[] = []
 
   constructor(kv: { path: string; lineNumber: number }) {
-    this.path = kv.path;
-    this.lineNumber = kv.lineNumber;
-    Object.defineProperty(this, "stack", { enumerable: false });
+    this.path = kv.path
+    this.lineNumber = kv.lineNumber
+    Object.defineProperty(this, 'stack', { enumerable: false })
   }
 
   static findCallingFileWhenDev(kv: FindCallerParams = {}) {
-    return getCallerFile(kv);
+    return getCallerFile(kv)
   }
 
   tmp() {
     let all = this.stack
-      .map((x) => {
+      .map(x => {
         return {
           file: x.getFileName(),
           type: x.getTypeName(),
@@ -60,31 +60,33 @@ export class CodePosition {
           // try functionName first because it might have class name
           //   method: 'run',
           //   function: 'Runnable.run'
-          context: x.getFunctionName() ?? x.getMethodName()
-        };
+          context: x.getFunctionName() ?? x.getMethodName(),
+        }
       })
-      .map((x) => {
-        if (x.file.includes("/node_modules/")) return null;
-        if (x.type === "process") return null;
-        return x;
-      });
-    return all;
+      .map(x => {
+        if (x.file.includes('/node_modules/')) return null
+        if (x.type === 'process') return null
+        return x
+      })
+    return all
   }
 }
 
 export interface ICallSite {
-  getFileName(): string;
-  getLineNumber(): number;
-  getColumnNumber(): number;
+  getFileName(): string
+  getLineNumber(): number
+  getColumnNumber(): number
 }
 
 export interface FindCallerParams {
   // number of stack frames to skip
-  offset?: number;
+  offset?: number
 
-  position?: number;
+  position?: number
   /** force getting caller file in production */
-  inProduction?: boolean;
+  inProduction?: boolean
+
+  debug?: boolean
 }
 
 export function getCallStack(): ICallSite[] {
@@ -93,15 +95,15 @@ export function getCallStack(): ICallSite[] {
   // let productionEnv = !!(env === 'production')
 
   // let position = kv.position ?? 2
-  let position = 2;
+  let position = 2
   if (position >= Error.stackTraceLimit) {
     throw new TypeError(
-      "getCallerFile(position) requires position be less than Error.stackTraceLimit but position was: `" +
+      'getCallerFile(position) requires position be less than Error.stackTraceLimit but position was: `' +
         position +
-        "` and Error.stackTraceLimit was: `" +
+        '` and Error.stackTraceLimit was: `' +
         Error.stackTraceLimit +
-        "`"
-    );
+        '`',
+    )
   }
 
   /* hack to get error CallSite array
@@ -109,12 +111,12 @@ export function getCallStack(): ICallSite[] {
    *
    * WARNING don't do this globally since other packages like source-map-support might have already hijacked this
    */
-  let oldPrepareStackTrace = Error.prepareStackTrace;
-  Error.prepareStackTrace = (_, stack) => stack;
-  let stack = new Error().stack as any as ICallSite[];
-  Error.prepareStackTrace = oldPrepareStackTrace;
+  let oldPrepareStackTrace = Error.prepareStackTrace
+  Error.prepareStackTrace = (_, stack) => stack
+  let stack = new Error().stack as any as ICallSite[]
+  Error.prepareStackTrace = oldPrepareStackTrace
 
-  return stack;
+  return stack
 }
 
 /** Get caller file
@@ -131,23 +133,23 @@ export function getCallStack(): ICallSite[] {
  *     can this solve bad stack trace printer view in Browser?
  */
 export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
-  let stack = getCallStack();
+  let stack = getCallStack()
 
   if (!stack) {
     // TODO fallback to manual string parsing?
-    return;
+    return
   }
   if (!smp) {
     // console.log('-- no browser, TODO')
-    return;
+    return
   }
 
-  let position = 2;
+  let position = 2
   // stack[0] holds this file
   // stack[1] holds where this function was called
   // stack[2] holds the file we're interested in
 
-  let callSiteRaw = stack[position];
+  let callSiteRaw = stack[position]
   // {
   //   let all = stack.map((x, idx) => {
   //     return { path: x.getFileName(), lineNumber: x.getLineNumber(), idx }
@@ -164,31 +166,44 @@ export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
     // $dev(toClearStackFrame(stack)[position])
   }
 
-  if (!callSiteRaw) return null;
+  if (!callSiteRaw) return null
+
+  if (kv.debug) {
+    let start = 1
+    stack.map((x, idx) => {
+      if (idx < start) return
+      console.log(
+        ' ',
+        idx,
+        [x.getContext(), x.getFileName(), ':', x.getLineNumber()].join(''),
+      )
+    })
+    let err = new Error()
+  }
 
   {
     // find first file different to this source AND code user
     // WHY? kv.position is not reliable
     //      same file can appear multiple times in stack (nested functions)
 
-    let pathHere = stack[0].getFileName();
-    let idx = stack.findIndex((x) => x.getFileName() !== pathHere);
-    if (!idx) return null;
-    let pathRequest = stack[idx].getFileName();
-    let rest = stack.slice(idx);
-    idx = rest.findIndex((x) => x.getFileName() !== pathRequest);
-    let offset = kv.offset ?? 0;
-    callSiteRaw = rest[idx + offset];
-    if (!callSiteRaw) return null;
+    let pathHere = stack[0].getFileName()
+    let idx = stack.findIndex(x => x.getFileName() !== pathHere)
+    if (!idx) return null
+    let pathRequest = stack[idx].getFileName()
+    let rest = stack.slice(idx)
+    idx = rest.findIndex(x => x.getFileName() !== pathRequest)
+    let offset = kv.offset ?? 0
+    callSiteRaw = rest[idx + offset]
+    if (!callSiteRaw) return null
   }
 
   // let smp = require('source-map-support')
-  let callSite = smp.wrapCallSite(callSiteRaw);
+  let callSite = smp.wrapCallSite(callSiteRaw)
 
-  let fileSource = callSite.getFileName();
-  let fileBuild = callSiteRaw.getFileName();
-  let context = callSite.getFunctionName() ?? callSite.getMethodName();
-  let stackIndex = stack.findIndex((x) => x === callSiteRaw);
+  let fileSource = callSite.getFileName()
+  let fileBuild = callSiteRaw.getFileName()
+  let context = callSite.getFunctionName() ?? callSite.getMethodName()
+  let stackIndex = stack.findIndex(x => x === callSiteRaw)
 
   // TODO #scaffold
   // $dev({ stackIndex });
@@ -200,16 +215,16 @@ export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
   // }
   //
 
-  let path = (fileSource ?? fileBuild).replace(/^file:\/\//, "");
-  let lineNumber = callSite.getLineNumber();
-  let pos = new CodePosition({ path, lineNumber });
+  let path = (fileSource ?? fileBuild).replace(/^file:\/\//, '')
+  let lineNumber = callSite.getLineNumber()
+  let pos = new CodePosition({ path, lineNumber })
   // TODO review if replace needed on esm AND commonjs packages
   if (fileBuild !== fileSource) {
-    pos.fileBuild = fileBuild.replace(/^file:\/\//, "");
+    pos.fileBuild = fileBuild.replace(/^file:\/\//, '')
   }
-  pos.columnNumber = callSite.getColumnNumber();
-  pos.stack = stack.map((x) => smp.wrapCallSite(x));
-  pos.stackIndex = stackIndex;
-  pos.context = context;
-  return pos;
+  pos.columnNumber = callSite.getColumnNumber()
+  pos.stack = stack.map(x => smp.wrapCallSite(x))
+  pos.stackIndex = stackIndex
+  pos.context = context
+  return pos
 }

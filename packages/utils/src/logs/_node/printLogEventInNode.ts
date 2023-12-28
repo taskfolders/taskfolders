@@ -17,7 +17,10 @@ const levelColors: Record<LogLevelName, string> = {
 export const printLogEventInNode = (screen?: ScreenPrinter) => {
   screen ??= new ScreenPrinter()
   return (log: LogEvent) => {
-    let location = FindCaller.whenDevelopment({ offset: 3 })
+    let location = FindCaller.whenDevelopment({ offset: 4 })
+    // let err = new Error()
+    // console.log('..', err.stack.split('\n').slice(6, 7))
+    // console.log(x)
 
     let th = screen.style
     let levelName = log.levelName ?? 'info'

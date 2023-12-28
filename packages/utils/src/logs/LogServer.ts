@@ -3,6 +3,7 @@ import { levelNumbers, LogLevelName, defaultLogLevel } from './helpers'
 import { isReleaseMode } from '../runtime/isReleaseMode'
 import type { LogEvent } from './Logger'
 import type { ScreenPrinter } from '../screen/ScreenPrinter'
+import { FindCaller } from '../stack/locate/FindCaller'
 
 export class LogServer {
   levelName = defaultLogLevel()
@@ -27,6 +28,7 @@ export class LogServer {
     if (!this.passThreshold(log.levelName)) {
       return
     }
+    // let location = FindCaller.whenDevelopment({ offset: 3 })
     this.printLog(log)
   }
 }
