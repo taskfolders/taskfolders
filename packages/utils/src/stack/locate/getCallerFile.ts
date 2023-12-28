@@ -73,6 +73,7 @@ export class CodePosition {
 }
 
 export interface ICallSite {
+  getFunctionName(): string
   getFileName(): string
   getLineNumber(): number
   getColumnNumber(): number
@@ -173,9 +174,16 @@ export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
     stack.map((x, idx) => {
       if (idx < start) return
       console.log(
+        //
         ' ',
         idx,
-        [x.getContext(), x.getFileName(), ':', x.getLineNumber()].join(''),
+        [
+          x.getFileName(),
+          ':',
+          x.getLineNumber(),
+          ' ',
+          ` ${x.getFunctionName() ?? ''}`,
+        ].join(''),
       )
     })
     let err = new Error()

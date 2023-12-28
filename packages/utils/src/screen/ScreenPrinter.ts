@@ -226,9 +226,9 @@ export class ScreenPrinter {
 
       // eslint-disable-next-line
       console.log(ConsoleTheme.devToolPrefixed(label, line, true))
+    } else {
+      this._printLive(line, kv)
     }
-
-    this._printLive(line, kv)
 
     if (this.echo) {
       // eslint-disable-next-line
