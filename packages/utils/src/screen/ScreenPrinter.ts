@@ -196,7 +196,7 @@ export class ScreenPrinter {
     let newLines = line.split('\n')
     if (this.debugInline) {
       // let loc = myGetCaller()
-      let loc = FindCaller.whenNotProduction()
+      let loc = FindCaller.whenDevelopment()
       let label = shellHyperlink({
         text: 'screen',
         path: loc.path,
@@ -213,7 +213,7 @@ export class ScreenPrinter {
     })
 
     if (this.debugLive && process.env.SCREEN !== '0') {
-      let loc = FindCaller.whenNotProduction()
+      let loc = FindCaller.whenDevelopment()
 
       // let loc = myGetCaller()
       // let link = UserEditorLink.fromSource(loc).link()
@@ -258,7 +258,7 @@ export class ScreenPrinter {
           console.log(line)
         }
       } else {
-        let loc = FindCaller.whenNotProduction()
+        let loc = FindCaller.whenDevelopment()
         // let loc = myGetCaller()
         let label = shellHyperlink({
           text: 'screen',
@@ -319,7 +319,7 @@ export class ScreenPrinter {
     let line = [start, ...x].join(' ')
     let newLines = line.split('\n')
     if (this.debugInline) {
-      let loc = FindCaller.whenNotProduction()
+      let loc = FindCaller.whenDevelopment()
       // let loc = myGetCaller()
       let label = shellHyperlink({
         text: 'screen',
@@ -334,7 +334,7 @@ export class ScreenPrinter {
     newLines.forEach(x => this._lines.push(x))
 
     if (this.debugLive) {
-      let loc = FindCaller.whenNotProduction()
+      let loc = FindCaller.whenDevelopment()
       // let loc = myGetCaller()
       let label = shellHyperlink({
         text: 'screen',

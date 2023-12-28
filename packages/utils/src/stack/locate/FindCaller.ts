@@ -1,36 +1,36 @@
 // TODO:utils-dedup
 
 // import { tryGetSourceFile } from './tryGetSourceFile.node'
-import { getCallerFile, CodePosition, FindCallerParams } from "./getCallerFile";
-const tryGetSourceFile = null;
+import { getCallerFile, CodePosition, FindCallerParams } from './getCallerFile'
+const tryGetSourceFile = null
 export class SourcePosition {
-  file: string;
-  lineNumber?: number;
-  columnNumber?: number;
-  frames?;
+  file: string
+  lineNumber?: number
+  columnNumber?: number
+  frames?
 
   get path() {
-    return this.file;
+    return this.file
   }
   get line() {
-    return this.lineNumber;
+    return this.lineNumber
   }
 
   static build(
     // x: Pick<SourcePosition, 'file' | 'lineNumber' | 'columnNumber'>,
-    x // : ISourcePosition,
+    x, // : ISourcePosition,
   ) {
-    let obj = new this();
+    let obj = new this()
 
     // NOTE
     //   CJS uses unix path '/'
     //   EMS uses file:// path
-    obj.file = x.file.replace(/^file:\/\/\//, "/");
+    obj.file = x.file.replace(/^file:\/\/\//, '/')
 
-    obj.lineNumber = x.lineNumber;
-    obj.columnNumber = x.columnNumber;
+    obj.lineNumber = x.lineNumber
+    obj.columnNumber = x.columnNumber
     // obj.frames = x.frames
-    return obj;
+    return obj
   }
 }
 
@@ -42,9 +42,14 @@ export class FindCaller {
     return this.sourceHere(kv)
   } */
 
+  /** @deprecated use .whenDevelopment */
   static whenNotProduction(kv: FindCallerParams = {}): CodePosition | null {
-    if (process.env.NODE_ENV === "production") return null;
-    return getCallerFile({ offset: 3, ...kv });
+    if (process.env.NODE_ENV === 'production') return null
+    return getCallerFile({ offset: 3, ...kv })
+  }
+  static whenDevelopment(kv: FindCallerParams = {}): CodePosition | null {
+    if (process.env.NODE_ENV === 'production') return null
+    return getCallerFile({ offset: 3, ...kv })
   }
 
   /** @deprecated use .here */
@@ -57,88 +62,86 @@ export class FindCaller {
   // export const callingFile = (
   /** @deprecated use .here */
   findCallerFile(kv: {
-    referenceFile: string;
-    stack?: string;
-    debug?: boolean;
+    referenceFile: string
+    stack?: string
+    debug?: boolean
   }): SourcePosition | null {
-    let stack = kv.stack;
+    let stack = kv.stack
     if (!stack) {
-      let e = new Error();
-      stack = e.stack ?? "";
+      let e = new Error()
+      stack = e.stack ?? ''
     }
 
-    let stackLinesReverse = stack.split("\n").reverse();
+    let stackLinesReverse = stack.split('\n').reverse()
     // console.log(stackLinesReverse)
     // console.log(stack)
 
-    let index = stackLinesReverse.findIndex((x) =>
-      x.includes(kv.referenceFile)
-    );
+    let index = stackLinesReverse.findIndex(x => x.includes(kv.referenceFile))
     // console.log({ stack, index, kv })
 
     if (index === -1 && tryGetSourceFile) {
-      let altFile = tryGetSourceFile(kv.referenceFile);
+      let altFile = tryGetSourceFile(kv.referenceFile)
       if (!altFile) {
-        return null;
+        return null
       }
-      index = stackLinesReverse.findIndex((x) => x.includes(altFile));
+      index = stackLinesReverse.findIndex(x => x.includes(altFile))
     }
 
     if (index === -1) {
       // could not find
-      console.log("DEV BUG", __filename);
-      console.log("Problem finding trace", {
+      console.log('DEV BUG', __filename)
+      console.log('Problem finding trace', {
         index,
         file: kv.referenceFile,
-        stack
-      });
+        stack,
+      })
       return SourcePosition.build({
-        file: "xxx-no-file-found",
+        file: 'xxx-no-file-found',
         lineNumber: 1,
-        columnNumber: 1
-      });
+        columnNumber: 1,
+      })
     }
     // console.log(stackLinesReverse, index)
 
     if (index === 0) {
       // ??? for spec bugfix
-      index = 2;
+      index = 2
     }
-    let search = stackLinesReverse.slice(0, index).reverse();
+    let search = stackLinesReverse.slice(0, index).reverse()
     // if (index === 0 && search.length === 0) {
     //   search = stackLinesReverse.slice(0, 2).reverse()
     // }
     for (let x of search) {
-      if (x.includes("/node_modules/")) {
-        continue;
+      if (x.includes('/node_modules/')) {
+        continue
       }
       // let rx = /(\S*):.*:/
-      let rx = /(?<file>[\w/.]\S*):(?<lineNumber>.*):(?<columnNumber>\d+)/;
-      let ma = x.match(rx);
+      let rx = /(?<file>[\w/.]\S*):(?<lineNumber>.*):(?<columnNumber>\d+)/
+      let ma = x.match(rx)
 
       // $dev({ x, ma })
 
       // console.log({ rx, ma })
       if (ma) {
-        let copy: any = { ...ma.groups };
-        copy.lineNumber = parseInt(copy.lineNumber);
-        copy.columnNumber = parseInt(copy.columnNumber);
-        let file = copy.file;
+        let copy: any = { ...ma.groups }
+        copy.lineNumber = parseInt(copy.lineNumber)
+        copy.columnNumber = parseInt(copy.columnNumber)
+        let file = copy.file
         // if (file === 'Object.each') {
         //   console.error({ copy, x, kv })
         // }
         let final = SourcePosition.build({
           file,
           lineNumber: copy.lineNumber,
-          columnNumber: copy.columnNumber
-        });
-        if (final.file.includes("_build/code")) {
+          columnNumber: copy.columnNumber,
+        })
+        if (final.file.includes('_build/code')) {
           // TODO:bug bad source line on code reload after require.cache delete
         }
-        return final;
+        return final
       }
     }
 
-    return null;
+    return null
   }
 }

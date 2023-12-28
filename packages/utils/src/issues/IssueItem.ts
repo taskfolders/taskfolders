@@ -90,7 +90,7 @@ export class IssueItem<T = unknown, Params = void> {
     if (kv.message) {
       this.message = kv.message
     }
-    this.sourceCode = FindCaller.whenNotProduction({ offset: 2 })
+    this.sourceCode = FindCaller.whenDevelopment({ offset: 2 })
   }
 
   [Symbol.for('nodejs.util.inspect.custom')]() {
