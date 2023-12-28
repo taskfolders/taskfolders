@@ -2,7 +2,7 @@ import { IssueGateway } from './IssueGateway'
 import { IssueItem } from './IssueItem'
 
 export class IssueCollection {
-  all: IssueItem<any>[] = []
+  all: IssueItem<any, any>[] = []
 
   static from(all: IssueItem<any, any>[]) {
     let obj = new this()
@@ -29,16 +29,41 @@ export class IssueCollection {
 
   // ..
   find<T, P>(klass: typeof IssueItem<T, P>): IssueItem<T, P> {
-    return this.all.find(x => x.code === klass.code) as any
+    return this.all.find(x => x.code === klass.code)
+  }
+
+  fail(kv: { code } & Partial<IssueItem>) {
+    this.push(new IssueItem(kv))
+  }
+
+  warn(kv: { code } & Partial<IssueItem>) {
+    this.push(new IssueItem({ ...kv, severity: 'warning' }))
+  }
+
+  hasErrors() {
+    return !!this.all.find(x => x.severity === 'error')
+  }
+
+  hasWarnings() {
+    return !!this.all.find(x => x.severity === 'warning')
+  }
+
+  hasIssues() {
+    return this.all.length > 0
+  }
+
+  // -------------------
+  // Array like
+  map<T>(cb: (issue: IssueItem) => T): T[] {
+    return this.all.map(cb)
   }
 
   *[Symbol.iterator]() {
     let index = 0
     while (index < this.all.length) {
-      const item = this.all[index]
+      let item = this.all[index]
       index++
       yield item
     }
-    yield { value: undefined, done: true }
   }
 }

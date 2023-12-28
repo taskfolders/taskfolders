@@ -2,17 +2,7 @@ import { IssueGateway } from './IssueGateway'
 import { IssueItem } from './IssueItem'
 import { delay } from '../native/promise/delay'
 import { isPromise } from '../native/promise/isPromise'
-
-const BasicIssue = IssueItem.define({ code: 'basic-1' })
-const DataIssue = IssueItem.define<{ fox }>({ code: 'typed-1' })
-const TestIssue = IssueItem.define<{ bar: number }, { delta: number }>({
-  code: 'typed-1',
-  test(t) {
-    if (t.delta > 1) {
-      return { bar: t.delta }
-    }
-  },
-})
+import { BasicIssue, DataIssue, TestIssue } from './_test/samples'
 
 describe('x', () => {
   it('check and modify test', async () => {

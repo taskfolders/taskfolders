@@ -31,9 +31,6 @@ describe('x', () => {
       static override code = 'bamboo-code-1'
     }
 
-    let i1 = new IssueItem({ code: 'foo-code-1' })
-    let i2 = new IssueItem({ code: 'foo-code-2' })
-
     let col = new IssueCollection()
     // col.push(i1)
     // col.push(i2)
@@ -56,17 +53,6 @@ describe('x', () => {
     for (let isu of col) {
       $dev(isu)
     }
-
-    let c2 = new IssueCollection()
-      .gate(gw)
-      .check(Panda, t => {
-        // TODO
-        // t.data = { bogus: 1 }
-        return false
-      })
-      .check(Bamboo, t => {
-        return false
-      })
 
     let c3 = new IssueCollection()
     gw.applyTo(c3).check(Panda, () => {

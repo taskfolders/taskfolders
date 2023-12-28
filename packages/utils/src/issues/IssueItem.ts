@@ -1,6 +1,8 @@
 import { FindCaller } from '../stack/locate/FindCaller'
 import { CodePosition } from '../stack/locate/getCallerFile'
 
+type IssueSeverity = 'error' | 'warning' | 'info' | 'update'
+
 /**
  */
 
@@ -10,7 +12,7 @@ export class IssueItem<T = unknown, Params = void> {
   message?: string
 
   // TODO review update
-  severity: 'error' | 'warning' | 'info' | 'update'
+  severity: IssueSeverity
   data?: T
   test?: (x: Params) => any
 
@@ -59,9 +61,9 @@ export class IssueItem<T = unknown, Params = void> {
     }
   }
 
-  constructor(kv: { code: string; message?: string }) {
+  constructor(kv: { code: string; message?: string; severity? }) {
     this.code = kv.code
-    this.severity ||= 'error'
+    this.severity ??= kv.severity ?? 'error'
     if (kv.message) {
       this.message = kv.message
     }
@@ -69,6 +71,7 @@ export class IssueItem<T = unknown, Params = void> {
   }
 
   [Symbol.for('nodejs.util.inspect.custom')]() {
-    return `<Issue "${this.code}">`
+    let sev = this.severity.toUpperCase()
+    return `<Issue ${sev} "${this.code}">`
   }
 }
