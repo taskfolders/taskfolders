@@ -53,6 +53,11 @@ export class FindCaller {
       return getCallerFile({ offset: 3, ...kv })
     }
   }
+
+  static here(kv: FindCallerParams = {}): CodePosition | null {
+    return getCallerFile({ offset: 3, ...kv })
+  }
+
   static whenDevelopment(kv: FindCallerParams = {}): CodePosition | null {
     if (isDeveloperMode()) {
       return getCallerFile({ offset: 3, ...kv })

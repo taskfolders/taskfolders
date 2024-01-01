@@ -40,7 +40,10 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
   }
 
   return (log: LogEvent) => {
-    let location = FindCaller.whenDevelopment({ offset: 4 })
+    let location = log.options.forceLink
+      ? FindCaller.here({ offset: 4 })
+      : FindCaller.whenDevelopment({ offset: 4 })
+
     // let err = new Error()
     // console.log('..', err.stack.split('\n').slice(6, 7))
     // console.log(x)

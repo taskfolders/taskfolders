@@ -12,5 +12,5 @@ const levelMap: Record<LogLevelName, keyof typeof console> = {
 
 export const printLogEventInBrowser = (log: LogEvent) => {
   let key = levelMap[log.levelName] ?? 'log'
-  console[key].call(console, ...log.args)
+  console[key].call(console, ...log.args.slice(0, 2))
 }

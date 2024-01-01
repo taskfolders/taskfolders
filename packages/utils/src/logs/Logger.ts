@@ -3,11 +3,13 @@ import { LogServer } from './LogServer'
 import { LogLevelName } from './helpers'
 import { getCallerFile } from '../stack/locate/getCallerFile'
 
-type LogArgs = [
-  message: string | Object,
-  obj?: any,
-  options?: { depth?: number; inspect?: boolean },
-]
+interface LogOptions {
+  depth?: number
+  inspect?: boolean
+  forceLink?: boolean
+}
+
+type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
 
 function createLogLevelFunction(level: LogLevelName) {
   return function (this: Logger, ...args: LogArgs) {
@@ -21,6 +23,7 @@ export interface LogEvent {
   args?: LogArgs
   levelName?: LogLevelName
   loggerName?: string
+  options?: LogOptions
 }
 
 export class Logger {
@@ -30,7 +33,8 @@ export class Logger {
   constructor() {}
 
   logRaw(kv: LogEvent) {
-    this.server.handleLog({ ...kv, loggerName: this.name })
+    let ev = { ...kv, loggerName: this.name, options: kv.args.at(2) ?? {} }
+    this.server.handleLog(ev)
   }
 
   trace = createLogLevelFunction('trace')
