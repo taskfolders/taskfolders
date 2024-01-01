@@ -1,7 +1,15 @@
 {
   "name": "@taskfolders/utils",
   "version": "0.0.1",
-  "description": "",
+  "description": "Generic codign utilities and helpers",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taskfolders/open.git"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +30,10 @@
     }
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Francisco Garcia",
+    "url": "https://taskfolders.com"
+  },
   "license": "ISC",
   "dependencies": {
     "source-map-support": "^0.5.21"
