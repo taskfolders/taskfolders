@@ -2,18 +2,25 @@ import { Logger } from './Logger'
 import { setupLogger } from './_test/setupLogger'
 
 describe('x', () => {
-  it.only('x', async () => {
+  it('x', async () => {
     let { sut } = setupLogger({ debug: true })
 
     let res = sut.dev({ fox: 1 })
     $dev(res)
   })
 
+  describe('log cases', () => {
+    it.only('x', async () => {
+      let { sut } = setupLogger({ debug: true })
+      sut.raw({ level: 'dev', message: 'log raw', forceLink: true })
+    })
+  })
+
   it('x #scaffold', async () => {
     let sut = new Logger()
     // sut.level = 'trace'
     // sut._screen.debug = true
-    sut.logRaw({ message: 'log raw' })
+    sut.logRaw({ args: ['log raw'] })
     sut.trace('log debug')
     sut.debug('log debug')
     sut.info('log info')

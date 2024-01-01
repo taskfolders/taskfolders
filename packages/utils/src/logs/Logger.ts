@@ -19,11 +19,21 @@ function createLogLevelFunction(level: LogLevelName) {
 }
 
 export interface LogEvent {
-  message?: string
+  // message?: string
   args?: LogArgs
   levelName?: LogLevelName
   loggerName?: string
   options?: LogOptions
+}
+
+interface UserLogEvent {
+  level: LogLevelName
+  message: string
+
+  // options
+  depth?: number
+  inspect?: boolean
+  forceLink?: boolean
 }
 
 export class Logger {
@@ -35,6 +45,16 @@ export class Logger {
   logRaw(kv: LogEvent) {
     let ev = { ...kv, loggerName: this.name, options: kv.args.at(2) ?? {} }
     this.server.handleLog(ev)
+  }
+
+  raw(kv: UserLogEvent) {
+    let options: LogOptions = {
+      depth: kv.depth,
+      inspect: kv.inspect,
+      forceLink: kv.forceLink,
+    }
+    let ev: LogEvent = { args: [kv.message], options }
+    this.logRaw(ev)
   }
 
   trace = createLogLevelFunction('trace')
