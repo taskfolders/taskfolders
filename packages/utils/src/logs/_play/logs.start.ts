@@ -1,5 +1,17 @@
+import '../node.start'
 import { Logger } from '../Logger'
-let sut = new Logger()
+import { printMore } from './helper'
+let log = new Logger()
 
-sut.debug('my debug')
-sut.dev('my dev')
+function main() {
+  log.trace('hi log')
+  log.debug('hi log')
+  log.info('hi log')
+  log.dev('hi log')
+  log.dev('forcing link', null, { forceLink: true })
+  log.warn('hi log')
+  log.error('hi log')
+  printMore(log)
+}
+
+main()

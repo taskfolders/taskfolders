@@ -1,79 +1,46 @@
-import { ScreenPrinter } from '../screen/ScreenPrinter'
-import { printLogEventInNode } from './_node/printLogEventInNode'
-import { isNodeRuntime } from '../runtime/isNodeRuntime'
+import { FindCaller } from '../stack/locate/FindCaller'
+import { LogServer } from './LogServer'
+import { LogLevelName } from './helpers'
+import { getCallerFile } from '../stack/locate/getCallerFile'
 
-export type LogLevels = 'trace' | 'debug' | 'info' | 'dev' | 'warn' | 'error'
-
-function printLogEventInBrowser(ops: { screen: ScreenPrinter; log: LogEvent }) {
-  console.log(...ops.log.args)
+interface LogOptions {
+  depth?: number
+  inspect?: boolean
+  forceLink?: boolean
 }
 
-let levelNumbers: Record<LogLevels, number> = {
-  trace: 1,
-  debug: 2,
-  info: 3,
-  dev: 4,
-  warn: 5,
-  error: 6,
-}
+type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
 
-type LogArgs = [message: string | Object] | [message: any, obj: any]
-
-function createLogLevel(level: LogLevels) {
-  return function (...args: LogArgs) {
-    this.logRaw({ args, level })
+function createLogLevelFunction(level: LogLevelName) {
+  return function (this: Logger, ...args: LogArgs) {
+    this.logRaw({ args, levelName: level })
+    return args[0]
   }
 }
 
 export interface LogEvent {
   message?: string
   args?: LogArgs
-  level?: string
+  levelName?: LogLevelName
+  loggerName?: string
+  options?: LogOptions
 }
 
 export class Logger {
-  _screen = new ScreenPrinter()
-  level: LogLevels = 'info'
+  server = LogServer.request()
+  name: string
 
-  constructor() {
-    let envLevel = process.env.LOG_LEVEL
-    if (envLevel) {
-      if (levelNumbers[envLevel]) {
-        this.level = envLevel as LogLevels
-      }
-    } else {
-      let envNode = process.env.NODE_ENV
-      if (envNode === 'production') {
-        this.level = 'warn'
-      } else if (envNode === 'test') {
-        this.level = 'error'
-      } else {
-        this.level = 'info'
-      }
-    }
-  }
+  constructor() {}
 
   logRaw(kv: LogEvent) {
-    // STEP filter threshold
-    let level_given = levelNumbers[kv.level]
-    let level_threshold = levelNumbers[this.level]
-    let has = level_given >= level_threshold
-    if (!has) {
-      return
-    }
-    let screen = this._screen
-
-    if (isNodeRuntime()) {
-      printLogEventInNode({ log: kv, screen })
-    } else {
-      printLogEventInBrowser({ log: kv, screen })
-    }
+    let ev = { ...kv, loggerName: this.name, options: kv.args.at(2) ?? {} }
+    this.server.handleLog(ev)
   }
 
-  trace = createLogLevel('trace')
-  debug = createLogLevel('debug')
-  info = createLogLevel('info')
-  dev = createLogLevel('dev')
-  warn = createLogLevel('warn')
-  error = createLogLevel('error')
+  trace = createLogLevelFunction('trace')
+  debug = createLogLevelFunction('debug')
+  info = createLogLevelFunction('info')
+  dev = createLogLevelFunction('dev')
+  warn = createLogLevelFunction('warn')
+  error = createLogLevelFunction('error')
 }

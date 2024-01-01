@@ -19,7 +19,7 @@ import { stripAnsiCodes } from '../native/string/stripAnsiCodes'
 // import { nodeEnv } from '../../runtime/isNodeEnv'
 // import { FindCaller } from '../../stack'
 // import { UserEditorLink } from '../../_draft'
-import { shellHyperlink } from './shellHyperlink'
+import { shellHyperlink } from './shellHyperlink/shellHyperlink'
 import { FindCaller } from '../stack/locate/FindCaller'
 const sanitizeString = x => x
 const isPromise = x => false
@@ -196,7 +196,7 @@ export class ScreenPrinter {
     let newLines = line.split('\n')
     if (this.debugInline) {
       // let loc = myGetCaller()
-      let loc = FindCaller.whenNotProduction()
+      let loc = FindCaller.whenDevelopment()
       let label = shellHyperlink({
         text: 'screen',
         path: loc.path,
@@ -213,22 +213,24 @@ export class ScreenPrinter {
     })
 
     if (this.debugLive && process.env.SCREEN !== '0') {
-      let loc = FindCaller.whenNotProduction()
-
-      // let loc = myGetCaller()
-      // let link = UserEditorLink.fromSource(loc).link()
-      let label = shellHyperlink({
-        text: 'screen',
-        path: loc?.path,
-        scheme: 'vscode',
-        lineNumber: loc?.lineNumber,
-      })
+      let loc = FindCaller.whenDevelopment()
+      let label = 'screen'
+      if (loc) {
+        // let loc = myGetCaller()
+        // let link = UserEditorLink.fromSource(loc).link()
+        label = shellHyperlink({
+          text: label,
+          path: loc?.path,
+          scheme: 'vscode',
+          lineNumber: loc?.lineNumber,
+        })
+      }
 
       // eslint-disable-next-line
       console.log(ConsoleTheme.devToolPrefixed(label, line, true))
+    } else {
+      this._printLive(line, kv)
     }
-
-    this._printLive(line, kv)
 
     if (this.echo) {
       // eslint-disable-next-line
@@ -258,7 +260,7 @@ export class ScreenPrinter {
           console.log(line)
         }
       } else {
-        let loc = FindCaller.whenNotProduction()
+        let loc = FindCaller.whenDevelopment()
         // let loc = myGetCaller()
         let label = shellHyperlink({
           text: 'screen',
@@ -319,7 +321,7 @@ export class ScreenPrinter {
     let line = [start, ...x].join(' ')
     let newLines = line.split('\n')
     if (this.debugInline) {
-      let loc = FindCaller.whenNotProduction()
+      let loc = FindCaller.whenDevelopment()
       // let loc = myGetCaller()
       let label = shellHyperlink({
         text: 'screen',
@@ -334,7 +336,7 @@ export class ScreenPrinter {
     newLines.forEach(x => this._lines.push(x))
 
     if (this.debugLive) {
-      let loc = FindCaller.whenNotProduction()
+      let loc = FindCaller.whenDevelopment()
       // let loc = myGetCaller()
       let label = shellHyperlink({
         text: 'screen',

@@ -1,0 +1,47 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "_build/code",
+    "target": "es2020",
+
+    "experimentalDecorators": false,
+
+    "allowJs": true,
+    "checkJs": true,
+
+    "lib": ["es2020"],
+    "module": "commonjs",
+    //"module": "NodeNext",
+
+    // WHY otherwise empty default import
+    //  import Path from 'path'
+    //  import * as Path from 'path'
+    //
+    "esModuleInterop": true,
+
+    //"moduleResolution": "Node",
+    "strict": false,
+    // 17 "strictNullChecks": true,
+    // 37 "noImplicitAny": true,
+
+    //"noImplicitOverride": true,
+    // Needed for CommonJS modules: markdown-it, fs-extra
+
+    // "typeRoots": [
+    //   "node_modules/@types",
+    //   "node_modules/@taskfolders/core/typings"
+    // ],
+
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+
+    // TODO review
+    "skipLibCheck": true,
+    //"moduleResolution": "nodenext",
+    "moduleResolution": "node10",
+
+    "declaration": true,
+    "declarationMap": true // enables importers to jump to source
+  }
+}

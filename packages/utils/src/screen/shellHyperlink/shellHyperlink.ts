@@ -1,5 +1,8 @@
 import ansiEscapes from 'ansi-escapes'
 import { relative } from 'node:path'
+import { assertNever } from '../../types/assertNever'
+
+// cspell:word webstorm mscode
 
 class UserEditorLink {
   static fromSource(x) {
@@ -23,6 +26,14 @@ export type ISourcePosition = Pick<
   'file' | 'lineNumber' | 'columnNumber'
 >
 
+type TemplateNames =
+  | 'default'
+  | 'file'
+  | 'mscode'
+  | 'vscode'
+  | 'sublime'
+  | 'webstorm'
+
 /**
  * TODO explore alternative url schemes
  *   see:5a00a5a6-e04c-4179-8cb5-e916c47bcc8d
@@ -32,6 +43,8 @@ export function shellHyperlink(
   kv: {
     text?: string
     source?: ISourcePosition
+
+    template?: TemplateNames
 
     // must have one
     editor?: boolean
@@ -75,8 +88,68 @@ export function shellHyperlink(
   let source = kv.source || { file: kv.path, lineNumber }
 
   let filePath = source.file
-  let text = kv.text || relative(kv.cwd ?? '', filePath)
+  let text = kv.text
+  if (!text) {
+    if (kv.cwd) {
+      text = relative(kv.cwd, filePath)
+    } else {
+      text = filePath
+    }
+  }
   let link = kv.link
+
+  let template = kv.template
+  if (!template) {
+    if (!kv.lineNumber) {
+      template = 'file'
+    } else {
+      template = 'default'
+    }
+  }
+  if (template === 'default') {
+    template =
+      kv.template ?? process.env.TF_HYPERLINK_TEMPLATE ?? ('vscode' as any)
+  }
+
+  switch (template) {
+    case 'mscode': {
+      link = `mscode://${filePath}`
+      if (lineNumber) link += `:${lineNumber}`
+      break
+    }
+    case 'vscode': {
+      // vscode://file/Users/username/Documents/myfile.txt?lineNumber=50
+      // TODO windows
+      // vscode://file/C:/Users/username/Documents/myfile.txt?lineNumber=50
+      link = `vscode://file${filePath}`
+      if (lineNumber) link += `?lineNumber=${lineNumber}`
+      break
+    }
+    case 'sublime': {
+      // vscode://file/Users/username/Documents/myfile.txt?lineNumber=50
+      link = `sublime://file/${filePath}`
+      if (lineNumber) link += `?lineNumber=${lineNumber}`
+      break
+    }
+    case 'webstorm': {
+      // webstorm://open/file/path/to/file/file.ext?lineNumber=50
+      link = `webstorm://open/${filePath}`
+      if (lineNumber) link += `?lineNumber=${lineNumber}`
+      break
+    }
+
+    case 'file': {
+      link = `file://${filePath}`
+      break
+    }
+
+    case 'default': {
+      throw Error('Default not defined')
+    }
+    default:
+      assertNever(template)
+  }
+  return ansiEscapes.link(text, link)
 
   // TODO boo!!! clean this, scheme is set in hyperlink_OLD
   let scheme = kv.scheme ?? 'file'
