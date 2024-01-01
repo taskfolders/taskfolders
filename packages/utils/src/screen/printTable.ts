@@ -1,5 +1,5 @@
-import { ScreenPrinter } from '@taskfolders/utils/screen/ScreenPrinter'
 import { visualLength, padEnd } from '../native/string'
+import { ScreenPrinter } from './ScreenPrinter'
 
 export const printTable = (kv: {
   rows: string[][]
