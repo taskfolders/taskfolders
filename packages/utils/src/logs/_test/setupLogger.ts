@@ -10,9 +10,16 @@ export function setupLogger(kv: { debug? }) {
   let server = LogServer.request()
   server.printLog = printLogEventInNode({ screen })
 
+  let logs = []
+  let orig = server.handleLog
+  server.handleLog = ev => {
+    logs.push(ev)
+    return orig.call(server, ev)
+  }
+
   let sut = new Logger()
   sut.server = server
-  sut.server.levelName = 'info'
+  sut.server.levelThresholdName = 'info'
 
-  return { sut, screen }
+  return { sut, screen, logs }
 }

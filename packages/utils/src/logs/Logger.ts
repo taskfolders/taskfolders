@@ -21,7 +21,7 @@ function createLogLevelFunction(level: LogLevelName) {
 export interface LogEvent {
   // message?: string
   args?: LogArgs
-  levelName?: LogLevelName
+  levelName: LogLevelName
   loggerName?: string
   options?: LogOptions
 }
@@ -53,7 +53,7 @@ export class Logger {
       inspect: kv.inspect,
       forceLink: kv.forceLink,
     }
-    let ev: LogEvent = { args: [kv.message], options }
+    let ev: LogEvent = { levelName: kv.level, args: [kv.message], options }
     this.logRaw(ev)
   }
 
