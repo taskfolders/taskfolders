@@ -9,9 +9,11 @@
   },
   "files": [
     "dist",
+    "LICENSE.md",
     "README.md"
   ],
   "scripts": {
+    "publish": "npm publish --access public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "exports": {
@@ -35,7 +37,7 @@
     "name": "Francisco Garcia",
     "url": "https://taskfolders.com"
   },
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "source-map-support": "^0.5.21"
   }

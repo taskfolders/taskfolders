@@ -1,4 +1,4 @@
-export function completionBar(
+export function progressBar(
   kv: ({ percent: number } | { interval: number[] } | { count; total }) & {
     barLength?: number
   },
