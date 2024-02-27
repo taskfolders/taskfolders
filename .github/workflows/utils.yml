@@ -6,12 +6,12 @@ on:
     paths:
       - "packages/utils/**"
 
+env:
+  TASKFOLDERS_ROOT: ${{ github.workspace }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      TASKFOLDERS_ROOT: ${{ env.GITHUB_REPOSITORY }}
-
     defaults:
       run:
         working-directory: ./packages/utils 
