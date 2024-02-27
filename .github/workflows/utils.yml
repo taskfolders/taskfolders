@@ -12,6 +12,8 @@ jobs:
     defaults:
       run:
         working-directory: ./packages/utils 
+      env:
+        TASKFOLDERS_ROOT: ${{ env.GITHUB_REPOSITORY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3

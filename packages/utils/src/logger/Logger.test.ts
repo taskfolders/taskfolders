@@ -48,7 +48,7 @@ it('x log args #todo', async () => {
   sut.dev({ fox: 1 })
 })
 
-it.only('x log function #todo', async () => {
+it('x log function #todo', async () => {
   let { sut } = setupLogger({ debug: true })
 
   // TODO bug?
