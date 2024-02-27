@@ -46,8 +46,10 @@ describe('x', () => {
   })
 
   it('grab comments', async () => {
-    let fileName = join(__dirname, '../../auth/AccountController.ts')
+    let fileName = join(__dirname, './_test/AccountController.ts')
     let imports: string[] = []
+    console.log(fileName)
+
     const sourceFile = ts.createSourceFile(
       fileName,
       fs.readFileSync(fileName).toString(),

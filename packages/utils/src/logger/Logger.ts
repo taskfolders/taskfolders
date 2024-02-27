@@ -13,13 +13,12 @@ type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
 
 function createLogLevelFunction(level: LogLevelName) {
   return function (this: Logger, ...args: LogArgs) {
-    this.logRaw({ args, levelName: level })
+    this._logRaw({ args, levelName: level })
     return args[0]
   }
 }
 
 export interface LogEvent {
-  // message?: string
   args?: LogArgs
   levelName: LogLevelName
   loggerName?: string
@@ -42,7 +41,7 @@ export class Logger {
 
   constructor() {}
 
-  logRaw(kv: LogEvent) {
+  _logRaw(kv: LogEvent) {
     let ev = { ...kv, loggerName: this.name, options: kv.args.at(2) ?? {} }
     this.server.handleLog(ev)
   }
@@ -54,7 +53,7 @@ export class Logger {
       forceLink: kv.forceLink,
     }
     let ev: LogEvent = { levelName: kv.level, args: [kv.message], options }
-    this.logRaw(ev)
+    this._logRaw(ev)
   }
 
   trace = createLogLevelFunction('trace')
