@@ -3,16 +3,6 @@ import { levelNumbers, LogLevelName, defaultLogLevel } from './helpers'
 import { isReleaseMode } from '../runtime/isReleaseMode'
 import type { LogEvent } from './Logger'
 
-function passThreshold(kv: { level: string; threshold: string }) {
-  let level_given = levelNumbers[kv.level]
-  let level_threshold = levelNumbers[this.levelThresholdName]
-  let isPass = level_given >= level_threshold
-  if (isReleaseMode() && kv.level === 'dev') {
-    isPass = false
-  }
-  return isPass
-}
-
 export class LogServer {
   levelThresholdName = defaultLogLevel()
 

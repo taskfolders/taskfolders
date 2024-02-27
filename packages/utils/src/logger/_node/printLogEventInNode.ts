@@ -6,6 +6,7 @@ import { ScreenPrinter } from '../../screen/ScreenPrinter'
 import { LogEvent } from '../Logger'
 import { ConsoleTheme } from '../../screen/ConsoleTheme'
 import { CodePosition } from '../../stack/locate/CodePosition'
+import { passThreshold } from '../passThreshold'
 
 const levelColors: Record<LogLevelName, string> = {
   trace: 'grey',
@@ -49,13 +50,14 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
     if (log.options.forceLink) {
       location = FindCaller.here({ offset: 4 })
     } else {
-      console.log(log)
-
       if (hasShellLinks('log')) {
-        location = FindCaller.whenDevelopment({ offset: 4 })
+        if (passThreshold({ level: log.levelName, threshold: 'info' })) {
+          location = FindCaller.whenDevelopment({ offset: 4 })
+        }
       }
     }
 
+    // TODO agin
     // let err = new Error()
     // console.log('..', err.stack.split('\n').slice(6, 7))
     // console.log(x)
