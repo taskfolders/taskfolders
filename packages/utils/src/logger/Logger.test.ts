@@ -9,13 +9,13 @@ describe('log cases', () => {
 
     test.sut.dev({ fox: 1 })
     let txt = test.screen.text()
-    expect(txt).toContain('src/logs/Logger')
+    expect(txt).toContain('src/logger/Logger')
 
     txt = stripAnsiCodes(txt)
     expect(txt).toContain('DEV')
     expect(txt).toContain('object')
     expect(txt).toContain('fox: 1')
-    expect(txt).not.toContain('src/logs/Logger')
+    expect(txt).not.toContain('src/logger/Logger')
   })
 
   it('using raw dsl', async () => {
