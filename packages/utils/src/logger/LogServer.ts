@@ -2,6 +2,7 @@ import { printLogEventInBrowser } from './printLogEventInBrowser'
 import { levelNumbers, LogLevelName, defaultLogLevel } from './helpers'
 import { isReleaseMode } from '../runtime/isReleaseMode'
 import type { LogEvent } from './Logger'
+import { passThreshold } from './passThreshold'
 
 export class LogServer {
   levelThresholdName = defaultLogLevel()
@@ -12,20 +13,17 @@ export class LogServer {
     return singleton
   }
 
-  private passThreshold(levelName: LogLevelName) {
-    let level_given = levelNumbers[levelName]
-    let level_threshold = levelNumbers[this.levelThresholdName]
-    let isPass = level_given >= level_threshold
-    if (isReleaseMode() && levelName === 'dev') {
-      isPass = false
-    }
-    return isPass
-  }
-
   handleLog(log: LogEvent) {
-    if (!this.passThreshold(log.levelName)) {
+    let pass = passThreshold({
+      level: log.levelName,
+      threshold: this.levelThresholdName,
+    })
+    if (!pass) return
+
+    if (log.levelName === 'dev' && process.env.TASKFOLDERS_LOGGER_DEV !== '1') {
       return
     }
+
     // TODO #review should be done on client
     //  - passThreshold should take int
     log.levelValue ??= levelNumbers[log.levelName]

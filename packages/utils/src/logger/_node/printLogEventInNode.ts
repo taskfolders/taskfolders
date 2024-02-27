@@ -18,7 +18,7 @@ const levelColors: Record<LogLevelName, string> = {
 }
 
 function hasShellLinks(key: string) {
-  let value = process.env.TF_SHELL_LINKS
+  let value = process.env.TASKFOLDERS_SHELL_LINKS
   return value?.includes(key)
 }
 

@@ -11,9 +11,8 @@ export const levelNumbers: Record<LogLevelName, number> = {
   error: 6,
 }
 
-function isValidLevelName(x: string): x is LogLevelName {
-  if (!x) return false
-  let envLevel = process.env.LOG_LEVEL
+function isValidLevelName(envLevel: string): envLevel is LogLevelName {
+  if (!envLevel) return false
   let number = levelNumbers[envLevel]
   if (number === undefined) {
     return false
@@ -22,6 +21,13 @@ function isValidLevelName(x: string): x is LogLevelName {
 }
 
 export function defaultLogLevel(): LogLevelName {
+  let env = process.env.LOG_LEVEL
+  if (env) {
+    if (isValidLevelName(env)) {
+      return env
+    }
+  }
+
   if (!isNodeRuntime()) {
     return 'error'
   }
@@ -41,6 +47,7 @@ function emitWarning(msg: string) {
     console.warn(msg)
   }
 }
+
 export function envLogLevel() {
   let envLevel
   if (isNodeRuntime()) {

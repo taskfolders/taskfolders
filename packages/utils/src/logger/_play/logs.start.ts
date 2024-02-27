@@ -11,7 +11,7 @@ function main() {
   log.dev('forcing link', null, { forceLink: true })
   log.warn('hi log')
   log.error('hi log')
-  printMore(log)
+  // printMore(log)
 }
 
 main()
