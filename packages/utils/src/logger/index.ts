@@ -1,25 +1,23 @@
 export { Logger } from './Logger'
-
 import { Logger } from './Logger'
 
+export const $log = new Logger()
+export const $dev = $log.dev.bind($log)
+
 export function installGlobal() {
-  let log = new Logger()
-  global.$log = log
-  global.$dev = (...x) =>
-    log.dev(
-      // @ts-expect-error TODO
-      ...x,
-    )
+  global.$log = $log
+  global.$dev = $dev
 }
 
 globalThis._TF_CONSOLE_LOG_HOOK = true
 
-function installOnConsoleLog() {
+export function installOnConsoleLog() {
   if (globalThis._TF_CONSOLE_LOG_HOOK === true) return
   const original = console.log
 
   function logHook(...x) {
-    original('--', ...x)
+    //original('--', ...x)
+    $log.info(...x)
   }
 
   console.log = logHook

@@ -2,8 +2,16 @@ import { printLogEventInBrowser } from './printLogEventInBrowser'
 import { levelNumbers, LogLevelName, defaultLogLevel } from './helpers'
 import { isReleaseMode } from '../runtime/isReleaseMode'
 import type { LogEvent } from './Logger'
-import type { ScreenPrinter } from '../screen/ScreenPrinter'
-import { FindCaller } from '../stack/locate/FindCaller'
+
+function passThreshold(kv: { level: string; threshold: string }) {
+  let level_given = levelNumbers[kv.level]
+  let level_threshold = levelNumbers[this.levelThresholdName]
+  let isPass = level_given >= level_threshold
+  if (isReleaseMode() && kv.level === 'dev') {
+    isPass = false
+  }
+  return isPass
+}
 
 export class LogServer {
   levelThresholdName = defaultLogLevel()
@@ -28,6 +36,10 @@ export class LogServer {
     if (!this.passThreshold(log.levelName)) {
       return
     }
+    // TODO #review should be done on client
+    //  - passThreshold should take int
+    log.levelValue ??= levelNumbers[log.levelName]
+
     // let location = FindCaller.whenDevelopment({ offset: 3 })
     this.printLog(log)
   }

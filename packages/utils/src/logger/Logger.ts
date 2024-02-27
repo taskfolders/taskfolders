@@ -1,7 +1,5 @@
-import { FindCaller } from '../stack/locate/FindCaller'
 import { LogServer } from './LogServer'
 import { LogLevelName } from './helpers'
-import { getCallerFile } from '../stack/locate/getCallerFile'
 
 interface LogOptions {
   depth?: number
@@ -9,25 +7,27 @@ interface LogOptions {
   forceLink?: boolean
 }
 
-type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
+//type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
 
 function createLogLevelFunction(level: LogLevelName) {
-  return function (this: Logger, ...args: LogArgs) {
+  return function (this: Logger, ...args: any[]) {
     this._logRaw({ args, levelName: level })
     return args[0]
   }
 }
 
 export interface LogEvent {
-  args?: LogArgs
+  args?: any[]
   levelName: LogLevelName
+  levelValue?: number
   loggerName?: string
   options?: LogOptions
 }
 
 interface UserLogEvent {
   level: LogLevelName
-  message: string
+  message?: string
+  data?: Record<string, unknown>
 
   // options
   depth?: number

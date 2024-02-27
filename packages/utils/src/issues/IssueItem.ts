@@ -1,5 +1,5 @@
 import { FindCaller } from '../stack/locate/FindCaller'
-import { CodePosition } from '../stack/locate/getCallerFile'
+import { CodePosition } from '../stack/locate/CodePosition'
 
 type IssueSeverity = 'error' | 'warning' | 'info' | 'update'
 

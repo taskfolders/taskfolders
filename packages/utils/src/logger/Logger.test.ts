@@ -48,13 +48,15 @@ it('x log args #todo', async () => {
   sut.dev({ fox: 1 })
 })
 
-it('x log function #todo', async () => {
+it.only('x log function #todo', async () => {
   let { sut } = setupLogger({ debug: true })
+  sut.warn('my warning', 3, { foo: 'bar' })
 
   // TODO bug?
   sut.raw({
     message: 'one',
     level: 'dev',
+    data: { foo: 'bar' },
     // message: () => {
     //   return "some text";
     // }

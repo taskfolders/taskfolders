@@ -5,7 +5,7 @@ import type { LogLevelName } from '../helpers'
 import { ScreenPrinter } from '../../screen/ScreenPrinter'
 import { LogEvent } from '../Logger'
 import { ConsoleTheme } from '../../screen/ConsoleTheme'
-import { CodePosition } from '../../stack/locate/getCallerFile'
+import { CodePosition } from '../../stack/locate/CodePosition'
 
 const levelColors: Record<LogLevelName, string> = {
   trace: 'grey',
@@ -14,6 +14,11 @@ const levelColors: Record<LogLevelName, string> = {
   dev: 'yellow',
   warn: 'yellow',
   error: 'red',
+}
+
+function hasShellLinks(key: string) {
+  let value = process.env.TF_SHELL_LINKS
+  return value?.includes(key)
 }
 
 export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
@@ -40,9 +45,16 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
   }
 
   return (log: LogEvent) => {
-    let location = log.options.forceLink
-      ? FindCaller.here({ offset: 4 })
-      : FindCaller.whenDevelopment({ offset: 4 })
+    let location: CodePosition
+    if (log.options.forceLink) {
+      location = FindCaller.here({ offset: 4 })
+    } else {
+      console.log(log)
+
+      if (hasShellLinks('log')) {
+        location = FindCaller.whenDevelopment({ offset: 4 })
+      }
+    }
 
     // let err = new Error()
     // console.log('..', err.stack.split('\n').slice(6, 7))
