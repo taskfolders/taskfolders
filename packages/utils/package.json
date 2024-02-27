@@ -1,8 +1,19 @@
 {
   "name": "@taskfolders/utils",
   "version": "0.0.1",
-  "description": "",
+  "description": "Generic codign utilities and helpers",
+  "access": "public",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taskfolders/open.git"
+  },
+  "files": [
+    "dist",
+    "LICENSE.md",
+    "README.md"
+  ],
   "scripts": {
+    "publish": "npm publish --access public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "exports": {
@@ -22,8 +33,11 @@
     }
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Francisco Garcia",
+    "url": "https://taskfolders.com"
+  },
+  "license": "MIT",
   "dependencies": {
     "source-map-support": "^0.5.21"
   }

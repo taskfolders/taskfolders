@@ -1,0 +1,6 @@
+# .npmignore
+node_modules/
+_build
+test/
+.git/
+
