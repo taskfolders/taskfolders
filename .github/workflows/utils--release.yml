@@ -1,0 +1,52 @@
+# @owner fgarcia
+# @job   366a5b8a-0e07-4847-b857-c99882fc84b5 
+
+name: npm -- release
+
+env:
+  PACKAGE_NAME: utils
+
+on:
+  release:
+    types: [published]
+
+  # push:
+  #   branches: 
+  #     - main
+  #   paths:
+  #     - "packages/${{ env.$PACKAGE_NAME}}/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/${{ env.PACKAGE_NAME }}
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@taskfolders'
+
+      - name: Identify CD bot 
+        run: |
+          git config --global user.name 'TaskFolders CD Bot'
+          git config --global user.email 'bot-cd@taskfolders.com'
+      - name: Bump version
+        run: |
+          VERSION=$(npm version patch -m "[RELEASE] %s")
+          git commit -am "[RELEASE] Automated release ${VERSION}"
+          git tag package--utils@$VERSION
+          git push
+          git push --tags
+
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

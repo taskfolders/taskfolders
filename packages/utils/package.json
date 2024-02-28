@@ -13,6 +13,7 @@
     "README.md"
   ],
   "scripts": {
+    "build": "tsc",
     "publish": "npm publish --access public",
     "test:ci": "npx vitest --run --exclude '**/*_noci*' --allowOnly=false",
     "test": "npx vitest --run"

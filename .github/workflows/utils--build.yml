@@ -1,10 +1,13 @@
-name: Utils
+name: utils
+
+env:
+  PACKAGE_DIR: packages/utils
 
 on:
   push:
     branches: [ main ]
     paths:
-      - "packages/utils/**"
+      - "${{ env.$PACKAGE_DIR}}/**"
 
 env:
   TASKFOLDERS_ROOT: ${{ github.workspace }}
@@ -14,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./packages/utils 
+        working-directory: ${{ env.PACKAGE_DIR }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,8 +31,4 @@ jobs:
 
       - name: Run tests
         run: npm run test:ci
-
-      # - name: Build (optional)
-      # run: npm run build  # Replace with your build command if applicable
-
 
