@@ -3,7 +3,7 @@ import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { inspect } from 'node:util'
 import type { LogLevelName } from '../helpers.js'
 import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
-import { LogEvent } from '../Logger.js'
+import { LogEvent } from '../BaseLogger.js'
 import { CodePosition } from '../../stack/locate/CodePosition.js'
 import { passThreshold } from '../passThreshold.js'
 

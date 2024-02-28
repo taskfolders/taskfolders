@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { Logger } from './Logger.js'
+import { NodeLogger } from './node/NodeLogger.js'
 import { setupLogger } from './_test/setupLogger.js'
 import { stripAnsiCodes } from '../native/string/stripAnsiCodes.js'
 
@@ -29,7 +29,7 @@ describe('log cases', () => {
 })
 
 it('x #scaffold', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
   // sut.level = 'trace'
   // sut._screen.debug = true
   sut.trace('log debug')
@@ -41,7 +41,7 @@ it('x #scaffold', async () => {
 })
 
 it('x log args #todo', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
   // sut._screen.debug = true
   // sut.level = 'info'
   sut.dev('log dev')

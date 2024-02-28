@@ -1,2 +1,2 @@
-import { installGlobal } from './index.js'
+import { installGlobal } from './node/index.js'
 installGlobal()

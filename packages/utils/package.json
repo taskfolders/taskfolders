@@ -20,9 +20,9 @@
     "test": "npx vitest --run"
   },
   "exports": {
-    "./logger": "./dist/logger/index.js",
-    "./logger/node.start": "./dist/logger/node.start.js",
-    "./*": "./dist/*" 
+    "./logger": "./dist/esm/logger/index.js",
+    "./logger/node.start": "./dist/esm/logger/node.start.js",
+    "./*": "./dist/esm/*" 
   },
   "typesVersions": {
     "*": {

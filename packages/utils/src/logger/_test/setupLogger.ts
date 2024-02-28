@@ -1,13 +1,13 @@
-import { Logger } from '../Logger.js'
-import { LogServer } from '../LogServer.js'
-import { printLogEventInNode } from '../_node/printLogEventInNode.js'
+import { NodeLogger } from '../node/NodeLogger.js'
+import { NodeLogServer } from '../node/NodeLogServer.js'
+import { printLogEventInNode } from '../node/printLogEventInNode.js'
 import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 
 export function setupLogger(kv: { debug? }) {
   let screen = new ScreenPrinter()
   screen.debug = kv.debug
 
-  let server = LogServer.request()
+  let server = NodeLogServer.request()
   server.printLog = printLogEventInNode({ screen })
 
   let logs = []
@@ -17,7 +17,7 @@ export function setupLogger(kv: { debug? }) {
     return orig.call(server, ev)
   }
 
-  let sut = new Logger()
+  let sut = new NodeLogger()
   sut.server = server
   sut.server.levelThresholdName = 'info'
 

@@ -1,5 +1,4 @@
 import { isNodeRuntime } from '../runtime/isNodeRuntime.js'
-import { Logger } from './Logger.js'
 
 export type LogLevelName = 'trace' | 'debug' | 'info' | 'dev' | 'warn' | 'error'
 export const levelNumbers: Record<LogLevelName, number> = {
@@ -21,16 +20,23 @@ function isValidLevelName(envLevel: string): envLevel is LogLevelName {
 }
 
 export function defaultLogLevel(): LogLevelName {
+  // if (typeof process.env.LOG_LEVEL !== 'undefined') {
   let env = process.env.LOG_LEVEL
   if (env) {
     if (isValidLevelName(env)) {
       return env
     }
   }
+  // }
 
   if (!isNodeRuntime()) {
     return 'error'
   }
+
+  // if (typeof process.env.LOG_LEVEL === 'undefined') {
+  //   return 'warn'
+  // }
+
   let envNode = process.env.NODE_ENV
   if (envNode === 'production') {
     return 'warn'
