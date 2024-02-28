@@ -1,5 +1,5 @@
-import { LogServer } from './LogServer'
-import { LogLevelName } from './helpers'
+import { LogServer } from './LogServer.js'
+import { LogLevelName } from './helpers.js'
 
 interface LogOptions {
   depth?: number

@@ -6,7 +6,7 @@ import { describe, it } from 'vitest'
 import * as ts from 'typescript'
 import * as fs from 'fs'
 import { join } from 'node:path'
-import { ExplainImports } from './ExplainImports'
+import { ExplainImports } from './ExplainImports.js'
 
 let { log } = console
 function run() {

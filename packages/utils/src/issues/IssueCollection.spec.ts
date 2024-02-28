@@ -1,7 +1,7 @@
-import { IssueCollection } from './IssueCollection'
-import { IssueGateway } from './IssueGateway'
-import { IssueItem } from './IssueItem'
-import { BasicIssue } from './_test/samples'
+import { IssueCollection } from './IssueCollection.js'
+import { IssueGateway } from './IssueGateway.js'
+import { IssueItem } from './IssueItem.js'
+import { BasicIssue } from './_test/samples.js'
 
 class DraftCollection extends IssueCollection {
   // Gateway

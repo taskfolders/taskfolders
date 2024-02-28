@@ -1,6 +1,6 @@
 // TODO:utils-dedup
-import { dedent } from '../native/string/dedent'
-import { ScreenPrinter } from './ScreenPrinter'
+import { dedent } from '../native/string/dedent.js'
+import { ScreenPrinter } from './ScreenPrinter.js'
 class ScreenPrinterMock extends ScreenPrinter {}
 
 let mp3Xattr = {

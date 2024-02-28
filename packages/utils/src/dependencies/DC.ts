@@ -1,15 +1,15 @@
-import { InjectMarker } from './InjectMarker'
+import { InjectMarker } from './InjectMarker.js'
 import {
   ILifeTime,
   StartType,
   DependencyMeta,
   StartDSL,
-} from './DependencyMeta'
-import { assertNever } from '../types/assertNever'
-import { FetchAsyncError, UnregisteredValueError } from './errors'
-import { FetchRawResult } from './FetchRawResult'
-import { DependencyToken } from './DependencyToken'
-import { randomId } from '../ids/randomId'
+} from './DependencyMeta.js'
+import { assertNever } from '../types/assertNever.js'
+import { FetchAsyncError, UnregisteredValueError } from './errors.js'
+import { FetchRawResult } from './FetchRawResult.js'
+import { DependencyToken } from './DependencyToken.js'
+import { randomId } from '../ids/randomId.js'
 
 type IDependencyKlass<T> = { new (...x): T; name: string; create?(): never }
 type IDependencyToken<T> = { create(): T; name?: string }

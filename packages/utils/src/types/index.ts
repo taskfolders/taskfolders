@@ -1,1 +1,1 @@
-export { assertNever } from './assertNever'
+export { assertNever } from './assertNever.js'

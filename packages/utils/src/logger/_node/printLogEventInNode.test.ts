@@ -1,5 +1,5 @@
-import { printLogEventInNode } from './printLogEventInNode'
-import { setupLogger } from '../_test/setupLogger'
+import { printLogEventInNode } from './printLogEventInNode.js'
+import { setupLogger } from '../_test/setupLogger.js'
 import { expect, describe, it } from 'vitest'
 
 let longLine =

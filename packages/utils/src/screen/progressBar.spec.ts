@@ -1,4 +1,4 @@
-import { progressBar } from './progressBar'
+import { progressBar } from './progressBar.js'
 
 describe('x', () => {
   it('x', async () => {

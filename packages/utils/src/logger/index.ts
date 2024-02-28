@@ -1,5 +1,5 @@
-export { Logger } from './Logger'
-import { Logger } from './Logger'
+export { Logger } from './Logger.js'
+import { Logger } from './Logger.js'
 
 export const $log = new Logger()
 export const $dev = $log.dev.bind($log)

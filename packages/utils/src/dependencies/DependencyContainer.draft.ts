@@ -11,10 +11,10 @@ class CustomError {
   }
 }
 
-import { getsert } from '../native/object/getsert'
-import { ExcludeOptionalProps } from '../types/ExcludeOptionalProps'
-import { assertNever } from '../types/assertNever'
-import { InjectMarker } from './InjectMarker'
+import { getsert } from '../native/object/getsert.js'
+import { ExcludeOptionalProps } from '../types/ExcludeOptionalProps.js'
+import { assertNever } from '../types/assertNever.js'
+import { InjectMarker } from './InjectMarker.js'
 
 export const SYM_DependencyConfig = Symbol(
   'taskfolders.com:dependency.class-config',

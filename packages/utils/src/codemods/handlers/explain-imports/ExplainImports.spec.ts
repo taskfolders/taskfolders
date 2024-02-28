@@ -4,15 +4,15 @@
 import * as ts from 'typescript'
 import * as fs from 'fs'
 import { join } from 'node:path'
-import { ExplainImports, importPathToFile } from './ExplainImports'
+import { ExplainImports, importPathToFile } from './ExplainImports.js'
 
 let { log } = console
 import * as Path from 'node:path'
-import { getsert } from '../../../native/object/getsert'
+import { getsert } from '../../../native/object/getsert.js'
 import {
   findSourceCodeFiles,
   scanSourceImports,
-} from '../find-import-users/FindImportUsers'
+} from '../find-import-users/FindImportUsers.js'
 
 describe('x', () => {
   it('x imports', async function () {

@@ -1,2 +1,2 @@
-export { shellHyperlink } from './shellHyperlink/shellHyperlink'
-export { ScreenPrinter } from './ScreenPrinter'
+export { shellHyperlink } from './shellHyperlink/shellHyperlink.js'
+export { ScreenPrinter } from './ScreenPrinter.js'

@@ -1,8 +1,8 @@
-import { IssueGateway } from './IssueGateway'
-import { IssueItem } from './IssueItem'
-import { delay } from '../native/promise/delay'
-import { isPromise } from '../native/promise/isPromise'
-import { BasicIssue, DataIssue, TestIssue } from './_test/samples'
+import { IssueGateway } from './IssueGateway.js'
+import { IssueItem } from './IssueItem.js'
+import { delay } from '../native/promise/delay.js'
+import { isPromise } from '../native/promise/isPromise.js'
+import { BasicIssue, DataIssue, TestIssue } from './_test/samples.js'
 
 describe('x', () => {
   it('check and modify test', async () => {

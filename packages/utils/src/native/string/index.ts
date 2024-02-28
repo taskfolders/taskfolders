@@ -1,3 +1,3 @@
-export { padEnd } from './padEnd'
-export { visualLength } from './visualLength'
-export { dedent } from './dedent'
+export { padEnd } from './padEnd.js'
+export { visualLength } from './visualLength.js'
+export { dedent } from './dedent.js'

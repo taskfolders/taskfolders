@@ -1,7 +1,7 @@
-import { FeatureFlag } from './FeatureFlag'
-import { FeatureService } from './FeatureService'
-import { setFeaturesFromEnv } from './setFeaturesFromEnv'
-import { setFeaturesFromQueryString } from './setFeaturesFromQueryString'
+import { FeatureFlag } from './FeatureFlag.js'
+import { FeatureService } from './FeatureService.js'
+import { setFeaturesFromEnv } from './setFeaturesFromEnv.js'
+import { setFeaturesFromQueryString } from './setFeaturesFromQueryString.js'
 
 const Beta = FeatureFlag.create('beta', { enabled: true })
 

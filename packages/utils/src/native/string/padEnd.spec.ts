@@ -1,9 +1,9 @@
 import chalk from 'chalk'
-import { padEnd } from './padEnd'
+import { padEnd } from './padEnd.js'
 
-import { stripAnsiCodes } from './stripAnsiCodes'
-import { ScreenPrinter } from '../../screen/ScreenPrinter'
-import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink'
+import { stripAnsiCodes } from './stripAnsiCodes.js'
+import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
+import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 
 function padRight(txt: string, size: number) {
   let raw = stripAnsiCodes(txt)

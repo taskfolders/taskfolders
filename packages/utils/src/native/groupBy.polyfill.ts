@@ -1,4 +1,4 @@
-import _groupBy from 'lodash/groupBy'
+import _groupBy from 'lodash/groupBy.js'
 
 declare global {
   interface Object {

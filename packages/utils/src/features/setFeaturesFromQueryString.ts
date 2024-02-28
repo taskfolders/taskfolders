@@ -1,5 +1,5 @@
-import { FeatureService } from './FeatureService'
-import querystring from 'node:querystring'
+import { FeatureService } from './FeatureService.js'
+import * as querystring from 'node:querystring'
 
 export function setFeaturesFromQueryString(sut: FeatureService, qs: string) {
   let query = querystring.decode(qs)

@@ -1,5 +1,5 @@
 // import { Terminal } from '../../console/_node/Terminal.js'
-import chalk from 'chalk'
+import * as chalk from 'chalk'
 import { stripAnsiCodes } from './stripAnsiCodes.js'
 
 function ansiRegex({ onlyFirst = false } = {}) {

@@ -1,4 +1,4 @@
-import { SYM_DependencyConfig } from './DependencyContainer.draft'
+import { SYM_DependencyConfig } from './DependencyContainer.draft.js'
 
 export class InjectMarker {
   __INJECT = true

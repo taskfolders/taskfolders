@@ -1,7 +1,7 @@
-import { Logger } from '../Logger'
-import { LogServer } from '../LogServer'
-import { printLogEventInNode } from '../_node/printLogEventInNode'
-import { ScreenPrinter } from '../../screen/ScreenPrinter'
+import { Logger } from '../Logger.js'
+import { LogServer } from '../LogServer.js'
+import { printLogEventInNode } from '../_node/printLogEventInNode.js'
+import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 
 export function setupLogger(kv: { debug? }) {
   let screen = new ScreenPrinter()

@@ -2,12 +2,12 @@
 
 // import { ConsoleTheme } from './ConsoleTheme'
 // import { ConsolePrinterProtocol } from './ConsolePrinterProtocol'
-import chalk from 'chalk'
-import { isDebug } from '../runtime/isDebug'
+import * as chalk from 'chalk'
+import { isDebug } from '../runtime/isDebug.js'
 // import { Terminal } from './Terminal'
-import { ConsoleTheme } from './ConsoleTheme'
-import { indent } from '../native/string/indent'
-import { stripAnsiCodes } from '../native/string/stripAnsiCodes'
+import { ConsoleTheme } from './ConsoleTheme.js'
+import { indent } from '../native/string/indent.js'
+import { stripAnsiCodes } from '../native/string/stripAnsiCodes.js'
 
 // import { sanitizeString } from '../../native/string/sanitizeString'
 // import { decolorize, indent, stripAnsiCodes } from '../../native/string'
@@ -19,8 +19,8 @@ import { stripAnsiCodes } from '../native/string/stripAnsiCodes'
 // import { nodeEnv } from '../../runtime/isNodeEnv'
 // import { FindCaller } from '../../stack'
 // import { UserEditorLink } from '../../_draft'
-import { shellHyperlink } from './shellHyperlink/shellHyperlink'
-import { FindCaller } from '../stack/locate/FindCaller'
+import { shellHyperlink } from './shellHyperlink/shellHyperlink.js'
+import { FindCaller } from '../stack/locate/FindCaller.js'
 const sanitizeString = x => x
 const isPromise = x => false
 const decolorize = x => x

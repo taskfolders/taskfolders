@@ -1,4 +1,4 @@
-import { FeatureService } from './FeatureService'
+import { FeatureService } from './FeatureService.js'
 
 export function setFeaturesFromEnv(
   service: FeatureService,

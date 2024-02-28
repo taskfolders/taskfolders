@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "description": "Generic codign utilities and helpers",
   "access": "public",
+  "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/taskfolders/open.git"
+    "url": "git+https://github.com/taskfolders/taskfolders.git"
   },
   "files": [
     "dist",
@@ -19,18 +20,15 @@
     "test": "npx vitest --run"
   },
   "exports": {
-    "./*": {
-      "types": "./dist/types/*.d.ts",
-      "require": "./dist/cjs/*.js",
-      "import": "./dist/esm/*.js",
-      "default": "./dist/esm/*.js"
-    }
+    "./logger": "./dist/logger/index.js",
+    "./logger/node.start": "./dist/logger/node.start.js",
+    "./*": "./dist/*" 
   },
   "typesVersions": {
     "*": {
       "*": [
-        "dist/types/*",
-        "dist/types/*/index.d.ts"
+        "dist/*",
+        "dist/*/index.d.ts"
       ]
     }
   },

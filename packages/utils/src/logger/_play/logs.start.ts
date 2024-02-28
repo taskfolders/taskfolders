@@ -1,6 +1,5 @@
 import '../node.start'
-import { Logger } from '../Logger'
-import { printMore } from './helper'
+import { Logger } from '../Logger.js'
 let log = new Logger()
 
 function main() {

@@ -1,8 +1,8 @@
-import { printLogEventInBrowser } from './printLogEventInBrowser'
-import { levelNumbers, LogLevelName, defaultLogLevel } from './helpers'
-import { isReleaseMode } from '../runtime/isReleaseMode'
-import type { LogEvent } from './Logger'
-import { passThreshold } from './passThreshold'
+import { printLogEventInBrowser } from './printLogEventInBrowser.js'
+import { levelNumbers, LogLevelName, defaultLogLevel } from './helpers.js'
+import { isReleaseMode } from '../runtime/isReleaseMode.js'
+import type { LogEvent } from './Logger.js'
+import { passThreshold } from './passThreshold.js'
 
 export class LogServer {
   levelThresholdName = defaultLogLevel()

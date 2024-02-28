@@ -1,4 +1,4 @@
-import { levelNumbers, LogLevelName } from './helpers'
+import { levelNumbers, LogLevelName } from './helpers.js'
 
 export function passThreshold(kv: {
   level: LogLevelName

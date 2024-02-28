@@ -1,4 +1,4 @@
-import { stripAnsiCodes } from './stripAnsiCodes'
+import { stripAnsiCodes } from './stripAnsiCodes.js'
 
 export const padEnd = (txt: string, n: number) => {
   let clean = stripAnsiCodes(txt)

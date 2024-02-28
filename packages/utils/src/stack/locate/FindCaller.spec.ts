@@ -1,4 +1,4 @@
-import { FindCaller } from './FindCaller'
+import { FindCaller } from './FindCaller.js'
 
 describe('x', () => {
   it.skip('x', async () => {

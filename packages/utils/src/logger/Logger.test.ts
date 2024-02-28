@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest'
-import { Logger } from './Logger'
-import { setupLogger } from './_test/setupLogger'
-import { stripAnsiCodes } from '../native/string/stripAnsiCodes'
+import { Logger } from './Logger.js'
+import { setupLogger } from './_test/setupLogger.js'
+import { stripAnsiCodes } from '../native/string/stripAnsiCodes.js'
 
 describe('log cases', () => {
   it('using level functions', async () => {

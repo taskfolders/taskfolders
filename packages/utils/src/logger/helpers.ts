@@ -1,5 +1,5 @@
-import { isNodeRuntime } from '../runtime/isNodeRuntime'
-import { Logger } from './Logger'
+import { isNodeRuntime } from '../runtime/isNodeRuntime.js'
+import { Logger } from './Logger.js'
 
 export type LogLevelName = 'trace' | 'debug' | 'info' | 'dev' | 'warn' | 'error'
 export const levelNumbers: Record<LogLevelName, number> = {

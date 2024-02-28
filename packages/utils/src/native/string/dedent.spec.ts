@@ -1,4 +1,4 @@
-import { dedent, dedentString } from './dedent'
+import { dedent, dedentString } from './dedent.js'
 import { default as RawDedent } from 'dedent'
 
 describe('x', () => {

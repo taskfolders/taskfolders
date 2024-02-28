@@ -1,12 +1,11 @@
-import { FindCaller } from '../../stack/locate/FindCaller'
-import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink'
+import { FindCaller } from '../../stack/locate/FindCaller.js'
+import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { inspect } from 'node:util'
-import type { LogLevelName } from '../helpers'
-import { ScreenPrinter } from '../../screen/ScreenPrinter'
-import { LogEvent } from '../Logger'
-import { ConsoleTheme } from '../../screen/ConsoleTheme'
-import { CodePosition } from '../../stack/locate/CodePosition'
-import { passThreshold } from '../passThreshold'
+import type { LogLevelName } from '../helpers.js'
+import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
+import { LogEvent } from '../Logger.js'
+import { CodePosition } from '../../stack/locate/CodePosition.js'
+import { passThreshold } from '../passThreshold.js'
 
 const levelColors: Record<LogLevelName, string> = {
   trace: 'grey',

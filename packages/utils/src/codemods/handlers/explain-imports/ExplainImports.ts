@@ -1,5 +1,5 @@
 import fg from 'fast-glob'
-import ts from 'typescript'
+import * as ts from 'typescript'
 // import * as ts from 'typescript'
 import * as fs from 'fs'
 import { join } from 'node:path'
@@ -9,10 +9,10 @@ import '../../../native/groupBy.polyfill'
 
 // import { dirname } from 'path'
 // import { fileURLToPath } from 'url'
-import { getsert } from '../../../native/object/getsert'
-import { when } from '../../../native/flow/when'
-import { ScreenPrinter } from '../../../screen/ScreenPrinter'
-import { shellHyperlink } from '../../../screen/shellHyperlink/shellHyperlink'
+import { getsert } from '../../../native/object/getsert.js'
+import { when } from '../../../native/flow/when.js'
+import { ScreenPrinter } from '../../../screen/ScreenPrinter.js'
+import { shellHyperlink } from '../../../screen/shellHyperlink/shellHyperlink.js'
 
 /* convert import path into exact file path
  * - add file extension

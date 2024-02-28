@@ -1,5 +1,5 @@
-import { IssueItem } from './IssueItem'
-import { isPromise } from '../native/promise/isPromise'
+import { IssueItem } from './IssueItem.js'
+import { isPromise } from '../native/promise/isPromise.js'
 
 interface CheckContext<T> {
   message?: string

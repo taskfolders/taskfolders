@@ -1,6 +1,6 @@
-import { DC } from '../dependencies/DC'
-import { FeatureDefinition } from './FeatureFlag'
-import { FeatureId, FeatureRef } from './FeatureRef'
+import { DC } from '../dependencies/DC.js'
+import { FeatureDefinition } from './FeatureFlag.js'
+import { FeatureId, FeatureRef } from './FeatureRef.js'
 
 export class FeatureService {
   _featuresByString = new Map<string, { enabled: boolean; value? }>()
