@@ -1,4 +1,4 @@
-name: utils--build
+name: utils -- build
 
 env:
   PACKAGE_DIR: packages/utils
