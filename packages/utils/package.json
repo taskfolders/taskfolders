@@ -24,7 +24,7 @@
     "./logger/LoggerMock": "./dist/esm/logger/node/LoggerMock.js",
     "./logger/browser": "./dist/esm/logger/browser/index.js",
     "./logger/node.start": "./dist/esm/logger/node.start.js",
-    "./*": "./dist/esm/*" 
+    "./*": "./dist/esm/*"
   },
   "typesVersions": {
     "*": {

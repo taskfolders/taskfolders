@@ -46,6 +46,8 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
 
   return (log: LogEvent) => {
     let location: CodePosition
+
+    // TODO #review why fail with bun
     if (log.options.forceLink) {
       location = FindCaller.here({ offset: 4 })
     } else {
