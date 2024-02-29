@@ -18,27 +18,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # defaults:
-    #  run:
-    #    working-directory: ${{ env.PACKAGE_DIR }}
+    defaults:
+      run:
+      working-directory: packages/utils
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Global dependencies
-        run: npm install
+      - name: Install global dependencies
+        run: cd ../.. && npm install
 
-      - name: Set working directory
-        run: |
-          cd $PACKAGE_DIR
-          echo now at $(pwd) after $PACKAGE_DIR
-
-      - name: Install dependencies
+      - name: Install local dependencies
         run: npm install
 
       - name: Run tests
-        run: |
-          echo now at $(pwd)
-          npm run test:ci
+        run: npm run test:ci
 
