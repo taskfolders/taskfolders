@@ -5,6 +5,8 @@ env:
   TASKFOLDERS_ROOT: ${{ github.workspace }}
 
 on:
+  workflow_dispatch:
+
   push:
     branches: 
       - main
