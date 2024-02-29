@@ -61,6 +61,7 @@ export const importPathToFile = ({
   if (fs.existsSync(maybe)) return maybe
 
   let error = Error('Could not guess import file extension')
+  // @ts-expect-error TODO
   error.data = {
     importPath,
     sourcePath,

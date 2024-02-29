@@ -1,3 +1,4 @@
+import { $dev } from '../logger/node/index.js'
 import { progressBar } from './progressBar.js'
 
 describe('x', () => {

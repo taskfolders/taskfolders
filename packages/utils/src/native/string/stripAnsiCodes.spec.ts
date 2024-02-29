@@ -1,6 +1,7 @@
 // import { Terminal } from '../../console/_node/Terminal.js'
 import * as chalk from 'chalk'
 import { stripAnsiCodes } from './stripAnsiCodes.js'
+import { $dev } from '../../logger/node/index.js'
 
 function ansiRegex({ onlyFirst = false } = {}) {
   const pattern = [
@@ -8,7 +9,7 @@ function ansiRegex({ onlyFirst = false } = {}) {
     '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
   ].join('|')
 
-  // eslint-disable-next-line security/detect-non-literal-regexp
+  // e slint-disable-next-line security/detect-non-literal-regexp
   return new RegExp(pattern, onlyFirst ? undefined : 'g')
 }
 

@@ -9,7 +9,6 @@ import { assertNever } from '../types/assertNever.js'
 import { FetchAsyncError, UnregisteredValueError } from './errors.js'
 import { FetchRawResult } from './FetchRawResult.js'
 import { DependencyToken } from './DependencyToken.js'
-import { randomId } from '../ids/randomId.js'
 
 type IDependencyKlass<T> = { new (...x): T; name: string; create?(): never }
 type IDependencyToken<T> = { create(): T; name?: string }
@@ -39,7 +38,7 @@ export class DC {
   _parent: DC
 
   constructor(kv: { name?: string; parent?: DC } = {}) {
-    this.name = kv.name ?? randomId()
+    this.name = kv.name ?? crypto.randomUUID()
     if (kv.parent !== null) {
       this._parent = Container
     }

@@ -4,6 +4,7 @@ import { DependencyMeta, ILifeTime } from './DependencyMeta.js'
 import { delay } from '../native/promise/delay.js'
 import { FetchAsyncError, UnregisteredValueError } from './errors.js'
 import { inspect } from 'node:util'
+import { $dev } from '../logger/node/index.js'
 
 // TODO global?
 

@@ -1,7 +1,7 @@
 import { FindCaller } from '../../stack/locate/FindCaller.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { inspect } from 'node:util'
-import type { LogLevelName } from '../helpers.js'
+import { type LogLevelName } from '../helpers.js'
 import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 import { LogEvent } from '../BaseLogger.js'
 import { CodePosition } from '../../stack/locate/CodePosition.js'

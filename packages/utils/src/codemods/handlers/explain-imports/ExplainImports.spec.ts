@@ -13,6 +13,7 @@ import {
   findSourceCodeFiles,
   scanSourceImports,
 } from '../find-import-users/FindImportUsers.js'
+import { $dev } from '../../../logger/node/index.js'
 
 describe('x', () => {
   it('x imports', async function () {
