@@ -10,7 +10,7 @@ on:
       - main
       - develop
     paths:
-      - "${{ env.$PACKAGE_DIR}}/**"
+      - "${{ env.PACKAGE_DIR }}/**"
 
 jobs:
   build:
