@@ -1,3 +1,4 @@
+export { BrowserLogger } from './BrowserLogger.js'
 import { BrowserLogger } from './BrowserLogger.js'
 
 export const $log = new BrowserLogger()

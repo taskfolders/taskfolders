@@ -1,6 +1,7 @@
-import { $log, NodeLogger } from '../index.js'
-// let log = new NodeLogger()
-// log.warn('wow')
+import { $log, BrowserLogger } from '../index.js'
+
+let log = new BrowserLogger()
+log.warn('in browser')
 
 function main() {
   $log.trace('hi log')

@@ -5,7 +5,7 @@ import { passThreshold } from './passThreshold.js'
 export abstract class BaseLogServer {
   levelThresholdName = defaultLogLevel()
 
-  abstract printLog: (LogEvent) => void
+  abstract printLog: (ev: LogEvent) => void
 
   handleLog(log: LogEvent) {
     let pass = passThreshold({
