@@ -12,7 +12,8 @@ on:
       - main
       - develop
     paths:
-      - "${{ env.PACKAGE_DIR }}/**"
+      # - "${{ env.PACKAGE_DIR }}/**"
+      - "packages/utils/**"
 
 jobs:
   build:
