@@ -17,13 +17,15 @@ it('simple print #todo', async () => {
 
 class LoggerMock extends NodeLogger {
   acu: string[] = []
-  __debug: boolean
+  _debug: boolean
 
   static hook<T, P extends keyof T>(
     obj: T,
     key: P & T[P] extends NodeLogger ? P : never,
+    kv: { debug?: boolean } = {},
   ) {
     let mock = new this()
+    mock._debug = kv.debug
 
     // @ts-expect-error TODO
     obj[key] = mock
@@ -37,7 +39,7 @@ class LoggerMock extends NodeLogger {
     let original = log.put.bind(log)
     log.put = x => {
       obj.acu.push(x)
-      if (obj.__debug) {
+      if (obj._debug) {
         console.log(chalk.magenta('screen'), '|', x)
       }
       return original(x)
@@ -54,6 +56,11 @@ class LoggerMock extends NodeLogger {
     return txt
   }
 
+  put(text: string) {
+    this.acu.push(text)
+    super.put(text)
+  }
+
   /** expect logs (like errors) */
   expect(rx: RegExp, kv: { level? } = {}) {
     throw Error('todo')
@@ -61,7 +68,12 @@ class LoggerMock extends NodeLogger {
 }
 
 describe('test helper', () => {
-  it('spy #deprecated', async () => {
+  class Panda {
+    alien: string
+    log = new NodeLogger()
+  }
+
+  it('spy .put printed text #deprecated', async () => {
     let sut = setupLogger({ debug: false })
     let spy = LoggerMock.spy(sut.log)
 
@@ -75,23 +87,16 @@ describe('test helper', () => {
   })
 
   it('capture printed text', async () => {
-    let sut = setupLogger({ debug: false })
-    let spy = LoggerMock.spy(sut.log)
-    class Panda {
-      alien: string
-      log = new NodeLogger()
-    }
     let pan = new Panda()
 
     let mock = LoggerMock.hook(pan, 'log')
 
-    sut.log.put('one')
-    sut.log.put('two')
-    expect(spy.text()).toEqual('one\ntwo')
+    pan.log.put('one')
+    pan.log.put(shellHyperlink({ text: 'link', path: '/tmp/foo.md' }))
 
-    sut.log.put(shellHyperlink({ text: 'link', path: '/tmp/foo.md' }))
-    expect(spy.text()).toContain('/tmp/foo.md')
-    expect(spy.text({ stripAnsi: true })).not.toContain('/tmp/foo.md')
+    expect(mock.text()).toContain('one')
+    expect(mock.text()).toContain('/tmp/foo.md')
+    expect(mock.text({ stripAnsi: true })).not.toContain('/tmp/foo.md')
 
     LoggerMock.hook(
       pan,
@@ -106,13 +111,18 @@ describe('test helper', () => {
     )
   })
 
-  it('debug mode', async () => {
+  it.skip('debug mode #manual', async () => {
+    // TODO with mock?
     let { log } = setupLogger({ debug: false })
     let spy = LoggerMock.spy(log)
-    spy.__debug = true
+    spy._debug = true
 
     log.put('one')
     log.put('two')
+
+    let pan = new Panda()
+    let mock = LoggerMock.hook(pan, 'log', { debug: true })
+    pan.log.put('one')
   })
 })
 

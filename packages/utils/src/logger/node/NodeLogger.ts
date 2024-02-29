@@ -4,6 +4,7 @@ import { getCallerFile } from '../../stack/locate/getCallerFile.js'
 import { BaseLogServer } from '../BaseLogServer.js'
 import { BaseLogger } from '../BaseLogger.js'
 import { NodeLogServer } from './NodeLogServer.js'
+import { isDebug } from '../../runtime/isDebug.js'
 //import { magenta } from 'chalk'
 import chalk from 'chalk'
 
@@ -25,9 +26,10 @@ export class NodeLogger extends BaseLogger {
 
   put(text: string) {
     let parts = [text]
-    let isDebug = this._debug
     this.screen.print(text)
-    if (isDebug) {
+
+    let hasDebug = this._debug ?? isDebug('put') ?? isDebug('screen')
+    if (hasDebug) {
       let pos = getCallerFile()
       let label = shellHyperlink({
         text: 'screen',
@@ -39,8 +41,10 @@ export class NodeLogger extends BaseLogger {
       parts = [label, ...parts]
     }
 
-    if (isDebug || process.env.NODE_ENV !== 'test') {
+    if (hasDebug || process.env.NODE_ENV !== 'test') {
       console.log(parts.join(' '))
     }
+
+    return this
   }
 }
