@@ -37,7 +37,6 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
         text: level,
         path: location.path,
         lineNumber: location.lineNumber,
-        scheme: 'vscode',
       })
       level = t1
     }
