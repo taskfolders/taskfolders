@@ -17,7 +17,7 @@
     "build": "tsc",
     "publish": "npm publish --access public",
     "test:watch": "vitest watch --hideSkippedTests --changed",
-    "test:ci": "vitest --run --exclude '**/*_noci*' --allowOnly=false",
+    "test:ci": "sh ./bin/test--ci.sh",
     "test": "vitest --run"
   },
   "exports": {
