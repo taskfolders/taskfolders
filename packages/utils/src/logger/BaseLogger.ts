@@ -1,8 +1,5 @@
 import { BaseLogServer } from './BaseLogServer.js'
-import { NodeLogger } from './node/NodeLogger.js'
 import { LogLevelName } from './helpers.js'
-import { FindCaller } from '../stack/locate/FindCaller.js'
-import { shellHyperlink } from '../screen/shellHyperlink/shellHyperlink.js'
 
 interface LogOptions {
   depth?: number
@@ -13,7 +10,7 @@ interface LogOptions {
 //type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
 
 function createLogLevelFunction(level: LogLevelName) {
-  return function (this: NodeLogger, ...args: any[]) {
+  return function (this: BaseLogger, ...args: any[]) {
     this._logRaw({ args, levelName: level })
     return args[0]
   }
