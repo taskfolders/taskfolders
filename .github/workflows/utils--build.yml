@@ -30,11 +30,15 @@ jobs:
         run: npm install
 
       - name: Set working directory
-        run: cd $PACKAGE_DIR
+        run: |
+          cd $PACKAGE_DIR
+          echo now at $(pwd) after $PACKAGE_DIR
 
       - name: Install dependencies
         run: npm install
 
       - name: Run tests
-        run: npm run test:ci
+        run: |
+          echo now at $(pwd)
+          npm run test:ci
 
