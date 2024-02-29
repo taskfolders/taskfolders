@@ -3,7 +3,7 @@ import { NodeLogServer } from '../node/NodeLogServer.js'
 import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'
 
 export function setupLogger(kv: { debug? }) {
-  let server = NodeLogServer.request() as NodeLogServer
+  let server = new NodeLogServer()
   server.screen.debug = kv.debug
   //server.printLog = printLogEventInNode({ screen })
 

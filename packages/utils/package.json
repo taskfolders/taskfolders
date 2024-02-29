@@ -16,8 +16,9 @@
   "scripts": {
     "build": "tsc",
     "publish": "npm publish --access public",
-    "test:ci": "npx vitest --run --exclude '**/*_noci*' --allowOnly=false",
-    "test": "npx vitest --run"
+    "test:watch": "vitest --watch",
+    "test:ci": "vitest --run --exclude '**/*_noci*' --allowOnly=false",
+    "test": "vitest --run"
   },
   "exports": {
     "./logger/node": "./dist/esm/logger/node/index.js",
