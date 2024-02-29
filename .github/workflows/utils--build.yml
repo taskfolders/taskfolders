@@ -33,5 +33,7 @@ jobs:
         run: npm install
 
       - name: Run tests
-        run: npm run test:ci
+        run: |
+          echo at $(pwd)
+          sh ./bin/test--ci.sh
 
