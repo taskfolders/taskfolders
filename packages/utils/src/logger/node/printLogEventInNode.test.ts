@@ -77,7 +77,7 @@ describe('x', () => {
     sut.info(longParagraph)
   })
 
-  it.only('print short logs in one line', async () => {
+  it('print short logs in one line', async () => {
     let { sut, screen } = setupLogger({ debug: false })
 
     sut.info('one', 2, { foo: 'bar' })

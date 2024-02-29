@@ -5,7 +5,7 @@ export function passThreshold(kv: {
   threshold: LogLevelName
 }) {
   let level_given = levelNumbers[kv.level]
-  let level_threshold = levelNumbers[this.levelThresholdName]
+  let level_threshold = levelNumbers[kv.threshold]
   let isPass = level_given >= level_threshold
   // if (isReleaseMode() && levelName === 'dev') {
   //   isPass = false
