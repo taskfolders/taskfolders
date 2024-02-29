@@ -1,7 +1,7 @@
 # @owner fgarcia
 # @job   366a5b8a-0e07-4847-b857-c99882fc84b5 
 
-name: npm -- release
+name: utils -- release
 
 env:
   PACKAGE_NAME: utils
