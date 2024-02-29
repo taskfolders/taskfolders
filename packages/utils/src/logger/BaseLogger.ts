@@ -42,7 +42,6 @@ interface UserLogEvent {
 export abstract class BaseLogger {
   abstract server: BaseLogServer
   name: string
-  _debug = false
 
   constructor() {}
 
