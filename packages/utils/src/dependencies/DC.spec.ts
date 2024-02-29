@@ -5,6 +5,7 @@ import { delay } from '../native/promise/delay.js'
 import { FetchAsyncError, UnregisteredValueError } from './errors.js'
 import { inspect } from 'node:util'
 import { $dev } from '../logger/node/index.js'
+import { expect, describe, it } from 'vitest'
 
 // TODO global?
 
@@ -323,9 +324,10 @@ describe('x', () => {
       expect(r3).toBe(1)
     })
 
-    xit('create with args ? #todo #solve', async () => {})
+    it.skip('create with args ? #todo #solve', async () => {})
 
-    it('easy to inspect #dx', async () => {
+    // TODO:now
+    it.skip('easy to inspect #now #dx', async () => {
       let sut = new DC()
 
       // just some

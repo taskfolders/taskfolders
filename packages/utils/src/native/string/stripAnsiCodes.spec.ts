@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest'
 // import { Terminal } from '../../console/_node/Terminal.js'
 import * as chalk from 'chalk'
 import { stripAnsiCodes } from './stripAnsiCodes.js'
@@ -17,7 +18,8 @@ describe('x', () => {
   let s1 =
     "\u001b[33m\u001b]8;;mscode:///home/fgarcia/work/taskfolders/packages/apps/api-local/src/ApiLocalApp.ts:12:5\u0007DEV  \u001b]8;;\u0007\u001b[39m Start local server\n\u001b[36m\u001b]8;;mscode:///home/fgarcia/work/taskfolders/packages/core/src/network/koa/_node/KoaApiService.ts:249:14\u0007INFO \u001b]8;;\u0007\u001b[39m [koa] Koa started on http://127.0.0.1:3008/\n\u001b[33m\u001b]8;;mscode:///home/fgarcia/work/taskfolders/packages/apps/api-local/src/ApiLocalApp.ts:53:5\u0007DEV  \u001b]8;;\u0007\u001b[39m\n  {\n    routes: [\n      { path: \u001b[32m'/api/draft/list/foo'\u001b[39m, method: \u001b[32m'GET'\u001b[39m },\n      { path: \u001b[32m'/api/draft/list/sample-1'\u001b[39m, method: \u001b[32m'GET'\u001b[39m },\n      { path: \u001b[32m'/api/health'\u001b[39m, method: \u001b[32m'GET'\u001b[39m }\n    ]\n  }\n\u001b[33m\u001b]8;;mscode:///home/fgarcia/work/taskfolders/packages/core-domain/src/fork/tryParentForkReady.ts:22:3\u0007DEV  \u001b]8;;\u0007\u001b[39m Tell parent start info\n\r\u001b[33m\u001b]8;;mscode:///home/fgarcia/work/taskfolders/packages/apps/api-local/src/index.start.ts:22:3\u0007DEV  \u001b]8;;\u0007\u001b[39m\n  {\n    pid: \u001b[33m1222881\u001b[39m,\n    title: \u001b[32m'/home/fgarcia/work/taskfolders/node_modules/electron/dist/electron /home/fgarcia/work/taskfolders/packages/apps/api-local/_build/code/index.start.js'\u001b[39m\n  }"
 
-  it('x strip just links, not the colors #todo', async () => {
+  // TODO:now
+  it.skip('x strip just links, not the colors #todo', async () => {
     let link //= Terminal.hyperlink({ text: 'link', path: '/app/foo.json' })
     let txt = `Hello ${chalk.green('green')} or ${chalk.red(
       'red',

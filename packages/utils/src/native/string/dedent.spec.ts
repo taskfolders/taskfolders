@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest'
 import { dedent, dedentString } from './dedent.js'
 import { default as RawDedent } from 'dedent'
 

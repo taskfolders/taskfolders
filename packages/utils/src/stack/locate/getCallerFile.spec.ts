@@ -1,3 +1,5 @@
+import { expect, describe, it } from 'vitest'
+
 import { foo } from './_test/fooFunction.js'
 
 describe('x', () => {

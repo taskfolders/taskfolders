@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest'
 import { printTable } from './printTable.js'
 describe('x', () => {
   it('x', async () => {

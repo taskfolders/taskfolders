@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest'
 import chalk from 'chalk'
 import { padEnd } from './padEnd.js'
 

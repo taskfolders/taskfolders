@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest'
 import { IssueGateway } from './IssueGateway.js'
 import { IssueItem } from './IssueItem.js'
 import { delay } from '../native/promise/delay.js'
@@ -29,7 +30,7 @@ describe('x', () => {
     expect(res.data).toEqual({ fox: 1 })
   })
 
-  xit('x #robustness #type #todo', async () => {
+  it.skip('x #robustness #type #todo', async () => {
     let sut = new IssueGateway()
 
     let r1 = sut.check(BasicIssue, () => {
@@ -38,7 +39,7 @@ describe('x', () => {
   })
 
   describe('issue config', async () => {
-    it.only('x', async () => {
+    it('x', async () => {
       const BasicIssue = IssueItem.define({ code: 'basic-1' })
       let sut = new IssueGateway()
       let r1 = sut.check(BasicIssue, () => false)

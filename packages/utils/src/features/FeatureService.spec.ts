@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest'
 import { FeatureFlag } from './FeatureFlag.js'
 import { FeatureService } from './FeatureService.js'
 import { setFeaturesFromEnv } from './setFeaturesFromEnv.js'

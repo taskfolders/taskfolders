@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest'
 import ansiEscapes from 'ansi-escapes'
 import { shellHyperlink } from './shellHyperlink.js'
 import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'
