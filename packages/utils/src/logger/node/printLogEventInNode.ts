@@ -99,8 +99,21 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
       loggerName = th.dim(`[${loggerName}]`)
     }
 
+    let oneLine = log.args
+      .map(x => {
+        if (typeof x === 'string') return x
+        return inspect(x, { colors: true })
+      })
+      .join(' ')
+    if (oneLine.length < 70) {
+      screen.log([level, loggerName, oneLine])
+      return
+    }
+
     let parts = [level, loggerName, first]
     screen.log(parts)
+
+    //console.log(inspect(log.args, { colors: true }))
     if (second) {
       screen.indent().log(second)
     }

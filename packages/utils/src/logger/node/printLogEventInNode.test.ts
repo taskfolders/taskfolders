@@ -1,6 +1,7 @@
 import { printLogEventInNode } from './printLogEventInNode.js'
 import { setupLogger } from '../_test/setupLogger.js'
 import { expect, describe, it } from 'vitest'
+import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'
 
 let longLine =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
@@ -63,15 +64,25 @@ describe('x', () => {
       sut.info({ obj }, null, { inspect: false })
     })
   })
+
   it('no value', async () => {
     let { sut } = setupLogger({ debug: true })
     sut.info(null)
     sut.info(undefined)
   })
 
-  it('long text', async () => {
-    let { sut } = setupLogger({ debug: true })
+  it('long text #todo', async () => {
+    let { sut } = setupLogger({ debug: false })
     sut.info(longLine)
     sut.info(longParagraph)
+  })
+
+  it.only('print short logs in one line', async () => {
+    let { sut, screen } = setupLogger({ debug: false })
+
+    sut.info('one', 2, { foo: 'bar' })
+
+    let txt = stripAnsiCodes(screen.text())
+    expect(txt).toBe("INFO   one 2 { foo: 'bar' }")
   })
 })

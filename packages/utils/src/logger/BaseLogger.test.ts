@@ -48,7 +48,7 @@ it('x log args #todo', async () => {
   sut.dev({ fox: 1 })
 })
 
-it.only('x log function #todo', async () => {
+it('x log function #todo', async () => {
   let { sut } = setupLogger({ debug: true })
   sut.warn('my warning', 3, { foo: 'bar' })
 
@@ -60,5 +60,13 @@ it.only('x log function #todo', async () => {
     // message: () => {
     //   return "some text";
     // }
+  })
+})
+
+describe('calling cases', () => {
+  it('x', async () => {
+    let { sut } = setupLogger({ debug: true })
+    sut.warn('my warning', 3, { foo: 'bar' })
+    console.log('my warning', 3, { foo: 'bar' })
   })
 })
