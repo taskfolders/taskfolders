@@ -8,14 +8,14 @@ describe('log cases', () => {
     let test = setupLogger({ debug: false })
 
     test.sut.dev({ fox: 1 })
-    let txt = test.screen.text()
-    expect(txt).toContain('src/logger/Logger')
+    let txt = test.raw()
+
+    expect(txt).toContain('src/logger')
 
     txt = stripAnsiCodes(txt)
     expect(txt).toContain('DEV')
-    expect(txt).toContain('object')
     expect(txt).toContain('fox: 1')
-    expect(txt).not.toContain('src/logger/Logger')
+    expect(txt).not.toContain('src/logger')
   })
 
   it('using raw dsl', async () => {
@@ -63,10 +63,47 @@ it('x log function #todo', async () => {
   })
 })
 
-describe('calling cases', () => {
-  it('x', async () => {
-    let { sut } = setupLogger({ debug: true })
-    sut.warn('my warning', 3, { foo: 'bar' })
-    console.log('my warning', 3, { foo: 'bar' })
+describe('use cases', () => {
+  it('return first parameter', async () => {
+    // WHY ease logging without creating new variables
+    let sut = setupLogger({ debug: false })
+    let r1 = sut.log.info({ foo: 'bar' }, 'some')
+    expect(r1).toEqual({ foo: 'bar' })
+  })
+
+  it('use log level to guard message builder method', async () => {
+    // WHY prevent extra code if log is not needed
+
+    let sut = setupLogger({ debug: false })
+    let spy = 0
+    sut.log.raw({
+      level: 'dev',
+      message: () => {
+        spy++
+        return 'foo'
+      },
+    })
+    expect(sut.clean()).toBe('DEV    foo')
+
+    sut = setupLogger({ debug: false })
+    sut.log.raw({
+      level: 'dev',
+      message: () => {
+        spy++
+        return ['a', 'b']
+      },
+    })
+
+    expect(sut.clean()).toBe('DEV    a b')
+
+    sut.log.raw({
+      level: 'trace',
+      message: () => {
+        spy++
+        return ['a', 'b']
+      },
+    })
+
+    expect(spy).toBe(2)
   })
 })

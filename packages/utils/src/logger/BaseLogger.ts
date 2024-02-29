@@ -1,5 +1,4 @@
 import { BaseLogServer } from './BaseLogServer.js'
-import { NodeLogger } from './node/NodeLogger.js'
 import { LogLevelName } from './helpers.js'
 
 interface LogOptions {
@@ -11,7 +10,7 @@ interface LogOptions {
 //type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
 
 function createLogLevelFunction(level: LogLevelName) {
-  return function (this: NodeLogger, ...args: any[]) {
+  return function (this: BaseLogger, ...args: any[]) {
     this._logRaw({ args, levelName: level })
     return args[0]
   }
@@ -19,6 +18,7 @@ function createLogLevelFunction(level: LogLevelName) {
 
 export interface LogEvent {
   args?: any[]
+  messageBuilder?: () => any[]
   levelName: LogLevelName
   levelValue?: number
   loggerName?: string
@@ -27,7 +27,7 @@ export interface LogEvent {
 
 interface UserLogEvent {
   level: LogLevelName
-  message?: string
+  message?: string | (() => string | any[])
   data?: Record<string, unknown>
 
   // options
@@ -54,6 +54,11 @@ export abstract class BaseLogger {
       forceLink: kv.forceLink,
     }
     let ev: LogEvent = { levelName: kv.level, args: [kv.message], options }
+    if (typeof kv.message === 'function') {
+      ev.args = []
+      // @ts-expect-error TODO
+      ev.messageBuilder = kv.message
+    }
     this._logRaw(ev)
   }
 
@@ -63,4 +68,10 @@ export abstract class BaseLogger {
   dev = createLogLevelFunction('dev')
   warn = createLogLevelFunction('warn')
   error = createLogLevelFunction('error')
+
+  // TODO abstract ?
+  put(txt: string) {
+    let parts = [txt]
+    console.log(parts.join(' '))
+  }
 }

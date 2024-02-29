@@ -37,7 +37,6 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
         text: level,
         path: location.path,
         lineNumber: location.lineNumber,
-        scheme: 'vscode',
       })
       level = t1
     }
@@ -46,6 +45,8 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
 
   return (log: LogEvent) => {
     let location: CodePosition
+
+    // TODO #review why fail with bun
     if (log.options.forceLink) {
       location = FindCaller.here({ offset: 4 })
     } else {

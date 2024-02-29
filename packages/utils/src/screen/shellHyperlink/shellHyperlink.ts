@@ -108,7 +108,9 @@ export function shellHyperlink(
   }
   if (template === 'default') {
     template =
-      kv.template ?? process.env.TF_HYPERLINK_TEMPLATE ?? ('vscode' as any)
+      kv.template ??
+      process.env.TASKFOLDERS_SHELL_LINKS_EDITOR ??
+      ('vscode' as any)
   }
 
   switch (template) {

@@ -30,7 +30,7 @@ describe('x', () => {
     expect(r1).toContain('file:///tmp/foo.md')
     expect(stripAnsiCodes(r1)).toBe('/tmp/foo.md')
 
-    fakeEnv('TF_HYPERLINK_TEMPLATE', null, () => {
+    fakeEnv('TASKFOLDERS_SHELL_LINKS_EDITOR', null, () => {
       let r2 = shellHyperlink({
         path: '/tmp/foo.md',
         lineNumber: 3,
@@ -39,7 +39,7 @@ describe('x', () => {
       expect(stripAnsiCodes(r2)).toBe('/tmp/foo.md')
     })
 
-    $dev({ see: process.env.TF_HYPERLINK_TEMPLATE })
+    $dev({ see: process.env.TASKFOLDERS_SHELL_LINKS_EDITOR })
 
     // template given
     let r3 = shellHyperlink({

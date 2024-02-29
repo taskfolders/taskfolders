@@ -187,7 +187,11 @@ export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
     pos.fileBuild = fileBuild.replace(/^file:\/\//, '')
   }
   pos.columnNumber = callSite.getColumnNumber()
-  pos.stack = stack.map(x => smp.wrapCallSite(x))
+
+  // TODO #review this makes Bun crash when imported as a package,
+  //      but not when used with a relative import
+  //
+  // pos.stack = stack.map(x => smp.wrapCallSite(x))
   pos.stackIndex = stackIndex
   pos.context = context
   return pos
