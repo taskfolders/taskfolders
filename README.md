@@ -13,3 +13,6 @@ TASKFOLDERS_SHELL_LINKS_EDITOR
   vscode, sublime, webstorm, mscode
 
 TASKFOLDERS_LOGGER_DEV
+  enable .dev logs
+
+TASKFOLDERS_LOGGER_LINKS_LEVEL

@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc",
     "publish": "npm publish --access public",
-    "test:watch": "vitest --watch",
+    "test:watch": "vitest watch --hideSkippedTests --changed",
     "test:ci": "vitest --run --exclude '**/*_noci*' --allowOnly=false",
     "test": "vitest --run"
   },
@@ -25,6 +25,7 @@
     "./logger/LoggerMock": "./dist/esm/logger/node/LoggerMock.js",
     "./logger/browser": "./dist/esm/logger/browser/index.js",
     "./logger/node.start": "./dist/esm/logger/node.start.js",
+    "./dependencies": "./dist/esm/dependencies/index.js",
     "./*": "./dist/esm/*"
   },
   "typesVersions": {

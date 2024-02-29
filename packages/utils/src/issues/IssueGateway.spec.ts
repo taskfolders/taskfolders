@@ -26,6 +26,7 @@ describe('x', () => {
     let res = sut.check(Panda, () => {
       return { fox: 1 }
     })
+
     expect(res.code).toBe('panda')
     expect(res.data).toEqual({ fox: 1 })
   })
