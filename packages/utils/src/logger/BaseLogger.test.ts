@@ -66,8 +66,43 @@ it('x log function #todo', async () => {
 describe('use cases', () => {
   it('return first parameter', async () => {
     // WHY ease logging without creating new variables
-    let sut = setupLogger({ debug: true })
+    let sut = setupLogger({ debug: false })
     let r1 = sut.log.info({ foo: 'bar' }, 'some')
     expect(r1).toEqual({ foo: 'bar' })
+  })
+
+  it('use log level to guard message builder method', async () => {
+    // WHY prevent extra code if log is not needed
+
+    let sut = setupLogger({ debug: false })
+    let spy = 0
+    sut.log.raw({
+      level: 'dev',
+      message: () => {
+        spy++
+        return 'foo'
+      },
+    })
+    expect(sut.clean()).toBe('DEV    foo')
+
+    sut = setupLogger({ debug: false })
+    sut.log.raw({
+      level: 'dev',
+      message: () => {
+        spy++
+        return ['a', 'b']
+      },
+    })
+    expect(sut.clean()).toBe('DEV    a b')
+
+    sut.log.raw({
+      level: 'trace',
+      message: () => {
+        spy++
+        return ['a', 'b']
+      },
+    })
+
+    expect(spy).toBe(2)
   })
 })

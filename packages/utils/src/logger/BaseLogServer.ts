@@ -23,6 +23,15 @@ export abstract class BaseLogServer {
     log.levelValue ??= levelNumbers[log.levelName]
 
     // let location = FindCaller.whenDevelopment({ offset: 3 })
+    if (log.messageBuilder) {
+      let out = log.messageBuilder()
+      if (Array.isArray(out)) {
+        log.args = out
+      } else {
+        log.args = [out]
+      }
+    }
+
     this.printLog(log)
   }
 }

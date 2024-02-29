@@ -1,6 +1,8 @@
 import { BaseLogServer } from './BaseLogServer.js'
 import { NodeLogger } from './node/NodeLogger.js'
 import { LogLevelName } from './helpers.js'
+import { FindCaller } from '../stack/locate/FindCaller.js'
+import { shellHyperlink } from '../screen/shellHyperlink/shellHyperlink.js'
 
 interface LogOptions {
   depth?: number
@@ -19,6 +21,7 @@ function createLogLevelFunction(level: LogLevelName) {
 
 export interface LogEvent {
   args?: any[]
+  messageBuilder?: () => any[]
   levelName: LogLevelName
   levelValue?: number
   loggerName?: string
@@ -27,7 +30,7 @@ export interface LogEvent {
 
 interface UserLogEvent {
   level: LogLevelName
-  message?: string
+  message?: string | (() => string | any[])
   data?: Record<string, unknown>
 
   // options
@@ -39,6 +42,7 @@ interface UserLogEvent {
 export abstract class BaseLogger {
   abstract server: BaseLogServer
   name: string
+  _debug = false
 
   constructor() {}
 
@@ -54,6 +58,11 @@ export abstract class BaseLogger {
       forceLink: kv.forceLink,
     }
     let ev: LogEvent = { levelName: kv.level, args: [kv.message], options }
+    if (typeof kv.message === 'function') {
+      ev.args = []
+      // @ts-expect-error TODO
+      ev.messageBuilder = kv.message
+    }
     this._logRaw(ev)
   }
 
@@ -63,4 +72,10 @@ export abstract class BaseLogger {
   dev = createLogLevelFunction('dev')
   warn = createLogLevelFunction('warn')
   error = createLogLevelFunction('error')
+
+  // TODO abstract ?
+  put(txt: string) {
+    let parts = [txt]
+    console.log(parts.join(' '))
+  }
 }

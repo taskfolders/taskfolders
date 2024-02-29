@@ -7,7 +7,6 @@ export class NodeLogServer extends BaseLogServer {
   screen = new ScreenPrinter()
 
   printLog: (LogEvent) => void = (ev: LogEvent) => {
-    console.log('--server')
     printLogEventInNode({ screen: this.screen })(ev)
   }
   // printLog2(ev: LogEvent) {
