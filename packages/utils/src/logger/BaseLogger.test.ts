@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest'
-import { Logger } from './Logger'
-import { setupLogger } from './_test/setupLogger'
-import { stripAnsiCodes } from '../native/string/stripAnsiCodes'
+import { NodeLogger } from './node/NodeLogger.js'
+import { setupLogger } from './_test/setupLogger.js'
+import { stripAnsiCodes } from '../native/string/stripAnsiCodes.js'
 
 describe('log cases', () => {
   it('using level functions', async () => {
@@ -29,7 +29,7 @@ describe('log cases', () => {
 })
 
 it('x #scaffold', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
   // sut.level = 'trace'
   // sut._screen.debug = true
   sut.trace('log debug')
@@ -41,14 +41,14 @@ it('x #scaffold', async () => {
 })
 
 it('x log args #todo', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
   // sut._screen.debug = true
   // sut.level = 'info'
   sut.dev('log dev')
   sut.dev({ fox: 1 })
 })
 
-it.only('x log function #todo', async () => {
+it('x log function #todo', async () => {
   let { sut } = setupLogger({ debug: true })
   sut.warn('my warning', 3, { foo: 'bar' })
 
@@ -60,5 +60,13 @@ it.only('x log function #todo', async () => {
     // message: () => {
     //   return "some text";
     // }
+  })
+})
+
+describe('calling cases', () => {
+  it('x', async () => {
+    let { sut } = setupLogger({ debug: true })
+    sut.warn('my warning', 3, { foo: 'bar' })
+    console.log('my warning', 3, { foo: 'bar' })
   })
 })

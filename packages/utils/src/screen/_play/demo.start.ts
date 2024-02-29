@@ -1,4 +1,4 @@
-import { ScreenPrinter } from '../ScreenPrinter'
+import { ScreenPrinter } from '../ScreenPrinter.js'
 
 function main() {
   let scr = new ScreenPrinter()

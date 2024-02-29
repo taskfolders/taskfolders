@@ -1,7 +1,7 @@
-export { Logger } from './Logger'
-import { Logger } from './Logger'
+export { NodeLogger } from './NodeLogger.js'
+import { NodeLogger } from './NodeLogger.js'
 
-export const $log = new Logger()
+export const $log = new NodeLogger()
 export const $dev = $log.dev.bind($log)
 
 export function installGlobal() {

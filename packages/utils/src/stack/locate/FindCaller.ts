@@ -2,7 +2,7 @@
 //
 
 // import { tryGetSourceFile } from './tryGetSourceFile.node'
-import { getCallerFile, FindCallerParams } from './getCallerFile'
+import { getCallerFile, FindCallerParams } from './getCallerFile.js'
 /* TODO get file tree call?
  *
  * Look at this example:
@@ -52,7 +52,7 @@ export class CodePosition {
   }
 }
 
-import { isDeveloperMode } from '../../runtime/isDeveloperMode'
+import { isDeveloperMode } from '../../runtime/isDeveloperMode.js'
 const tryGetSourceFile = null
 export class SourcePosition {
   file: string

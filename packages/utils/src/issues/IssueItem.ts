@@ -1,5 +1,5 @@
-import { FindCaller } from '../stack/locate/FindCaller'
-import { CodePosition } from '../stack/locate/CodePosition'
+import { FindCaller } from '../stack/locate/FindCaller.js'
+import { CodePosition } from '../stack/locate/CodePosition.js'
 
 type IssueSeverity = 'error' | 'warning' | 'info' | 'update'
 

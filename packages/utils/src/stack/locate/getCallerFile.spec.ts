@@ -1,4 +1,4 @@
-import { foo } from './_test/fooFunction'
+import { foo } from './_test/fooFunction.js'
 
 describe('x', () => {
   it('x', async () => {

@@ -1,5 +1,6 @@
-import { IssueItem } from './IssueItem'
-import { BasicIssue } from './_test/samples'
+import { $dev } from '../logger/node/index.js'
+import { IssueItem } from './IssueItem.js'
+import { BasicIssue } from './_test/samples.js'
 
 describe('x', () => {
   it('x - issues', async () => {

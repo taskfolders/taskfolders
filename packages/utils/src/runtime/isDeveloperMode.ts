@@ -1,4 +1,4 @@
-import { isReleaseMode } from './isReleaseMode'
+import { isReleaseMode } from './isReleaseMode.js'
 export function isDeveloperMode() {
   if (isReleaseMode()) return false
   return (

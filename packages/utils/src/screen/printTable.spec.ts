@@ -1,4 +1,4 @@
-import { printTable } from './printTable'
+import { printTable } from './printTable.js'
 describe('x', () => {
   it('x', async () => {
     let rows = [

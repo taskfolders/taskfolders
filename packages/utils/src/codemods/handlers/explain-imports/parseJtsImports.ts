@@ -1,5 +1,5 @@
 import * as ts from 'typescript'
-import { importPathToFile } from './ExplainImports'
+import { importPathToFile } from './ExplainImports.js'
 
 export function parseJtsImports(node: {
   path: string

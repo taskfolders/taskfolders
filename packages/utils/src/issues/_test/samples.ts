@@ -1,4 +1,4 @@
-import { IssueItem } from '../IssueItem'
+import { IssueItem } from '../IssueItem.js'
 
 export const BasicIssue = IssueItem.define({ code: 'basic-1' })
 export const DataIssue = IssueItem.define<{ fox }>({ code: 'typed-1' })

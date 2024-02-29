@@ -1,4 +1,5 @@
-const { ScreenPrinter } = require("../screen/ScreenPrinter")
+// @ts-expect-error
+const { ScreenPrinter } = require('../screen/ScreenPrinter')
 
 let scr = new ScreenPrinter()
 console.log(scr)

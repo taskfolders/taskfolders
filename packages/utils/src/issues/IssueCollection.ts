@@ -1,5 +1,5 @@
-import { IssueGateway } from './IssueGateway'
-import { IssueItem } from './IssueItem'
+import { IssueGateway } from './IssueGateway.js'
+import { IssueItem } from './IssueItem.js'
 
 export class IssueCollection {
   all: IssueItem<any, any>[] = []

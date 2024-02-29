@@ -1,13 +1,14 @@
-import { levelNumbers, LogLevelName } from './helpers'
+import { levelNumbers, type LogLevelName } from './helpers.js'
 
 export function passThreshold(kv: {
   level: LogLevelName
   threshold: LogLevelName
 }) {
   let level_given = levelNumbers[kv.level]
-  if (level_given === undefined) return false
-  let level_threshold = levelNumbers[kv.threshold]
-  if (level_threshold === undefined) return false
+  let level_threshold = levelNumbers[this.levelThresholdName]
   let isPass = level_given >= level_threshold
+  // if (isReleaseMode() && levelName === 'dev') {
+  //   isPass = false
+  // }
   return isPass
 }

@@ -1,4 +1,4 @@
-import { FindImportUsers } from './FindImportUsers'
+import { FindImportUsers } from './FindImportUsers.js'
 
 describe('x', () => {
   it('x find import users #draft #live', async function () {

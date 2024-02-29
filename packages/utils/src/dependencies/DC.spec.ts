@@ -1,9 +1,10 @@
-import { DC, Container, getAllValuesUp } from './DC'
-import { DependencyToken } from './DependencyToken'
-import { DependencyMeta, ILifeTime } from './DependencyMeta'
-import { delay } from '../native/promise/delay'
-import { FetchAsyncError, UnregisteredValueError } from './errors'
+import { DC, Container, getAllValuesUp } from './DC.js'
+import { DependencyToken } from './DependencyToken.js'
+import { DependencyMeta, ILifeTime } from './DependencyMeta.js'
+import { delay } from '../native/promise/delay.js'
+import { FetchAsyncError, UnregisteredValueError } from './errors.js'
 import { inspect } from 'node:util'
+import { $dev } from '../logger/node/index.js'
 
 // TODO global?
 

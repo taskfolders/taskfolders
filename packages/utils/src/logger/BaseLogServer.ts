@@ -1,17 +1,11 @@
-import { printLogEventInBrowser } from './printLogEventInBrowser'
-import { levelNumbers, LogLevelName, defaultLogLevel } from './helpers'
-import { isReleaseMode } from '../runtime/isReleaseMode'
-import type { LogEvent } from './Logger'
-import { passThreshold } from './passThreshold'
+import { levelNumbers, defaultLogLevel } from './helpers.js'
+import type { LogEvent } from './BaseLogger.js'
+import { passThreshold } from './passThreshold.js'
 
-export class LogServer {
+export abstract class BaseLogServer {
   levelThresholdName = defaultLogLevel()
 
-  printLog: (LogEvent) => void = printLogEventInBrowser
-
-  static request() {
-    return singleton
-  }
+  abstract printLog: (ev: LogEvent) => void
 
   handleLog(log: LogEvent) {
     let pass = passThreshold({
@@ -32,5 +26,3 @@ export class LogServer {
     this.printLog(log)
   }
 }
-
-const singleton: LogServer = new LogServer()

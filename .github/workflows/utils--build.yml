@@ -5,7 +5,8 @@ env:
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - develop
     paths:
       - "${{ env.$PACKAGE_DIR}}/**"
 

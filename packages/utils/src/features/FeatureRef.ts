@@ -1,4 +1,4 @@
-import { FeatureDefinition } from './FeatureFlag'
+import { FeatureDefinition } from './FeatureFlag.js'
 
 export type FeatureId = FeatureDefinition | string
 

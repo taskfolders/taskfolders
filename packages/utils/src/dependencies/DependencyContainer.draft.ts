@@ -11,10 +11,11 @@ class CustomError {
   }
 }
 
-import { getsert } from '../native/object/getsert'
-import { ExcludeOptionalProps } from '../types/ExcludeOptionalProps'
-import { assertNever } from '../types/assertNever'
-import { InjectMarker } from './InjectMarker'
+import { $dev, $log } from '../logger/node/index.js'
+import { getsert } from '../native/object/getsert.js'
+import { ExcludeOptionalProps } from '../types/ExcludeOptionalProps.js'
+import { assertNever } from '../types/assertNever.js'
+import { InjectMarker } from './InjectMarker.js'
 
 export const SYM_DependencyConfig = Symbol(
   'taskfolders.com:dependency.class-config',
@@ -379,7 +380,7 @@ export class DependencyContainer {
       }
 
       if (!dsl.create) {
-        let that = this
+        // let that = this
         // TODO:dry-create #dirty risk of #dry
         dsl.create = function defaultCreate(container, buildParams?) {
           if (dsl.builder_1) {
@@ -576,7 +577,9 @@ export class DependencyContainer {
         }
         // $dev(data)
         let error = Error('Unable to inject value')
+        // @ts-expect-error TODO
         error.cause = e
+        // @ts-expect-error TODO
         error.data = data
         throw error
       }
@@ -1346,7 +1349,7 @@ export class DependencyContainer {
         })
         return res
       }
-      $log.error('Unknown case')
+      $log.error('ERROR Unknown case')
     }
     return kv.create()
   }

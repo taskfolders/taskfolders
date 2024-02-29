@@ -1,6 +1,6 @@
 import ansiEscapes from 'ansi-escapes'
 import { relative } from 'node:path'
-import { assertNever } from '../../types/assertNever'
+import { assertNever } from '../../types/assertNever.js'
 
 // cspell:word webstorm mscode
 

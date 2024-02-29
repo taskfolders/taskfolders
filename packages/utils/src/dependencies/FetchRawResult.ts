@@ -1,5 +1,5 @@
-import { ILifeTime, StartType } from './DependencyMeta'
-import type { DepOutput, StartInfo } from './DC'
+import { ILifeTime, StartType } from './DependencyMeta.js'
+import type { DepOutput, StartInfo } from './DC.js'
 
 export class FetchRawResult<T> {
   name: string

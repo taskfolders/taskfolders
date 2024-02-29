@@ -1,12 +1,11 @@
-import { FindCaller } from '../../stack/locate/FindCaller'
-import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink'
+import { FindCaller } from '../../stack/locate/FindCaller.js'
+import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { inspect } from 'node:util'
-import type { LogLevelName } from '../helpers'
-import { ScreenPrinter } from '../../screen/ScreenPrinter'
-import { LogEvent } from '../Logger'
-import { ConsoleTheme } from '../../screen/ConsoleTheme'
-import { CodePosition } from '../../stack/locate/CodePosition'
-import { passThreshold } from '../passThreshold'
+import { type LogLevelName } from '../helpers.js'
+import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
+import { LogEvent } from '../BaseLogger.js'
+import { CodePosition } from '../../stack/locate/CodePosition.js'
+import { passThreshold } from '../passThreshold.js'
 
 const levelColors: Record<LogLevelName, string> = {
   trace: 'grey',
@@ -100,8 +99,21 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
       loggerName = th.dim(`[${loggerName}]`)
     }
 
+    let oneLine = log.args
+      .map(x => {
+        if (typeof x === 'string') return x
+        return inspect(x, { colors: true })
+      })
+      .join(' ')
+    if (oneLine.length < 70) {
+      screen.log([level, loggerName, oneLine])
+      return
+    }
+
     let parts = [level, loggerName, first]
     screen.log(parts)
+
+    //console.log(inspect(log.args, { colors: true }))
     if (second) {
       screen.indent().log(second)
     }

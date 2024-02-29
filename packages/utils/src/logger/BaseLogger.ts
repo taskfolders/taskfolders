@@ -1,5 +1,6 @@
-import { LogServer } from './LogServer'
-import { LogLevelName } from './helpers'
+import { BaseLogServer } from './BaseLogServer.js'
+import { NodeLogger } from './node/NodeLogger.js'
+import { LogLevelName } from './helpers.js'
 
 interface LogOptions {
   depth?: number
@@ -10,7 +11,7 @@ interface LogOptions {
 //type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
 
 function createLogLevelFunction(level: LogLevelName) {
-  return function (this: Logger, ...args: any[]) {
+  return function (this: NodeLogger, ...args: any[]) {
     this._logRaw({ args, levelName: level })
     return args[0]
   }
@@ -35,8 +36,8 @@ interface UserLogEvent {
   forceLink?: boolean
 }
 
-export class Logger {
-  server = LogServer.request()
+export abstract class BaseLogger {
+  abstract server: BaseLogServer
   name: string
 
   constructor() {}

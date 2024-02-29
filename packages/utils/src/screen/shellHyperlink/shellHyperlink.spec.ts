@@ -1,6 +1,7 @@
 import ansiEscapes from 'ansi-escapes'
-import { shellHyperlink } from './shellHyperlink'
-import { stripAnsiCodes } from '../../native/string/stripAnsiCodes'
+import { shellHyperlink } from './shellHyperlink.js'
+import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'
+import { $dev } from '../../logger/node/index.js'
 
 function tryReplace<T>(obj: T, key: keyof T, fakeValue, cb: () => void) {
   let valueBefore = obj[key]

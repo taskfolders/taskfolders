@@ -11,7 +11,7 @@
 
 // import { smp } from './smp.node'
 import smp from 'source-map-support'
-import { CodePosition } from './CodePosition'
+import { CodePosition } from './CodePosition.js'
 
 const toClearStackFrame = (all: ICallSite[] | ICallSite) => {
   let toClear = (x: ICallSite) => {

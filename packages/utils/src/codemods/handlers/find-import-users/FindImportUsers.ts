@@ -2,11 +2,12 @@ import * as ts from 'typescript'
 import * as fs from 'fs'
 import fg from 'fast-glob'
 import * as Path from 'node:path'
-import { parseJtsImports } from '../explain-imports/parseJtsImports'
-import { applyDevInspect } from '../explain-imports/applyDevInspect'
-import { JsonFile } from '../../../fs/JsonFile'
-import { ScreenPrinter } from '../../../screen/ScreenPrinter'
-import type { PackageJsonType } from '../../../vendors/npm/PackageJsonType'
+import { parseJtsImports } from '../explain-imports/parseJtsImports.js'
+import { applyDevInspect } from '../explain-imports/applyDevInspect.js'
+import { JsonFile } from '../../../fs/JsonFile.js'
+import { ScreenPrinter } from '../../../screen/ScreenPrinter.js'
+import type { PackageJsonType } from '../../../vendors/npm/PackageJsonType.js'
+import { $dev } from '../../../logger/node/index.js'
 
 export function scanSourceImports(sourceFilePath: string) {
   let body = fs.readFileSync(sourceFilePath).toString()
@@ -54,6 +55,7 @@ function findPackages(dir: string) {
     .flat()
   return a1
 }
+
 export class FindImportUsers {
   async execute() {
     let dir = process.env.TASKFOLDERS_ROOT

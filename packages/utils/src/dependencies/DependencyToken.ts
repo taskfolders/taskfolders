@@ -1,4 +1,4 @@
-import { DependencyMeta, ILifeTime } from './DependencyMeta'
+import { DependencyMeta, ILifeTime } from './DependencyMeta.js'
 
 export class DependencyToken<T> {
   name?: string

@@ -1,5 +1,5 @@
-import type { LogEvent } from './Logger'
-import { LogLevelName } from './helpers'
+import type { LogEvent } from './BaseLogger.js'
+import { LogLevelName } from './helpers.js'
 
 const levelMap: Record<LogLevelName, keyof typeof console> = {
   trace: 'log',
