@@ -71,7 +71,7 @@ describe('use cases', () => {
     expect(r1).toEqual({ foo: 'bar' })
   })
 
-  it.only('use log level to guard message builder method', async () => {
+  it('use log level to guard message builder method', async () => {
     // WHY prevent extra code if log is not needed
 
     let sut = setupLogger({ debug: false })
