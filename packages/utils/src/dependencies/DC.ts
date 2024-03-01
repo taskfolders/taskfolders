@@ -260,7 +260,29 @@ export class DC {
     this._mocksStore.set(target, { onCreate: kv.onCreate })
   }
 
-  fetch<T>(thing: IDependency<T>): T {
+  // TODO temporal to play typed method
+  _fetch_klass<T extends { new (): any }, K extends keyof T>(
+    klass: T,
+    kv: {
+      method: K
+      args: T[K] extends (...x) => any ? Parameters<T[K]> : never
+    },
+  ) {
+    return null
+  }
+
+  fetch<T, K extends keyof T>(
+    thing: IDependency<T>,
+    kv?:
+      | {
+          constructor?: any[]
+        }
+      | {
+          //method: K
+          method: string
+          args: T[K] extends (...x) => any ? Parameters<T[K]> : never
+        },
+  ): T {
     let res
 
     if (DependencyToken.is(thing)) {

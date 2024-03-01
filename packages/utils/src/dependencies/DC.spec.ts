@@ -93,25 +93,35 @@ describe('construction of alien classes', () => {
     sut.fetch(Panda)
 
     // TODO ??
-    sut.create(Panda)
+    //sut.create(Panda)
   })
 
   it('with constructor', async () => {
+    let sut = new DC()
+    class Panda {
+      constructor(public value) {}
+    }
     sut.fetch(Panda, { constructor: [2] })
   })
 
   it.skip('with factory method', async () => {
     class Panda {
       value
-      static factory(x, y) {
+      static second() {}
+      static factory(x: number, y: number) {
         let obj = new this()
-        ;(obj.value = x), y
+        obj.value = [x, y]
         return obj
       }
     }
 
     let sut = new DC()
-    sut.create(Panda, { method: 'factory', args: [1, 2] })
+    sut.fetch(Panda, { method: 'factory', args: [1, 2] })
+
+    sut._fetch_klass(Panda, {
+      method: 'factory',
+      args: [1, 2],
+    })
   })
 })
 
@@ -400,7 +410,7 @@ describe('x', () => {
 
   it('x fork sub containers #alpha', async () => {
     class Panda {
-      constructor(public value) {}
+      constructor(public value: number) {}
     }
     DC.decorate(Panda, { lifetime: 'singleton' })
 
