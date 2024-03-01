@@ -344,9 +344,13 @@ describe('x', () => {
       expect(sut).toBe(Container)
     })
 
-    it('x random class fetch #story', async () => {
+    it.only('x random class fetch #story', async () => {
       class Panda {
         value = 1
+        constructor() {
+          console.log('created')
+          $dev('yes')
+        }
       }
 
       let sut = new DC()

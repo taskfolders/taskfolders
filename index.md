@@ -1,0 +1,1 @@
+npx vitest --project utils

@@ -256,6 +256,8 @@ export class DC {
 
   fetch<T>(thing: IDependency<T>): T {
     let res
+    console.log('..y')
+
     if (DependencyToken.is(thing)) {
       res = this.fetchRaw({
         token: thing,
