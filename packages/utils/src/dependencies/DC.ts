@@ -125,6 +125,8 @@ export class DC {
     ) & {
       dependencies?: any[]
       keyPath?: any[]
+      args?: any[]
+      method?: string
     },
   ): FetchRawResult<T> {
     // @ts-expect-error TODO
@@ -140,6 +142,8 @@ export class DC {
     }
 
     if ('klass' in kv) {
+      // CASE construct with a class
+
       let klass: IDependencyKlass<any>
       klass = kv.klass
 
@@ -162,7 +166,7 @@ export class DC {
             break
           }
           case 'transient': {
-            create = () => new klass()
+            create = () => this._create(klass, kv)
             break
           }
           case 'value': {
@@ -179,6 +183,8 @@ export class DC {
         }
       }
     } else {
+      // CASE construct with a Token
+
       // TODO #dry on TOKEN
       name = kv.token.name
       meta = kv.token.meta
@@ -261,14 +267,31 @@ export class DC {
   }
 
   // TODO temporal to play typed method
-  _fetch_klass<T extends { new (): any }, K extends keyof T>(
+  _create<T extends { new (...x): any }, K extends keyof T>(
     klass: T,
-    kv: {
-      method: K
-      args: T[K] extends (...x) => any ? Parameters<T[K]> : never
-    },
-  ) {
-    return null
+    kv:
+      | {
+          method: K
+          args: T[K] extends (...x) => any ? Parameters<T[K]> : never
+        }
+      | { args: any[] }
+      | {},
+  ): InstanceType<T> {
+    let instance
+    let op = kv //?? ({} as any)
+    if ('method' in op) {
+      instance = (klass as any)[op.method](...op.args)
+    } else if ('args' in op) {
+      instance = new klass(...op.args)
+    } else {
+      instance = new klass()
+    }
+
+    // let meta = DependencyMeta.get(klass)
+    // let deps = this.finish(instance, { meta })
+    // console.log({ deps })
+
+    return instance
   }
 
   fetch<T, K extends keyof T>(

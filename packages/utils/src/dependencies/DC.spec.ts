@@ -6,6 +6,7 @@ import { FetchAsyncError, UnregisteredValueError } from './errors.js'
 import { inspect } from 'node:util'
 import { $dev } from '../logger/node/index.js'
 import { expect, describe, it } from 'vitest'
+import { expectType } from '../types/expectType'
 
 // TODO global?
 
@@ -77,51 +78,76 @@ describe('constructions', () => {
   })
 })
 
-describe('construction of alien classes', () => {
+describe('construction of alien classes #todo #review', () => {
   // TODO because you want an easy way to intercept object constructions
+  class Foo {
+    delta = 123
+  }
 
   it('plain create', async () => {
     class Panda {
       value = 1
+      // TODO not part of create
+      foo = DC.inject(Foo)
     }
 
     let sut = new DC()
-    let res = sut.fetch(Panda)
+    let res = sut._create(Panda, {})
+    //let res = sut.fetch(Panda)
+    expectType<typeof res, Panda>()
     expect(res).toBeInstanceOf(Panda)
     expect(res.value).toBe(1)
 
-    sut.fetch(Panda)
+    let r1 = sut.fetchRaw({ klass: Panda })
+    expect(r1.instance).toBeInstanceOf(Panda)
+    expect(r1.instance.value).toBe(1)
+    expect(r1.instance.foo.delta).toBe(123)
 
-    // TODO ??
-    //sut.create(Panda)
+    // TODO
+    // expect(res.foo.delta).toBe(123)
   })
 
   it('with constructor', async () => {
     let sut = new DC()
     class Panda {
-      constructor(public value) {}
+      foo = DC.inject(Foo)
+      constructor(public value: number) {}
     }
-    sut.fetch(Panda, { constructor: [2] })
+
+    let res = sut._create(Panda, { args: [2] })
+    // TODO
+    // let r1 = sut.finish(res)
+    // console.log(r1)
+    expect(res.value).toBe(2)
+
+    let r1 = sut.fetchRaw({ klass: Panda, args: [2] })
+    expect(r1.instance.value).toBe(2)
+    expect(r1.instance.foo.delta).toBe(123)
   })
 
-  it.skip('with factory method', async () => {
+  it('with factory method', async () => {
     class Panda {
-      value
+      constructor(public x, public y) {}
       static second() {}
       static factory(x: number, y: number) {
-        let obj = new this()
-        obj.value = [x, y]
+        let obj = new this(x, y)
         return obj
       }
     }
 
     let sut = new DC()
-    sut.fetch(Panda, { method: 'factory', args: [1, 2] })
+    // sut.fetch(Panda, { method: 'factory', args: [1, 2] })
 
-    sut._fetch_klass(Panda, {
+    let res = sut._create(Panda, {
       method: 'factory',
       args: [1, 2],
     })
+    expect(res.x).toBe(1)
+    expect(res.y).toBe(2)
+
+    let r1 = sut.fetchRaw({ klass: Panda, args: [1, 2], method: 'factory' })
+    expect(r1.instance.x).toBe(1)
+    expect(r1.instance.y).toBe(2)
   })
 })
 

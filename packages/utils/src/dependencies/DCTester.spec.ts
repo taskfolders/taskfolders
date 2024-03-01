@@ -1,5 +1,5 @@
 import { DC } from './DC.js'
-import { expect, it } from 'vitest'
+import { expect, describe, it } from 'vitest'
 
 class DCTester {
   dc: DC
@@ -29,7 +29,16 @@ class DCTester {
 }
 
 class Panda {
+  x
+  y
   constructor(public value = 1) {}
+
+  static from(x: number, y: number) {
+    let obj = new this()
+    obj.x = x
+    obj.y = y
+    return obj
+  }
 }
 
 it('x tester hijack', async () => {
@@ -44,12 +53,14 @@ it('x tester hijack', async () => {
   expect(res.value).toBe(2)
 })
 
-it('x tester hijack', async () => {
-  let dc = new DC()
-  let sut = DCTester.from(dc)
+describe('stub fetch', () => {
+  it('x tester hijack', async () => {
+    let dc = new DC()
+    let sut = DCTester.from(dc)
 
-  sut.stubFetch(Panda)
+    sut.stubFetch(Panda)
 
-  let res = dc.fetch(Panda)
-  expect(res.value).toBe(1)
+    let res = dc.fetch(Panda)
+    expect(res.value).toBe(1)
+  })
 })
