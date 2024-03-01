@@ -315,6 +315,7 @@ export class DC {
     } else {
       res = this.fetchRaw({
         klass: thing as IDependencyKlass<any>,
+        ...kv,
       })
     }
     let all = res.allRunning({ type: 'await' })

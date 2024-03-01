@@ -1,31 +1,15 @@
 import { DC } from './DC.js'
 import { expect, describe, it } from 'vitest'
+import { DCTester } from './DCTester.js'
 
-class DCTester {
-  dc: DC
+function setup() {
+  let dc = new DC()
+  let sut = DCTester.from(dc)
+  return { sut, dc }
+}
 
-  static from(dc: DC) {
-    let obj = new this()
-    obj.dc = dc
-    return obj
-  }
-
-  hijackCreate(klass, newCreate) {
-    this.dc._doCreate = (kv, func) => {
-      if (kv.klass === klass) {
-        return newCreate()
-      }
-      return func()
-    }
-  }
-
-  stubFetch(klass) {
-    let { dc } = this
-    let orig = dc.fetch.bind(dc)
-    dc.fetch = klass => {
-      return orig(klass)
-    }
-  }
+class Bamboo {
+  delta = 123
 }
 
 class Panda {
@@ -53,14 +37,49 @@ it('x tester hijack', async () => {
   expect(res.value).toBe(2)
 })
 
+describe('stub create', () => {
+  it.only('x', async () => {
+    let { dc, sut } = setup()
+
+    sut.stubCreate(Panda, () => {
+      return new Panda(2)
+    })
+
+    let r1 = dc.fetch(Panda)
+    console.log(r1)
+    // let r2 = dc.fetch(Bamboo)
+    // console.log(r2)
+  })
+})
+
 describe('stub fetch', () => {
   it('x tester hijack', async () => {
-    let dc = new DC()
-    let sut = DCTester.from(dc)
+    let { dc, sut } = setup()
 
-    sut.stubFetch(Panda)
+    sut.stubFetch(Panda, x => {
+      return new Panda()
+    })
 
     let res = dc.fetch(Panda)
     expect(res.value).toBe(1)
+  })
+
+  it('x', async () => {
+    let dc = new DC()
+    let sut = DCTester.from(dc)
+
+    sut.stubFetch(Panda, kv => {
+      let args = kv.args as any[]
+      return Panda.from(
+        // @ts-expect-error TODO
+        ...args,
+      )
+    })
+
+    let res = dc.fetch(Panda, { method: 'from', args: [1, 2] })
+    console.log(res)
+    expect(res.value).toBe(1)
+    expect(res.x).toBe(1)
+    expect(res.y).toBe(2)
   })
 })
