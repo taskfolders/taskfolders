@@ -215,7 +215,8 @@ export class DC {
       throw Error(`No meta for class ${name}`)
     }
 
-    instance = create()
+    //instance = create()
+    instance = this._doCreate(kv, create)
 
     // ..
     let dependencies = this.finish(instance, {
@@ -240,6 +241,11 @@ export class DC {
     })
   }
 
+  // enable tester to hijack the exact point an object is created
+  _doCreate<T>(kv, create: () => T): T {
+    return create()
+  }
+
   mock(thing: any, kv?: { onCreate() }) {
     let target = thing as any
     if (!kv) {
@@ -256,7 +262,6 @@ export class DC {
 
   fetch<T>(thing: IDependency<T>): T {
     let res
-    console.log('..y')
 
     if (DependencyToken.is(thing)) {
       res = this.fetchRaw({
