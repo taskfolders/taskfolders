@@ -5,6 +5,14 @@ import { IssueGateway } from './IssueGateway.js'
 import { IssueItem } from './IssueItem.js'
 
 describe('x', () => {
+  it('x hot', async () => {
+    $dev('one')
+    console.log('two')
+  })
+  it('x skip #ci-broken', async () => {
+    $dev('one')
+    console.log('two')
+  })
   it.skip('main #story', async () => {
     const Foo = IssueItem.define<{ delta }, { fox }>({
       code: 'foo-1',
