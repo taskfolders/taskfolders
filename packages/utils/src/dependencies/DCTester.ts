@@ -9,10 +9,10 @@ export class DCTester {
     return obj
   }
 
+  /** @deprecated use .stubFetch */
   hijackCreate(klass, newCreate) {
     let original = this.dc._create
     this.dc._create = (c_klass, kv) => {
-      console.log('...')
       if (c_klass === klass) {
         return newCreate()
       }
@@ -20,8 +20,15 @@ export class DCTester {
     }
   }
 
+  /** @deprecated use .stubFetch */
   stubCreate<T>(klass: { new (...x): T }, cb: () => T) {
-    return cb()
+    let original = this.dc._create
+    this.dc._create = (c_klass, kv) => {
+      if (c_klass === klass) {
+        return cb()
+      }
+      return original(c_klass, kv) as any
+    }
   }
 
   stubFetch<T>(

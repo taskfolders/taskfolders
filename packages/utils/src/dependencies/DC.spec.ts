@@ -6,7 +6,7 @@ import { FetchAsyncError, UnregisteredValueError } from './errors.js'
 import { inspect } from 'node:util'
 import { $dev } from '../logger/node/index.js'
 import { expect, describe, it } from 'vitest'
-import { expectType } from '../types/expectType'
+import { expectType } from '../types/expectType.js'
 
 // TODO global?
 

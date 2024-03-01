@@ -37,8 +37,10 @@ it('x tester hijack', async () => {
   expect(res.value).toBe(2)
 })
 
-describe('stub create', () => {
-  it.only('x', async () => {
+describe('stub create #draft', () => {
+  // WHY not just .stubFetch?
+  //   - just want to fetch
+  it('x', async () => {
     let { dc, sut } = setup()
 
     sut.stubCreate(Panda, () => {
@@ -46,9 +48,10 @@ describe('stub create', () => {
     })
 
     let r1 = dc.fetch(Panda)
-    console.log(r1)
-    // let r2 = dc.fetch(Bamboo)
-    // console.log(r2)
+    expect(r1.value).toBe(2)
+
+    let r2 = dc.fetch(Bamboo)
+    expect(r2.delta).toBe(123)
   })
 })
 
