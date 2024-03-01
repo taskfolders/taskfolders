@@ -26,6 +26,7 @@
     "./logger/browser": "./dist/esm/logger/browser/index.js",
     "./logger/node.start": "./dist/esm/logger/node.start.js",
     "./dependencies": "./dist/esm/dependencies/index.js",
+    "./dependencies/DCTester": "./dist/esm/dependencies/DCTester.js",
     "./*": "./dist/esm/*"
   },
   "typesVersions": {
