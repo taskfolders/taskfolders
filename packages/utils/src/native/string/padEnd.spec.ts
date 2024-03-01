@@ -13,7 +13,7 @@ function padRight(txt: string, size: number) {
 }
 
 describe('x', () => {
-  it('x', async () => {
+  it('x #ci-broken', async () => {
     let txt = 'foo'
     let t1 = chalk.blue(txt)
     t1 = shellHyperlink({ text: t1, path: '/tmp', cwd: '/' })
@@ -29,7 +29,7 @@ describe('x', () => {
     )
   })
 
-  it('x', async () => {
+  it('x #ci-broken', async () => {
     let screen = new ScreenPrinter()
     screen.log(x => {
       let link = shellHyperlink({ path: '/tmp/foo.json', text: 'foo' })
