@@ -9,16 +9,22 @@ export class MarkdownDocument<T = unknown> {
     this.content = content
   }
 
-  static async fromBody<T = unknown>(
+  static async fromBody<T extends typeof MarkdownDocument<any>>(
+    this: T,
     body: string,
-  ): Promise<MarkdownDocument<T>> {
+  ): Promise<InstanceType<T>> {
     let fm = await extractFrontMatter(body)
 
     let data = (await fm.getData()) as T
     // if (process.env.NODE_ENV === 'test') {
     //   Object.freeze(data)
     // }
-    let obj = new this<T>(data, fm.body)
+    let obj = new this(data, fm.body)
+    return obj as any
+  }
+
+  clone() {
+    let obj = new MarkdownDocument(this.data, this.content)
     return obj
   }
 }
