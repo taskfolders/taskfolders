@@ -385,7 +385,10 @@ export async function extractFrontMatter(
       //  this should be the only yaml parser???
       const { parseAllDocuments } = await import('yaml').then(x => x.default)
       let all = parseAllDocuments(front)
+
       let doc = all[0]
+      if (!doc) return null
+
       data = doc.toJSON()
       return data
     },
