@@ -1,0 +1,51 @@
+{
+  "name": "@taskfolders/utils",
+  "version": "0.0.1",
+  "description": "Generic codign utilities and helpers",
+  "access": "public",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taskfolders/taskfolders.git"
+  },
+  "files": [
+    "dist",
+    "LICENSE.md",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "publish": "npm publish --access public",
+    "test:watch": "vitest watch --hideSkippedTests --changed",
+    "test:ci": "sh ./bin/test--ci.sh",
+    "test": "vitest --run"
+  },
+  "exports": {
+    "./logger/node": "./logger/node/index.js",
+    "./logger/LoggerMock": "./logger/node/LoggerMock.js",
+    "./logger/browser": "./logger/browser/index.js",
+    "./logger/node.start": "./logger/node.start.js",
+    "./dependencies": "./dependencies/index.js",
+    "./dependencies/DCTester": "./dependencies/DCTester.js",
+    "./native/array/*": "./native/array/*.js",
+    "./types/*": "./types/*.js",
+    "./*": "./*"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*",
+        "dist/*/index.d.ts"
+      ]
+    }
+  },
+  "keywords": [],
+  "author": {
+    "name": "Francisco Garcia",
+    "url": "https://taskfolders.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "source-map-support": "^0.5.21"
+  }
+}
