@@ -27,16 +27,20 @@
     "./logger/node.start": "./dist/esm/logger/node.start.js",
     "./dependencies": "./dist/esm/dependencies/index.js",
     "./markdown": "./dist/esm/markdown/index.js",
+    "./shell": "./dist/esm/shell/index.js",
     "./dependencies/DCTester": "./dist/esm/dependencies/DCTester.js",
     "./native/array/*": "./dist/esm/native/array/*.js",
+    "./fs/*": "./dist/esm/fs/*.js",
+    "./vendors/npm": "./dist/esm/vendors/npm/index.js",
+    "./vendors/*": "./dist/esm/vendors/*.js",
     "./types/*": "./dist/esm/types/*.js",
     "./*": "./dist/esm/*"
   },
   "typesVersions": {
     "*": {
       "*": [
-        "dist/*",
-        "dist/*/index.d.ts"
+        "dist/esm/*",
+        "dist/esm/*/index.d.ts"
       ]
     }
   },
@@ -49,5 +53,8 @@
   "dependencies": {
     "source-map-support": "^0.5.21",
     "yaml": "^2.4.0"
+  },
+  "devDependencies": {
+    "memfs": "^4.7.7"
   }
 }
