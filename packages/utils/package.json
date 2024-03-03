@@ -28,6 +28,7 @@
     "./dependencies": "./dist/esm/dependencies/index.js",
     "./dependencies/DCTester": "./dist/esm/dependencies/DCTester.js",
     "./native/array/*": "./dist/esm/native/array/*.js",
+    "./types/*": "./dist/esm/types/*.js",
     "./*": "./dist/esm/*"
   },
   "typesVersions": {
