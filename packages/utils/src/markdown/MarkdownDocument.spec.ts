@@ -2,6 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { MarkdownDocument } from './MarkdownDocument.js'
 import { dedent } from '../native/string/dedent.js'
 import { readFileSync } from 'node:fs'
+import { StandardTaskFolderFrontmatter } from './StandardTaskFolderFrontmatter.js'
 
 it('x #now #tmp', async () => {
   let res = await MarkdownDocument.fromBody(dedent`
@@ -22,36 +23,6 @@ it.skip('live file #scaffold', async () => {
   console.log({ res })
 })
 
-class StandardTaskFolderFrontmatter {
-  uid
-  type
-  scripts?: { run: string; describe?: string; alias?: string }[]
-  review?
-  before?
-  status?
-
-  static fromJSON(doc) {
-    let obj = new this()
-    Object.assign(obj, doc)
-
-    let scripts = doc.scripts
-    if (scripts) {
-      let target = {} as StandardTaskFolderFrontmatter['scripts']
-      Object.entries(scripts).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-          target[key] = { run: value }
-        } else {
-          target[key] = value
-        }
-      })
-      obj.scripts = target
-      console.log({ target })
-    }
-
-    return obj
-  }
-}
-
 it.only('x', async () => {
   let sut = StandardTaskFolderFrontmatter.fromJSON({
     scripts: {
@@ -60,5 +31,17 @@ it.only('x', async () => {
     },
   })
 
-  console.log(sut)
+  let res = await MarkdownDocument.fromBody(dedent`
+      ---
+      uid: 2e7f80e2-89c5-4626-9e9d-cfc0082786ec 
+      type: https://taskfolders.com/types/markdown/v1
+      scripts:
+        one: echo one
+        two:
+          run: echo two
+      ---
+
+      more`)
+
+  console.log(res)
 })
