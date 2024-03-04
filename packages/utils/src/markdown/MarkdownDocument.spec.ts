@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { MarkdownDocument } from './MarkdownDocument.js'
 import { dedent } from '../native/string/dedent.js'
 import { readFileSync } from 'node:fs'
-import { StandardTaskFolderFrontmatter } from './standard/StandardTaskFolderFrontmatter.js'
+import { TaskFoldersFrontmatter } from './task-folders/TaskFoldersFrontmatter.js'
 
 it('x #now #tmp', async () => {
   let res = await MarkdownDocument.fromBody(dedent`
@@ -42,7 +42,7 @@ it('x', async () => {
       ---
 
       more`)
-  let data = StandardTaskFolderFrontmatter.fromJSON(res.data)
+  let data = TaskFoldersFrontmatter.fromJSON(res.data)
   res.data = data
   console.log(res)
 })

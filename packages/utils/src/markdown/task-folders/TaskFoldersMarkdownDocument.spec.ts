@@ -1,25 +1,25 @@
 import { expect, describe, it } from 'vitest'
-import { StandardMarkdownDocument } from './StandardMarkdownDocument.js'
+import { TaskFoldersMarkdownDocument } from './TaskFoldersMarkdownDocument.js'
 import { dedent } from '../../native/string/dedent.js'
 import { MarkdownDocument } from '../MarkdownDocument.js'
-import { StandardTaskFolderFrontmatter } from './StandardTaskFolderFrontmatter.js'
+import { TaskFoldersFrontmatter } from './TaskFoldersFrontmatter.js'
 
-const SUT = StandardMarkdownDocument
+const SUT = TaskFoldersMarkdownDocument
 
 function tryStandardClone(
   md: MarkdownDocument,
-): MarkdownDocument<StandardTaskFolderFrontmatter> {
+): MarkdownDocument<TaskFoldersFrontmatter> {
   try {
     let r1 = md.clone()
-    r1.data = StandardTaskFolderFrontmatter.fromJSON(r1.data)
-    return r1 as MarkdownDocument<StandardTaskFolderFrontmatter>
+    r1.data = TaskFoldersFrontmatter.fromJSON(r1.data)
+    return r1 as MarkdownDocument<TaskFoldersFrontmatter>
   } catch (e) {
     return null
   }
 }
 
 it('x', async () => {
-  let res = await StandardMarkdownDocument.fromBody(dedent`
+  let res = await TaskFoldersMarkdownDocument.fromBody(dedent`
     ---
     uid: 2e7f80e2-89c5-4626-9e9d-cfc0082786ec 
     type: https://taskfolders.com/types/markdown/v1
@@ -51,18 +51,31 @@ it('x', async () => {
   console.log({ m2, r2 })
 })
 
-it.only('infer Standard Markdown', async () => {
-  let r1 = await SUT.fromBody(dedent`
+describe('infer Standard Markdown', async () => {
+  it('infer Standard Markdown', async () => {
+    let r1 = await SUT.fromBody(dedent`
     ---
     type: https://taskfolders.com/types/markdown/v1
     ---`)
-  let r2 = await SUT.fromBody(dedent`
+    let r2 = await SUT.fromBody(dedent`
     type: https://taskfolders.com/types/markdown/v1
     `)
-  let r3 = await SUT.fromBody(dedent`
+    let r3 = await SUT.fromBody(dedent`
     ---
     type: tf
     ---`)
+    let r4 = await SUT.fromBody(dedent`
+    ---
+    type: alien
+    ---`)
+    let r5 = await SUT.fromBody('hello')
+    console.log(r2)
+  })
 
-  console.log(r2)
+  it.only('x', async () => {
+    let res = await SUT.fromBody(dedent`
+    ---
+    type: alien
+    ---`)
+  })
 })

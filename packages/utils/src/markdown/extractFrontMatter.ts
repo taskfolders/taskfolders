@@ -3,17 +3,12 @@
 // import { splitText } from '@taskfolders/core/native/string'
 
 import { $dev } from '../logger/node/index.js'
+import { CustomError } from '../errors/CustomError.js'
 
 // import { parseAllDocuments, Document } from 'yaml'
 
 const dataKeyRx = /^[a-zA-Z_-]+:[^/\\]/
 let splitText = x => x.split('\n')
-
-class CustomError {
-  static create(msg: string, kv) {
-    return new Error(msg)
-  }
-}
 
 export class FrontAndBodyParser {
   _input: string
@@ -279,7 +274,7 @@ export async function extractFrontMatter(
       // data = Yaml.load(front)
 
       if (typeof data === 'string') {
-        error = CustomError.create('No YAML object', {
+        error = new CustomError('No YAML object', {
           name: 'YamlError',
           // data: { line, column, reason: e.reason },
         })
@@ -297,7 +292,7 @@ export async function extractFrontMatter(
           // @ ts-expect-error
           data.range = so?.resolved.range
         }
-        error = CustomError.create('Could not parse YAML', {
+        error = new CustomError('Could not parse YAML', {
           name: 'YamlError',
           cause: doc.errors[0],
           data,

@@ -1,6 +1,6 @@
 import { DataModel } from '../../models/DataModel.js'
 
-export class StandardTaskFolderFrontmatter {
+export class TaskFoldersFrontmatter {
   uid
   type: string
   scripts?: { run: string; describe?: string; alias?: string }[]
@@ -12,7 +12,7 @@ export class StandardTaskFolderFrontmatter {
   }
 }
 
-DataModel.decorate(StandardTaskFolderFrontmatter, {
+DataModel.decorate(TaskFoldersFrontmatter, {
   type: {
     value: 'https://taskfolders.com/types/markdown/v1',
     field: 'type',
@@ -23,7 +23,7 @@ DataModel.decorate(StandardTaskFolderFrontmatter, {
   properties: {
     scripts: {
       fromJSON(doc) {
-        let target = {} as StandardTaskFolderFrontmatter['scripts']
+        let target = {} as TaskFoldersFrontmatter['scripts']
         Object.entries(doc).forEach(([key, value]) => {
           if (typeof value === 'string') {
             target[key] = { run: value }

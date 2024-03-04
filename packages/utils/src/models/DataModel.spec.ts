@@ -1,5 +1,6 @@
 import { expect, describe, it } from 'vitest'
 import { DataModel, ModelDefinition } from './DataModel.js'
+import { CustomError } from '../errors/CustomError.js'
 
 class Panda {
   type: string
@@ -60,18 +61,19 @@ describe('edge cases', () => {
   })
 
   it('fail if type is missing', async () => {
-    let err: Error
+    let err: CustomError
     try {
       DataModel.fromJSON(Panda, { fox: 1, date: '2020-01-01' })
     } catch (e) {
       err = e
     }
-    expect(err.message).toMatch(/Could not.*type/)
+    expect(err.name).toMatch(/ModelError/)
+    expect(err.code).toBe('invalid-type')
   })
 })
 
 describe('#draft', () => {
-  it.only('x tell unknown props', async () => {
+  it('x tell unknown props', async () => {
     class Panda {
       one
       two

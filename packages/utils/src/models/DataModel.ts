@@ -1,11 +1,16 @@
+import { CustomError } from '../errors/CustomError.js'
 import { isPromise } from '../native/promise/isPromise.js'
 
 export const SYM = Symbol('taskfolders.com:DataModel')
 
 type Foo<T> = Partial<{ [key in keyof T]: { parse?(x): T[key] } }>
 
+type ParseResult<T> =
+  | { ok: false; error: Error }
+  | { ok: true; result: T; unknownKeys: any }
+
 export class ModelDefinition<T> {
-  type
+  type: { value: string; field?: string }
   before: (doc) => void
   properties: Record<string, { fromJSON?; parse?(kv: { fail; issue }) }>
 
@@ -49,12 +54,20 @@ export class DataModel {
 
   static fromJSON<T>(klass: { new (): T }, doc) {
     let res = this.parse(klass, doc)
+    if (res.ok === false) {
+      throw res.error
+    }
     return res.result
   }
 
-  static parse<T>(klass: { new (): T }, doc: unknown, ops: { strict? } = {}) {
+  static parse<T>(
+    klass: { new (): T },
+    doc: unknown,
+    ops: { strict? } = {},
+  ): ParseResult<T> {
     let next = new klass()
     let def = ModelDefinition.get(klass)
+    let error
 
     if (def) {
       if (def.before) {
@@ -71,8 +84,12 @@ export class DataModel {
           let given = doc[def.type.field]
           let wanted = def.type.value
           if (given !== wanted) {
-            let err = Error('Could not identify document type')
-            throw err
+            error = new CustomError('Unable to verify wanted model type', {
+              name: 'ModelError',
+              code: 'invalid-type',
+              data: { wanted, given },
+            })
+            return { ok: false, error }
           }
         }
       }
@@ -101,14 +118,17 @@ export class DataModel {
 
           if (config.parse) {
             let ctx = { value }
-            config.parse(ctx)
+            config.parse(
+              // @ts-expect-error TODO
+              ctx,
+            )
             next[key] = ctx.value
           }
         }
       })
     }
 
-    return { result: next, unknownKeys }
+    return { ok: true, result: next, unknownKeys }
   }
 
   static async parseAsync<T>(klass: { new (): T }, doc) {
