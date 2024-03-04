@@ -13,7 +13,7 @@
 import smp from 'source-map-support'
 import { CodePosition } from './CodePosition.js'
 
-const toClearStackFrame = (all: ICallSite[] | ICallSite) => {
+export const toClearStackFrame = (all: ICallSite[] | ICallSite) => {
   let toClear = (x: ICallSite) => {
     return { path: x.getFileName(), lineNumber: x.getLineNumber() }
   }
@@ -87,8 +87,8 @@ export function getCallStack(): ICallSite[] {
  *     can this solve bad stack trace printer view in Browser?
  */
 export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
-  if (process.env.DEBUG?.includes('get-caller')) {
-    console.log('DEBUG: get caller')
+  if (process.env.DEBUG?.includes('get-caller-call')) {
+    console.log('DEBUG: get-caller-call')
   }
   let stack = getCallStack()
 
@@ -125,7 +125,7 @@ export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
 
   if (!callSiteRaw) return null
 
-  if (kv.debug) {
+  if (kv.debug || process.env.DEBUG?.includes('get-caller-stack')) {
     let start = 1
     stack.map((x, idx) => {
       if (idx < start) return

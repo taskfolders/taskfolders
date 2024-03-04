@@ -44,15 +44,18 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
   }
 
   return (log: LogEvent) => {
-    let location: CodePosition
+    let location: CodePosition = log.location
 
-    // TODO #review why fail with bun
-    if (log.options.forceLink) {
-      location = FindCaller.here({ offset: 4 })
-    } else {
-      if (hasShellLinks('log')) {
-        if (passThreshold({ level: log.levelName, threshold: 'info' })) {
-          location = FindCaller.whenDevelopment({ offset: 4 })
+    if (!location) {
+      // TODO #review why fail with bun
+      if (log.options.forceLink) {
+        location = FindCaller.here({ offset: 4 })
+      } else {
+        if (hasShellLinks('log')) {
+          if (passThreshold({ level: log.levelName, threshold: 'info' })) {
+            //location = FindCaller.whenDevelopment({ offset: 5 })
+            location = FindCaller.whenDevelopment({ offset: 4 })
+          }
         }
       }
     }
@@ -96,8 +99,10 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
     }
 
     let { loggerName } = log
+    let parts = [level]
     if (loggerName) {
       loggerName = th.dim(`[${loggerName}]`)
+      parts.push(loggerName)
     }
 
     let oneLine = log.args
@@ -106,14 +111,16 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
         return inspect(x, { colors: true })
       })
       .join(' ')
+
     if (oneLine.length < 70) {
-      let parts = [level, loggerName, oneLine]
-      screen.log(parts)
+      parts.push(oneLine)
+      console.log(...parts)
       return
     }
 
-    let parts = [level, loggerName, first]
-    screen.log(parts)
+    parts.push(first)
+    console.log(...parts)
+    // screen.log(parts)
 
     //console.log(inspect(log.args, { colors: true }))
     if (second) {

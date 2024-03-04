@@ -1,6 +1,7 @@
 import { expect, describe, it } from 'vitest'
 
-import { foo } from './_test/fooFunction.js'
+import { foo, debugMe } from './_test/fooFunction.js'
+import { getCallStack, toClearStackFrame } from './getCallerFile.js'
 
 describe('x', () => {
   it('x', async () => {
@@ -9,5 +10,9 @@ describe('x', () => {
     let all = res.stack.map(x => {
       return { line: x.getFileName(), ln: x.getLineNumber() }
     })
+  })
+
+  it('x', async () => {
+    // let data = debugMe()
   })
 })

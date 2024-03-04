@@ -1,5 +1,9 @@
+import type { CodePosition } from '../stack/locate/CodePosition.js'
+import { FindCaller } from '../stack/locate/FindCaller.js'
 import { BaseLogServer } from './BaseLogServer.js'
 import { LogLevelName } from './helpers.js'
+import { passThreshold } from './passThreshold.js'
+import { getCallerFile } from '../stack/locate/getCallerFile.js'
 
 interface LogOptions {
   depth?: number
@@ -23,6 +27,7 @@ export interface LogEvent {
   levelValue?: number
   loggerName?: string
   options?: LogOptions
+  location?: CodePosition
 }
 
 interface UserLogEvent {
@@ -43,8 +48,13 @@ export abstract class BaseLogger {
   constructor() {}
 
   _logRaw(kv: LogEvent) {
-    let ev = { ...kv, loggerName: this.name, options: kv.args.at(2) ?? {} }
-    this.server.handleLog(ev)
+    let log = { ...kv, loggerName: this.name, options: kv.args.at(2) ?? {} }
+    if (passThreshold({ level: log.levelName, threshold: 'info' })) {
+      // TODO ???
+      // log.location = getCallerFile()
+    }
+
+    this.server.handleLog(log)
   }
 
   raw(kv: UserLogEvent) {
