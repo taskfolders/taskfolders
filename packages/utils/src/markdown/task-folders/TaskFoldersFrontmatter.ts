@@ -1,7 +1,9 @@
 import { DataModel } from '../../models/DataModel.js'
 
 const TYPE = 'https://taskfolders.com/types/markdown/v1'
-
+function isEmpty(obj) {
+  return Object.keys(obj).length === 0
+}
 function unique<T>(anArray: T[], { getter = null } = {}): T[] {
   if (!getter) return Array.from(new Set(anArray))
   throw Error('todo')
@@ -13,18 +15,20 @@ function ensureWords(thing: string | string[]): string[] {
 }
 
 export class TaskFoldersFrontmatter {
+  _meta = {
+    input: null,
+    issues: null,
+  }
+
   static type = TYPE
   type = TYPE
   uid
   title: string
-  scripts?: { run: string; describe?: string; alias?: string }[]
+  scripts?: Record<string, { run: string; describe?: string; alias?: string }>
   review?
   before?
   status?
-  tags: string[]
-
-  _input
-  _issues
+  tags?: string[]
 
   static fromJSON(doc) {
     return DataModel.fromJSON(this, doc)
@@ -34,6 +38,16 @@ export class TaskFoldersFrontmatter {
     let obj = new this()
     obj.uid = crypto.randomUUID()
     return obj
+  }
+
+  toJSON() {
+    let copy = { ...this }
+    delete copy._meta
+
+    for (let key of Object.keys(copy)) {
+      isEmpty
+    }
+    return copy
   }
 }
 
@@ -47,6 +61,9 @@ DataModel.decorate(TaskFoldersFrontmatter, {
   },
   properties: {
     tags: {
+      // TODO lint
+      //  - encourage all lowercase kebab case
+      //  - warn about camel case
       parse(ctx) {
         ctx.value = ensureWords(ctx.value)
       },
@@ -54,7 +71,7 @@ DataModel.decorate(TaskFoldersFrontmatter, {
     scripts: {
       fromJSON(doc) {
         let target = {} as TaskFoldersFrontmatter['scripts']
-        Object.entries(doc).forEach(([key, value]) => {
+        Object.entries<any>(doc).forEach(([key, value]) => {
           if (typeof value === 'string') {
             target[key] = { run: value }
           } else {

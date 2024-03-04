@@ -21,13 +21,21 @@ type ParseResult<T> =
   | { ok: false; error: Error }
   | { ok: true; result: T; unknownKeys: any }
 
+interface ParseContext<
+  Model extends Record<string, any>,
+  Key extends keyof Model,
+> {
+  model: Model
+  input: any
+  value: Model[Key]
+  fail
+  issue
+}
+
 export class ModelDefinition<T> {
   type: { value: string; field?: string }
   before: (doc) => void
-  properties: Record<
-    string,
-    { fromJSON?; parse?(kv: { value; input; fail; issue }) }
-  >
+  properties: Record<string, { fromJSON?; parse?(kv: ParseContext<T, any>) }>
 
   static getsert<T>(klass): ModelDefinition<T> {
     klass[SYM] ??= new this()
@@ -55,7 +63,7 @@ export class DataModel {
         [key in keyof T]: {
           fromJSON?(x): T[key]
           require?: boolean
-          parse?(kv: { input: any; value: T[key]; fail; issue })
+          parse?(kv: ParseContext<T, key>): void
         }
       }>
     },

@@ -3,6 +3,7 @@ import { MarkdownDocument } from './MarkdownDocument.js'
 import { dedent } from '../native/string/dedent.js'
 import { readFileSync } from 'node:fs'
 import { TaskFoldersFrontmatter } from './task-folders/TaskFoldersFrontmatter.js'
+import { expectType } from '../types/expectType.js'
 
 it('x #now #tmp', async () => {
   let res = await MarkdownDocument.fromBody(dedent`
@@ -45,4 +46,38 @@ it('x', async () => {
   let data = TaskFoldersFrontmatter.fromJSON(res.data)
   res.data = data
   console.log(res)
+})
+
+it.only('x #story', async () => {
+  let res = await MarkdownDocument.fromBody(
+    dedent`
+      fox: 1
+      more`,
+    { implicitFrontmatter: true },
+  )
+
+  expect(res.data).toEqual({ fox: 1 })
+  expect(res.content).toBe('more')
+
+  class Panda {
+    fox: number
+    static fromJSON(doc) {
+      let obj = new this()
+      Object.assign(obj, doc)
+      return obj
+    }
+  }
+
+  let r1 = res.setData(Panda.fromJSON(res.data))
+  expectType<typeof r1, MarkdownDocument<Panda>>()
+  console.log(r1)
+  let txt = r1.toString()
+  console.log(txt)
+  expect(txt).toBe(dedent`
+    ---
+    fox: 1
+    ---
+
+    more
+  `)
 })
