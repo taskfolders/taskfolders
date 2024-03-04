@@ -24,7 +24,10 @@ type ParseResult<T> =
 export class ModelDefinition<T> {
   type: { value: string; field?: string }
   before: (doc) => void
-  properties: Record<string, { fromJSON?; parse?(kv: { fail; issue }) }>
+  properties: Record<
+    string,
+    { fromJSON?; parse?(kv: { value; input; fail; issue }) }
+  >
 
   static getsert<T>(klass): ModelDefinition<T> {
     klass[SYM] ??= new this()
@@ -52,7 +55,7 @@ export class DataModel {
         [key in keyof T]: {
           fromJSON?(x): T[key]
           require?: boolean
-          parse?(kv: { value: T[key]; fail; issue })
+          parse?(kv: { input: any; value: T[key]; fail; issue })
         }
       }>
     },
@@ -96,12 +99,7 @@ export class DataModel {
           let given = doc[def.type.field]
           let wanted = def.type.value
           if (given !== wanted) {
-            error = new CustomError('Unable to verify wanted model type', {
-              name: 'ModelError',
-              code: 'invalid-type',
-              data: { wanted, given },
-            })
-            error = DataModelError.invalidType
+            error = DataModelError.invalidType.create({ wanted, given })
             return { ok: false, error }
           }
         }
@@ -130,7 +128,7 @@ export class DataModel {
           }
 
           if (config.parse) {
-            let ctx = { value }
+            let ctx = { input: value, value }
             config.parse(
               // @ts-expect-error TODO
               ctx,
