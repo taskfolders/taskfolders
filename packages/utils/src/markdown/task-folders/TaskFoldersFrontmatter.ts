@@ -22,7 +22,7 @@ export class TaskFoldersFrontmatter {
 
   static type = TYPE
   type = TYPE
-  uid
+  uid = null
   title: string
   scripts?: Record<string, { run: string; describe?: string; alias?: string }>
   review?
@@ -31,7 +31,9 @@ export class TaskFoldersFrontmatter {
   tags?: string[]
 
   static fromJSON(doc) {
-    return DataModel.fromJSON(this, doc)
+    let md = DataModel.deserialize(this, doc)
+    md.uid ??= crypto.randomUUID()
+    return md
   }
 
   static create(kv: { uid?: string } = {}) {

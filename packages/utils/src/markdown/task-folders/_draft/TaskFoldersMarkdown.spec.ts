@@ -1,8 +1,8 @@
 import { expect, describe, it } from 'vitest'
 import { TaskFoldersMarkdown } from './TaskFoldersMarkdown.js'
-import { dedent } from '../../native/string/dedent.js'
-import { MarkdownDocument } from '../MarkdownDocument.js'
-import { TaskFoldersFrontmatter } from './TaskFoldersFrontmatter.js'
+import { dedent } from '../../../native/string/dedent.js'
+import { MarkdownDocument } from '../../MarkdownDocument.js'
+import { TaskFoldersFrontmatter } from '../TaskFoldersFrontmatter.js'
 
 const SUT = TaskFoldersMarkdown
 
@@ -72,7 +72,7 @@ describe('infer Standard Markdown', async () => {
     console.log(r2)
   })
 
-  it.only('x', async () => {
+  it('x', async () => {
     let r1 = await SUT.fromBodyMaybe(dedent`
     ---
     type: alien

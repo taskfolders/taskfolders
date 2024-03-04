@@ -7,7 +7,7 @@ class Panda {
   fox = 1
   date: Date
   static fromJSON(doc) {
-    return DataModel.fromJSON(Panda, doc)
+    return DataModel.deserialize(Panda, doc)
   }
 }
 
@@ -28,7 +28,7 @@ DataModel.decorate(Panda, {
 })
 
 it('x', async () => {
-  let res = DataModel.fromJSON(Panda, {
+  let res = DataModel.deserialize(Panda, {
     type: 'panda',
     fox: 1,
     date: '2020-01-01',
@@ -57,13 +57,13 @@ describe('edge cases', () => {
       },
     })
 
-    DataModel.fromJSON(Panda, {})
+    DataModel.deserialize(Panda, {})
   })
 
   it('fail if type is missing', async () => {
     let err: CustomError
     try {
-      DataModel.fromJSON(Panda, { fox: 1, date: '2020-01-01' })
+      DataModel.deserialize(Panda, { fox: 1, date: '2020-01-01' })
     } catch (e) {
       err = e
     }
@@ -126,11 +126,11 @@ describe('#draft', () => {
       },
     })
 
-    let res = DataModel.fromJSON(Login, { foo: 1, date: '2020-01-01' })
+    let res = DataModel.deserialize(Login, { foo: 1, date: '2020-01-01' })
     console.log(res)
   })
 
-  it('x decorator', async () => {
+  it.skip('x decorator', async () => {
     function f(key: string): any {
       throw Error('boom')
       console.log('evaluate: ', key)
@@ -145,5 +145,45 @@ describe('#draft', () => {
     }
 
     //new C()
+  })
+
+  it('x', async () => {
+    class Panda {
+      _sanitized
+      tags: string[]
+    }
+
+    DataModel.decorate(Panda, {
+      properties: {
+        tags: {
+          parse(ctx) {
+            console.log(ctx.model)
+            ctx.value = ctx.input.split(',')
+            ctx.model._sanitized = true
+
+            // @ts-expect-error TEST
+            ctx.model.bogus
+          },
+        },
+      },
+    })
+
+    let res = DataModel.deserialize(Panda, { tags: 'a,b' })
+    expect(res._sanitized).toBe(true)
+    expect(res.tags).toEqual(['a', 'b'])
+
+    // TEST other way to create ???
+    let panda = Panda
+    // DataModel.applyDocument(panda, {tags: 'a,b'})
+  })
+
+  it('x #todo', async () => {
+    let sut = DataModel.from(Panda)
+    let res = sut.applyDocument({ fox: 2 })
+    sut.onEachProperty({
+      type: null,
+      fox: null,
+      date: null,
+    })
   })
 }) // #draft
