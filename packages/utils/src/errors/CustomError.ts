@@ -1,7 +1,16 @@
-interface CustomErrorClass {
+import { camelToKebab } from '../native/string/camelToKebab.js'
+
+export interface ErrorGroupClass<T> {
+  // new ()
   groupName: string
   code: string
+  // TODO
+  // create(data: T)
 }
+
+export type GetErrorData<Type> = Type extends typeof CustomError<infer X>
+  ? X
+  : never
 
 export class CustomError<T = any> extends Error {
   message: string
@@ -28,7 +37,7 @@ export class CustomError<T = any> extends Error {
     kv: { data?: T; name?: string; cause?: Error; code?: string } = {},
   ) {
     super(msg)
-    let klass = this.constructor as any as CustomErrorClass
+    let klass = this.constructor as any as ErrorGroupClass<T>
 
     if (kv.name) {
       this.name = kv.name
@@ -55,22 +64,39 @@ export class CustomError<T = any> extends Error {
   static defineGroup<T extends Record<string, typeof CustomError<any>>>(
     groupName: string,
     kv: T,
-  ): Record<keyof T, typeof CustomError<any> & CustomErrorClass> {
+  ): {
+    [key in keyof T]: T[key] &
+      ErrorGroupClass<GetErrorData<T[key]>> & {
+        create(data: GetErrorData<T[key]>): InstanceType<T[key]>
+      }
+  } {
     Object.entries(kv).forEach(([key, value]) => {
-      let val = value as any as CustomErrorClass
+      let val = value as any as ErrorGroupClass<T>
       val.groupName = groupName
-      val.code = key
+      val.code = val.code ?? camelToKebab(key)
+      // @ts-expect-error TODO
+      val.create = function (data: T) {
+        let obj = new this()
+        obj.data = data
+        return obj
+      }
     })
 
     // @ts-expect-error TODO
     return kv
   }
 
-  // static create<T>(
+  // static create(data) {
+  //   let obj = new this()
+  //   obj.data = data
+  //   return obj
+  // }
+  //   static create<T>(
   //   msg: string,
   //   kv: { data?: T; name?: string; cause?: Error; code?: string },
   // ): CustomError<T> {
-  //
+  //   let obj = new this()
+  //   return obj
+
   // }
-  //
 }

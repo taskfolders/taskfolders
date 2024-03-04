@@ -3,6 +3,18 @@ import { isPromise } from '../native/promise/isPromise.js'
 
 export const SYM = Symbol('taskfolders.com:DataModel')
 
+export const DataModelError = CustomError.defineGroup('DataModelError', {
+  invalidType: class extends CustomError {
+    message = 'Unable to verify wanted model type'
+    static code = 'invalid-type'
+    static create(kv: { wanted; given }) {
+      let obj = new this()
+      obj.data = kv
+      return obj
+    }
+  },
+})
+
 type Foo<T> = Partial<{ [key in keyof T]: { parse?(x): T[key] } }>
 
 type ParseResult<T> =
@@ -89,6 +101,7 @@ export class DataModel {
               code: 'invalid-type',
               data: { wanted, given },
             })
+            error = DataModelError.invalidType
             return { ok: false, error }
           }
         }

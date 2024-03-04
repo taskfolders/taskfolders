@@ -320,7 +320,7 @@ export async function extractFrontMatter(
       //
 
       let msg = 'Cannot parse YAML'
-      error = CustomError.create(msg, {
+      error = new CustomError(msg, {
         name: 'YamlError',
         data: { line, column, reason: e.reason, message: e.message },
       })
