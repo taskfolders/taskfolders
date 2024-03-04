@@ -1,5 +1,5 @@
-import { MarkdownDocument } from '../MarkdownDocument.js'
-import { TaskFoldersFrontmatter } from './TaskFoldersFrontmatter.js'
+import { MarkdownDocument } from '../../MarkdownDocument.js'
+import { TaskFoldersFrontmatter } from '../TaskFoldersFrontmatter.js'
 
 export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter> {
   static async fromBody<T extends typeof MarkdownDocument<any>>(

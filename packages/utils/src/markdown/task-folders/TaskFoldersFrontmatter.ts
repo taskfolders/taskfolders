@@ -34,9 +34,9 @@ export class TaskFoldersFrontmatter {
     return DataModel.fromJSON(this, doc)
   }
 
-  static create() {
+  static create(kv: { uid?: string } = {}) {
     let obj = new this()
-    obj.uid = crypto.randomUUID()
+    obj.uid = kv.uid ?? crypto.randomUUID()
     return obj
   }
 
