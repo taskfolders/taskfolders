@@ -1,13 +1,46 @@
+import { CustomError } from '../errors/CustomError.js'
 import { isPromise } from '../native/promise/isPromise.js'
 
 export const SYM = Symbol('taskfolders.com:DataModel')
 
+export const DataModelError = CustomError.defineGroup('DataModelError', {
+  invalidType: class extends CustomError {
+    message = 'Unable to verify wanted model type'
+    static code = 'invalid-type'
+    static create(kv: { wanted; given }) {
+      let obj = new this()
+      obj.data = kv
+      return obj
+    }
+  },
+})
+
 type Foo<T> = Partial<{ [key in keyof T]: { parse?(x): T[key] } }>
 
+type ParseResult<T> =
+  | { ok: false; error: Error }
+  | { ok: true; result: T; unknownKeys: any }
+
+class ParseContext<Model extends Record<string, any>, Key extends keyof Model> {
+  model: Model
+  input: any
+  value: Model[Key]
+  fail
+  issue
+
+  static create(kv: Pick<ParseContext<any, any>, 'model' | 'input'>) {
+    let obj = new this()
+    obj.model = kv.model
+    obj.value = kv.input
+    obj.input = kv.input
+    return obj
+  }
+}
+
 export class ModelDefinition<T> {
-  type
+  type: { value: string; field?: string }
   before: (doc) => void
-  properties: Record<string, { fromJSON?; parse?(kv: { fail; issue }) }>
+  properties: Record<string, { fromJSON?; parse?(kv: ParseContext<T, any>) }>
 
   static getsert<T>(klass): ModelDefinition<T> {
     klass[SYM] ??= new this()
@@ -21,9 +54,22 @@ export class ModelDefinition<T> {
   }
 }
 
-export class DataModel {
+export class DataModel<T extends { new () }> {
+  klass: T
+  model: InstanceType<T>
+
   static prop() {
     return function () {}
+  }
+
+  static from<T extends { new () }>(klass: T): DataModel<T> {
+    let obj = new this<T>()
+    obj.klass = klass
+    return obj
+  }
+
+  get meta() {
+    return ModelDefinition.get(this.klass)
   }
 
   static decorate<T>(
@@ -35,7 +81,7 @@ export class DataModel {
         [key in keyof T]: {
           fromJSON?(x): T[key]
           require?: boolean
-          parse?(kv: { value: T[key]; fail; issue })
+          parse?(kv: ParseContext<T, key>): void
         }
       }>
     },
@@ -47,14 +93,22 @@ export class DataModel {
     //
   }
 
-  static fromJSON<T>(klass: { new (): T }, doc) {
+  static deserialize<T>(klass: { new (): T }, doc) {
     let res = this.parse(klass, doc)
+    if (res.ok === false) {
+      throw res.error
+    }
     return res.result
   }
 
-  static parse<T>(klass: { new (): T }, doc: unknown, ops: { strict? } = {}) {
-    let next = new klass()
-    let def = ModelDefinition.get(klass)
+  applyDocument(
+    doc: unknown,
+    ops: { strict? } = {},
+  ): ParseResult<InstanceType<T>> {
+    this.model ??= new this.klass()
+    let model = this.model
+    let def = this.meta
+    let error
 
     if (def) {
       if (def.before) {
@@ -71,8 +125,8 @@ export class DataModel {
           let given = doc[def.type.field]
           let wanted = def.type.value
           if (given !== wanted) {
-            let err = Error('Could not identify document type')
-            throw err
+            error = DataModelError.invalidType.create({ wanted, given })
+            return { ok: false, error }
           }
         }
       }
@@ -82,12 +136,12 @@ export class DataModel {
     if (ops.strict) {
       let copy = { ...(doc as any) }
       Object.entries(def.properties).forEach(([key, value]) => {
-        next[key] = value
+        model[key] = value
         delete copy[key]
       })
       unknownKeys = Object.keys(copy)
     } else {
-      Object.assign(next, doc)
+      Object.assign(model, doc)
     }
 
     if (def.properties) {
@@ -96,22 +150,32 @@ export class DataModel {
         let value = doc[key]
         if (value) {
           if (config.fromJSON) {
-            next[key] = config.fromJSON(value)
+            model[key] = config.fromJSON(value)
           }
 
           if (config.parse) {
-            let ctx = { value }
+            let ctx = ParseContext.create({ input: value, model })
             config.parse(ctx)
-            next[key] = ctx.value
+            model[key] = ctx.value
           }
         }
       })
     }
 
-    return { result: next, unknownKeys }
+    return { ok: true, result: model, unknownKeys }
+  }
+
+  static parse<T>(
+    klass: { new (): T },
+    doc: unknown,
+    ops: { strict? } = {},
+  ): ParseResult<T> {
+    return this.from(klass).applyDocument(doc, ops)
   }
 
   static async parseAsync<T>(klass: { new (): T }, doc) {
     throw Error('todo')
   }
+
+  onEachProperty(map: { [key in keyof InstanceType<T>]: any }) {}
 }

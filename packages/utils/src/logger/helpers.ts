@@ -38,10 +38,11 @@ export function defaultLogLevel(): LogLevelName {
   // }
 
   let envNode = process.env.NODE_ENV
+
   if (envNode === 'production') {
     return 'warn'
   } else if (envNode === 'test') {
-    return 'error'
+    return 'dev'
   } else {
     return 'info'
   }
