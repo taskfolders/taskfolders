@@ -8,7 +8,7 @@ export class StandardTaskFolderFrontmatter {
   before?
   status?
   static fromJSON(doc) {
-    return DataModel.parseSync(this, doc)
+    return DataModel.fromJSON(this, doc)
   }
 }
 
@@ -22,7 +22,7 @@ DataModel.decorate(StandardTaskFolderFrontmatter, {
   },
   properties: {
     scripts: {
-      parse(doc) {
+      fromJSON(doc) {
         let target = {} as StandardTaskFolderFrontmatter['scripts']
         Object.entries(doc).forEach(([key, value]) => {
           if (typeof value === 'string') {

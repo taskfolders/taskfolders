@@ -4,18 +4,6 @@ import { dedent } from '../native/string/dedent.js'
 import { readFileSync } from 'node:fs'
 import { StandardTaskFolderFrontmatter } from './standard/StandardTaskFolderFrontmatter.js'
 
-function tryStandardClone(
-  md: MarkdownDocument,
-): MarkdownDocument<StandardTaskFolderFrontmatter> {
-  try {
-    let r1 = md.clone()
-    r1.data = StandardTaskFolderFrontmatter.fromJSON(r1.data)
-    return r1 as MarkdownDocument<StandardTaskFolderFrontmatter>
-  } catch (e) {
-    return null
-  }
-}
-
 it('x #now #tmp', async () => {
   let res = await MarkdownDocument.fromBody(dedent`
       ---
@@ -57,23 +45,4 @@ it('x', async () => {
   let data = StandardTaskFolderFrontmatter.fromJSON(res.data)
   res.data = data
   console.log(res)
-})
-
-it('x', async () => {
-  let m1 = await MarkdownDocument.fromBody(dedent`
-    ---
-    uid: 2e7f80e2-89c5-4626-9e9d-cfc0082786ec 
-    type: https://taskfolders.com/types/markdown/v1
-    ---
-    `)
-  let m2 = await MarkdownDocument.fromBody(dedent`
-    ---
-    title: two
-    ---
-    `)
-
-  let r1 = tryStandardClone(m1)
-  let r2 = tryStandardClone(m2)
-  expect(r2).toBe(null)
-  console.log({ m2, r2 })
 })

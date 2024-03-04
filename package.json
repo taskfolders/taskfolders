@@ -1,17 +1,16 @@
 {
   "name": "tf-open",
-  "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "workspaces": [
     "./packages/*"
   ],
   "scripts": {
+    "outdated": "npm outdated",
     "code": "xdg-open tf-open.code-workspace",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "TaskFolders",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.10.4",

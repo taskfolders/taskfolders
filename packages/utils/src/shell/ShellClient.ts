@@ -5,8 +5,14 @@ interface Options {
   inherit?: boolean
   cwd?: string
 }
+
 export class ShellClient {
   child: ChildProcess
+  cwd: string
+
+  constructor(kv: { cwd?: string } = {}) {
+    this.cwd = kv.cwd ?? process.cwd()
+  }
 
   static async execute(command: string, ops: Options = {}) {
     let obj = new this()
@@ -22,8 +28,9 @@ export class ShellClient {
   async execute(command: string, ops: Options = {}) {
     //let { command, args } = this
     let args = []
+    let cwd = ops.cwd ?? this.cwd
     const child = spawn(command, args, {
-      cwd: ops.cwd,
+      cwd,
       shell: true,
       stdio: ops.inherit ? 'inherit' : undefined,
     })

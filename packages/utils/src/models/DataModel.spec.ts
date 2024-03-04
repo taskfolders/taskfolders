@@ -1,12 +1,12 @@
 import { expect, describe, it } from 'vitest'
-import { DataModel } from './DataModel.js'
+import { DataModel, ModelDefinition } from './DataModel.js'
 
 class Panda {
   type: string
   fox = 1
   date: Date
   static fromJSON(doc) {
-    return DataModel.parseSync(Panda, doc)
+    return DataModel.fromJSON(Panda, doc)
   }
 }
 
@@ -21,13 +21,13 @@ DataModel.decorate(Panda, {
   },
   properties: {
     date: {
-      parse: x => new Date(x),
+      fromJSON: x => new Date(x),
     },
   },
 })
 
 it('x', async () => {
-  let res = DataModel.parseSync(Panda, {
+  let res = DataModel.fromJSON(Panda, {
     type: 'panda',
     fox: 1,
     date: '2020-01-01',
@@ -43,28 +43,102 @@ it.skip('execute actions before parsing', async () => {})
 describe('edge cases', () => {
   it('avoid parsing undefined', async () => {
     class Panda {
-      all
+      all: number[]
     }
 
     DataModel.decorate(Panda, {
       properties: {
         all: {
-          parse(x) {
+          fromJSON(x) {
             return x.map(x => x)
           },
         },
       },
     })
 
-    DataModel.parseSync(Panda, {})
+    DataModel.fromJSON(Panda, {})
   })
+
   it('fail if type is missing', async () => {
     let err: Error
     try {
-      DataModel.parseSync(Panda, { fox: 1, date: '2020-01-01' })
+      DataModel.fromJSON(Panda, { fox: 1, date: '2020-01-01' })
     } catch (e) {
       err = e
     }
     expect(err.message).toMatch(/Could not.*type/)
   })
 })
+
+describe('#draft', () => {
+  it.only('x tell unknown props', async () => {
+    class Panda {
+      one
+      two
+      pass
+    }
+
+    DataModel.decorate(Panda, {
+      properties: {
+        one: null,
+        pass: {
+          require: true,
+          parse(x) {
+            if (x.value.length < 8) {
+              // 'password too short'
+              x
+            }
+          },
+        },
+      },
+    })
+
+    let res = DataModel.parse(Panda, { one: 1, three: 3 }, { strict: true })
+    console.log({ res })
+  })
+
+  // TODO migrations? of type, of field rename.., of .version bump?
+  it('x', async () => {
+    class Login {
+      name
+      pass
+      date: Date
+    }
+
+    DataModel.decorate(Login, {
+      properties: {
+        //bar: null,
+        name: {
+          parse(x) {
+            console.log({ x })
+          },
+        },
+        date: {
+          parse(x) {
+            x.value = new Date(x.value)
+          },
+        },
+      },
+    })
+
+    let res = DataModel.fromJSON(Login, { foo: 1, date: '2020-01-01' })
+    console.log(res)
+  })
+
+  it('x decorator', async () => {
+    function f(key: string): any {
+      throw Error('boom')
+      console.log('evaluate: ', key)
+      return function () {
+        console.log('call: ', key)
+      }
+    }
+
+    class C {
+      @f('Static Property')
+      static prop?: number
+    }
+
+    //new C()
+  })
+}) // #draft

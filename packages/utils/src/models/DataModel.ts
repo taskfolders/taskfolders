@@ -4,10 +4,10 @@ export const SYM = Symbol('taskfolders.com:DataModel')
 
 type Foo<T> = Partial<{ [key in keyof T]: { parse?(x): T[key] } }>
 
-class ModelDefinition<T> {
+export class ModelDefinition<T> {
   type
   before: (doc) => void
-  properties: Record<string, { parse? }>
+  properties: Record<string, { fromJSON?; parse?(kv: { fail; issue }) }>
 
   static getsert<T>(klass): ModelDefinition<T> {
     klass[SYM] ??= new this()
@@ -31,7 +31,13 @@ export class DataModel {
     kv: {
       type?: { value: string; field? }
       before?(doc): Record<string, any>
-      properties?: Partial<{ [key in keyof T]: { parse?(x): T[key] } }>
+      properties?: Partial<{
+        [key in keyof T]: {
+          fromJSON?(x): T[key]
+          require?: boolean
+          parse?(kv: { value: T[key]; fail; issue })
+        }
+      }>
     },
   ) {
     let def = ModelDefinition.getsert(klass)
@@ -41,7 +47,12 @@ export class DataModel {
     //
   }
 
-  static parseSync<T>(klass: { new (): T }, doc) {
+  static fromJSON<T>(klass: { new (): T }, doc) {
+    let res = this.parse(klass, doc)
+    return res.result
+  }
+
+  static parse<T>(klass: { new (): T }, doc: unknown, ops: { strict? } = {}) {
     let next = new klass()
     let def = ModelDefinition.get(klass)
 
@@ -67,19 +78,37 @@ export class DataModel {
       }
     }
 
-    Object.assign(next, doc)
+    let unknownKeys = []
+    if (ops.strict) {
+      let copy = { ...(doc as any) }
+      Object.entries(def.properties).forEach(([key, value]) => {
+        next[key] = value
+        delete copy[key]
+      })
+      unknownKeys = Object.keys(copy)
+    } else {
+      Object.assign(next, doc)
+    }
 
     if (def.properties) {
       Object.entries(def.properties).forEach(([key, config]) => {
-        let parser = config.parse
+        config ??= {}
         let value = doc[key]
-        if (parser && value) {
-          next[key] = parser(value)
+        if (value) {
+          if (config.fromJSON) {
+            next[key] = config.fromJSON(value)
+          }
+
+          if (config.parse) {
+            let ctx = { value }
+            config.parse(ctx)
+            next[key] = ctx.value
+          }
         }
       })
     }
 
-    return next
+    return { result: next, unknownKeys }
   }
 
   static async parseAsync<T>(klass: { new (): T }, doc) {
