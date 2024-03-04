@@ -16,6 +16,12 @@ export abstract class BaseLogServer {
       level: log.levelName,
       threshold: this.levelThresholdName,
     })
+    // console.log({
+    //   pass,
+    //   logLevel: log.levelName,
+    //   threshold: this.levelThresholdName,
+    // })
+
     if (!pass) return
 
     if (log.levelName === 'dev' && process.env.TASKFOLDERS_LOGGER_DEV !== '1') {

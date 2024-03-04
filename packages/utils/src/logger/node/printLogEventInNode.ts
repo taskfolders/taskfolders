@@ -107,7 +107,8 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
       })
       .join(' ')
     if (oneLine.length < 70) {
-      screen.log([level, loggerName, oneLine])
+      let parts = [level, loggerName, oneLine]
+      screen.log(parts)
       return
     }
 
