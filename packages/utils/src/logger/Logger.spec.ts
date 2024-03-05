@@ -20,7 +20,7 @@ describe('log cases', () => {
   })
 
   it('using raw dsl', async () => {
-    let test = setupLogger({ debug: true })
+    let test = setupLogger({ debug: false })
     test.sut.raw({ level: 'dev', message: 'log raw', forceLink: true })
     let ev = test.logs[0]
 
@@ -106,5 +106,13 @@ describe('use cases', () => {
     })
 
     expect(spy).toBe(2)
+  })
+})
+
+describe('screen printing', () => {
+  it('x', async () => {
+    let { sut } = setupLogger({ debug: true })
+    sut.dev('some log')
+    sut.put('hello')
   })
 })

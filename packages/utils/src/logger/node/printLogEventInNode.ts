@@ -2,12 +2,12 @@ import { FindCaller } from '../../stack/locate/FindCaller.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { inspect } from 'node:util'
 import { type LogLevelName } from '../helpers.js'
-import { MemoryScreenPrinter } from '../../screen/MemoryScreenPrinter.js'
 import { LogEvent } from '../Logger.js'
 import { CodePosition } from '../../stack/locate/CodePosition.js'
 import { passThreshold } from '../passThreshold.js'
 import { LogPrinter } from '../LogPrinter.js'
 import { getCallerFile_v2 } from '../../stack/locate/getCallerFile.js'
+import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 
 const levelColors: Record<LogLevelName, string> = {
   trace: 'grey',
@@ -23,7 +23,7 @@ export function hasShellLinks(key: string) {
   return value?.includes(key)
 }
 
-export const printLogEventInNode = (kv: { screen: MemoryScreenPrinter }) => {
+export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
   let screen = kv.screen
   let th = screen.style
 
@@ -140,7 +140,7 @@ export const printLogEventInNode = (kv: { screen: MemoryScreenPrinter }) => {
 }
 
 export class NodeLogPrinter extends LogPrinter {
-  screen = new MemoryScreenPrinter()
+  screen = new ScreenPrinter()
 
   printLogEvent(ev: LogEvent) {
     let { screen } = this
@@ -148,6 +148,6 @@ export class NodeLogPrinter extends LogPrinter {
 
     // TODO ugly hack to not accumulate lines...
     // #waiting for ScreenPrinterMock
-    this.screen = new MemoryScreenPrinter()
+    this.screen = new ScreenPrinter()
   }
 }

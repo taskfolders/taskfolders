@@ -7,7 +7,8 @@ import { MemoryScreenPrinter } from '../../screen/MemoryScreenPrinter.js'
 export function setupLogger(kv: { debug? }) {
   let server = new LogServer()
   let printer = new NodeLogPrinter()
-  let { screen } = printer
+  let screen = new MemoryScreenPrinter()
+  printer.screen = screen
 
   server.printer = printer
   screen.debug = true
