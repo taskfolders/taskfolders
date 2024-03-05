@@ -4,7 +4,6 @@ import { NodeLogger } from './NodeLogger.js'
 import { NodeLogServer } from './NodeLogServer.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { LoggerMock } from './LoggerMock.js'
-import { $dev } from './index.js'
 
 it('simple print #todo', async () => {
   let sut = setupLogger({ debug: false })
@@ -31,9 +30,5 @@ describe('x', () => {
     let l2 = new NodeLogger({ server })
     l1.put('one')
     l2.put('two')
-  })
-
-  it.only('x #live dev logger', async () => {
-    $dev('see')
   })
 })

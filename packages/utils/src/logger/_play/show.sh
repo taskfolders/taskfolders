@@ -10,4 +10,4 @@ TASKFOLDERS_SHELL_LINKS=logs TASKFOLDERS_LOGGER_DEV=1 bun logs.start.ts
 LOG_LEVEL=warn bun logs.start.ts 
 
 # show verbose but without links
-TASKFOLDERS_SHELL_LINKS=logs LOG_LEVEL=trace bun logs.start.ts 
+TASKFOLDERS_SHELL_LINKS= LOG_LEVEL=trace bun logs.start.ts 

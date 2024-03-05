@@ -1,4 +1,6 @@
-import { $log, NodeLogger } from '../index.js'
+import { $log } from '../index.js'
+import '../node/register.start.js'
+
 // let log = new NodeLogger()
 // log.warn('wow')
 

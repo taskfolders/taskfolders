@@ -6,6 +6,7 @@ import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 import { LogEvent } from '../Logger.js'
 import { CodePosition } from '../../stack/locate/CodePosition.js'
 import { passThreshold } from '../passThreshold.js'
+import { LogPrinter } from '../LogPrinter.js'
 
 const levelColors: Record<LogLevelName, string> = {
   trace: 'grey',
@@ -126,5 +127,11 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
     if (second) {
       screen.indent().log(second)
     }
+  }
+}
+
+export class NodeLogPrinter extends LogPrinter {
+  printLogEvent(ev: LogEvent) {
+    return printLogEventInNode()(ev)
   }
 }

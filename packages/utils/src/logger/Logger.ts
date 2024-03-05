@@ -41,8 +41,8 @@ interface UserLogEvent {
   forceLink?: boolean
 }
 
-export abstract class Logger {
-  abstract server: LogServer
+export class Logger {
+  server = LogServer.request()
   name: string
 
   constructor() {}
