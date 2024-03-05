@@ -4,6 +4,6 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   test: {
     include: ['**/*.{test,spec,vitest}.?(c|m)[jt]s?(x)'],
-    setupFiles: ['./src/logger/node/register.start.ts'],
+    setupFiles: ['./src/logger/node/registerGlobal.start.ts'],
   },
 })

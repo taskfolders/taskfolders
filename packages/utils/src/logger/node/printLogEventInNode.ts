@@ -7,6 +7,7 @@ import { LogEvent } from '../Logger.js'
 import { CodePosition } from '../../stack/locate/CodePosition.js'
 import { passThreshold } from '../passThreshold.js'
 import { LogPrinter } from '../LogPrinter.js'
+import { getCallerFile_v2 } from '../../stack/locate/getCallerFile.js'
 
 const levelColors: Record<LogLevelName, string> = {
   trace: 'grey',
@@ -47,15 +48,22 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
   return (log: LogEvent) => {
     let location: CodePosition = log.location
 
+    let getLocation = () =>
+      getCallerFile_v2({
+        afterFile: import.meta.url,
+        skipUniqueFiles: 2,
+      })
+
     if (!location) {
       // TODO #review why fail with bun
       if (log.options.forceLink) {
-        location = FindCaller.here({ offset: 4 })
+        location = getLocation()
       } else {
         if (hasShellLinks('log')) {
           if (passThreshold({ level: log.levelName, threshold: 'info' })) {
             //location = FindCaller.whenDevelopment({ offset: 5 })
-            location = FindCaller.whenDevelopment({ offset: 4 })
+            //location = FindCaller.whenDevelopment({ offset: 4 })
+            location = getLocation()
           }
         }
       }

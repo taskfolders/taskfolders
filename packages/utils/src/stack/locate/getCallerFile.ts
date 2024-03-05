@@ -13,10 +13,20 @@
 import smp from 'source-map-support'
 import { CodePosition } from './CodePosition.js'
 
-export const toClearStackFrame = (all: ICallSite[] | ICallSite) => {
+const dumpSites = (all: ICallSite[]) => {
   let toClear = (x: ICallSite) => {
     return { path: x.getFileName(), lineNumber: x.getLineNumber() }
   }
+  let clear = all.map((x, idx) => {
+    let { lineNumber, path } = toClear(x)
+    console.log(`${idx} - ${path}:${lineNumber}`)
+  })
+}
+
+let toClear = (x: ICallSite) => {
+  return { path: x.getFileName(), lineNumber: x.getLineNumber() }
+}
+export const toClearStackFrame = (all: ICallSite[] | ICallSite) => {
   if (!Array.isArray(all)) {
     return toClear(all)
   }
@@ -195,4 +205,74 @@ export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
   pos.stackIndex = stackIndex
   pos.context = context
   return pos
+}
+
+export function getCallerFile_v2(kv: {
+  afterFile: string
+  debug?: boolean
+  skipUniqueFiles?: number
+}): CodePosition {
+  if (process.env.DEBUG?.includes('get-caller-call')) {
+    console.log('DEBUG: get-caller-call')
+  }
+  let stack = getCallStack()
+
+  if (!stack) {
+    // TODO fallback to manual string parsing?
+    return
+  }
+  if (!smp) {
+    // console.log('-- no browser, TODO')
+    return
+  }
+
+  let position = 2
+
+  let callSiteRaw = stack[position]
+  if (!callSiteRaw) return null
+
+  let afterFile = kv.afterFile.replace('file://', '')
+  let skipUniqueFiles = kv.skipUniqueFiles ?? 0
+  let positions = stack.map(toClear)
+
+  // positions.forEach((x, idx) => {
+  //   // @ts-expect-error
+  //   x.idx = idx
+  // })
+
+  {
+    let idx = positions.findIndex(x => x.path === afterFile)
+    let positionsUnique = positions.slice(idx)
+
+    positionsUnique = getUniquePaths(positionsUnique)
+    idx = positionsUnique.findIndex(x => x.path === afterFile)
+    let found = positionsUnique.at(idx + skipUniqueFiles + 1)
+    if (!found) return null
+
+    let pos = new CodePosition({
+      path: found.path,
+      lineNumber: found.lineNumber,
+    })
+
+    if (kv.debug) {
+      console.log('DEBUG: Unique stack files')
+      positionsUnique.map((pos, idx) => {
+        console.log(`${idx} ) ${pos.path} ${pos.lineNumber}`)
+      })
+    }
+    return pos
+  }
+}
+
+/** Remove duplicate item.path from array */
+function getUniquePaths(positions: { path: string; lineNumber: number }[]) {
+  const seen = new Set()
+  const uniquePaths = positions
+    .map(obj => {
+      if (seen.has(obj.path)) return null
+      seen.add(obj.path)
+      return obj
+    })
+    .filter(Boolean)
+  return uniquePaths
 }
