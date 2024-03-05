@@ -16,7 +16,7 @@ const levelColors: Record<LogLevelName, string> = {
   error: 'red',
 }
 
-function hasShellLinks(key: string) {
+export function hasShellLinks(key: string) {
   let value = process.env.TASKFOLDERS_SHELL_LINKS
   return value?.includes(key)
 }

@@ -27,7 +27,7 @@
     "./logger/node.start": "./dist/esm/logger/node.start.js",
     "./dependencies": "./dist/esm/dependencies/index.js",
     "./markdown": "./dist/esm/markdown/index.js",
-    "./markdown/standard": "./dist/esm/markdown/standard/index.js",
+    "./markdown/task-folders": "./dist/esm/markdown/task-folders/index.js",
     "./shell": "./dist/esm/shell/index.js",
     "./dependencies/DCTester": "./dist/esm/dependencies/DCTester.js",
     "./native/array/*": "./dist/esm/native/array/*.js",
