@@ -11,7 +11,7 @@ import '../../../native/groupBy.polyfill'
 // import { fileURLToPath } from 'url'
 import { getsert } from '../../../native/object/getsert.js'
 import { when } from '../../../native/flow/when.js'
-import { MemoryScreenPrinter } from '../../../screen/ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../../../screen/MemoryScreenPrinter.js'
 import { shellHyperlink } from '../../../screen/shellHyperlink/shellHyperlink.js'
 
 /* convert import path into exact file path

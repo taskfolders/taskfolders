@@ -1,2 +1,3 @@
 export { shellHyperlink } from './shellHyperlink/shellHyperlink.js'
-export { MemoryScreenPrinter as ScreenPrinter } from './ScreenPrinter.js'
+export { ScreenPrinter } from './ScreenPrinter.js'
+export { MemoryScreenPrinter } from './MemoryScreenPrinter.js'

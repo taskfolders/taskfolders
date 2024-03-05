@@ -7,7 +7,6 @@ import { isDebug } from '../runtime/isDebug.js'
 // import { Terminal } from './Terminal'
 import { ConsoleTheme } from './ConsoleTheme.js'
 import { indent } from '../native/string/indent.js'
-import { stripAnsiCodes } from '../native/string/stripAnsiCodes.js'
 
 // import { sanitizeString } from '../../native/string/sanitizeString'
 // import { decolorize, indent, stripAnsiCodes } from '../../native/string'
@@ -23,7 +22,7 @@ import { shellHyperlink } from './shellHyperlink/shellHyperlink.js'
 import { FindCaller } from '../stack/locate/FindCaller.js'
 const sanitizeString = x => x
 const isPromise = x => false
-const decolorize = x => x
+export const decolorize = x => x
 const parseLineTemplate = (x, y) => {
   return { text: x }
 }
@@ -44,7 +43,7 @@ interface LogOptions {
 /**  collect Lines for console printing */
 // TODO
 // export class Screen implements ConsolePrinterProtocol {
-export class BaseScreenPrinter {
+export class ScreenPrinter {
   // FEATURE: Debug mode
   //
   // Print lines while building screen dump
@@ -103,12 +102,6 @@ export class BaseScreenPrinter {
 
   static style = new ConsoleTheme()
   style = new ConsoleTheme()
-
-  create() {
-    let obj = new MemoryScreenPrinter()
-    obj.debugLive = this.debugLive
-    return obj
-  }
 
   #logString(first: unknown = '', kv: LogOptions = {}) {
     // TODO clean duplicated from old .log() #tmp
@@ -208,7 +201,7 @@ export class BaseScreenPrinter {
       this.#logString(thing.toString(), kv)
     } else if (typeof thing === 'function') {
       this.log(thing(this.style), kv)
-    } else if (thing instanceof MemoryScreenPrinter) {
+    } else if (thing instanceof this.constructor) {
       this.merge(thing)
     } else if (isPromise(thing)) {
       throw Error(`ScreenPrinter cannot print promises`)
@@ -228,10 +221,14 @@ export class BaseScreenPrinter {
     return this
   }
 
-  log(thing: (theme: ConsoleTheme) => any, kv?: LogOptions): MemoryScreenPrinter
-  log(string, kv?: LogOptions): MemoryScreenPrinter
-  log(): MemoryScreenPrinter
-  log<T extends BaseScreenPrinter>(
+  log<T extends ScreenPrinter>(
+    this: T,
+    thing: (theme: ConsoleTheme) => any,
+    kv?: LogOptions,
+  ): T
+  log<T extends ScreenPrinter>(this: T, string, kv?: LogOptions): T
+  log<T extends ScreenPrinter>(this: T): T
+  log<T extends ScreenPrinter>(
     this: T,
     thing: unknown = '',
     kv: LogOptions = {},
@@ -324,7 +321,8 @@ export class BaseScreenPrinter {
   }
 
   child() {
-    let obj = new MemoryScreenPrinter()
+    let klass = this.constructor as any
+    let obj = new klass()
     obj.debugLive = this.debugLive
     obj.liveMode = this.liveMode
     obj.padding = this.padding
@@ -363,101 +361,5 @@ export class BaseScreenPrinter {
 
   [Symbol.for('nodejs.util.inspect.custom')]() {
     return `<${this.constructor.name} >`
-  }
-}
-
-/** Stateful ScreenPrinter
- *
- * @deprecated Under review. Should this be a mock? or is there a reason for
- * users to pack and delay screen printing?
- */
-export class MemoryScreenPrinter extends BaseScreenPrinter {
-  _lines: string[] = []
-
-  text(
-    kv: {
-      trim?: boolean
-      /** @deprecated */
-      color?
-      /** @deprecated */
-      ansiCodes?
-      stripAnsi?
-      clean?
-      indent?: number
-    } = {},
-  ) {
-    let output = this._lines.join('\n')
-    if (kv.color === false) {
-      output = decolorize(output)
-    }
-    if (kv.ansiCodes === false) {
-      output = stripAnsiCodes(output)
-    }
-    if (kv.clean === true) {
-      output = stripAnsiCodes(output)
-    }
-    if (kv.stripAnsi) {
-      output = stripAnsiCodes(output)
-    }
-    if (kv.indent) {
-      output = indent(output, kv.indent)
-    }
-
-    if (kv.trim) {
-      output = output
-        .split('\n')
-        .map(x => x.trim())
-        .join('\n')
-    }
-    return output
-  }
-
-  clear() {
-    this._lines = []
-    return this
-  }
-
-  hasText() {
-    return this._lines.length > 0
-  }
-
-  lines(kv: { color?; stripAnsi? } = {}) {
-    if (kv.color === false) {
-      return this._lines.map(decolorize)
-    }
-    if (kv.stripAnsi) {
-      return this._lines.map(stripAnsiCodes)
-    }
-    return this._lines
-  }
-
-  isEmpty() {
-    return this.lines.length === 0
-  }
-
-  merge(other: MemoryScreenPrinter) {
-    this._lines = [...this._lines, ...other._lines]
-    other._lines.forEach(x =>
-      this._printLive(
-        x,
-        // TODO bug?
-        {},
-      ),
-    )
-  }
-
-  clone() {
-    let obj = new MemoryScreenPrinter()
-    obj.debugLive = this.debugLive
-    obj.liveMode = this.liveMode
-    return obj
-  }
-
-  _pushLine(x) {
-    this._lines.push(x)
-  }
-
-  [Symbol.for('nodejs.util.inspect.custom')]() {
-    return `<${this.constructor.name} lines=${this._lines.length}>`
   }
 }

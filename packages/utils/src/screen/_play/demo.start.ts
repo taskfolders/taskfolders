@@ -1,4 +1,4 @@
-import { MemoryScreenPrinter } from '../ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../MemoryScreenPrinter.js'
 
 function main() {
   let scr = new MemoryScreenPrinter()

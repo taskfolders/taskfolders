@@ -1,5 +1,5 @@
 import { visualLength, padEnd } from '../native/string/index.js'
-import { MemoryScreenPrinter } from './ScreenPrinter.js'
+import { MemoryScreenPrinter } from './MemoryScreenPrinter.js'
 
 export const printTable = (kv: {
   rows: string[][]

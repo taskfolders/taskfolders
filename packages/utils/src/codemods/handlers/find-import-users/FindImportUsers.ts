@@ -5,7 +5,7 @@ import * as Path from 'node:path'
 import { parseJtsImports } from '../explain-imports/parseJtsImports.js'
 import { applyDevInspect } from '../explain-imports/applyDevInspect.js'
 import { JsonFile } from '../../../fs/JsonFile.js'
-import { MemoryScreenPrinter } from '../../../screen/ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../../../screen/MemoryScreenPrinter.js'
 import type { PackageJsonType } from '../../../vendors/npm/PackageJsonType.js'
 import { $dev } from '../../../logger/index.js'
 

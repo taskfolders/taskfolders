@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import { padEnd } from './padEnd.js'
 
 import { stripAnsiCodes } from './stripAnsiCodes.js'
-import { MemoryScreenPrinter } from '../../screen/ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../../screen/MemoryScreenPrinter.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 
 function padRight(txt: string, size: number) {

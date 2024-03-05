@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest'
 // TODO:utils-dedup
 import { $dev } from '../logger/index.js'
 import { dedent } from '../native/string/dedent.js'
-import { MemoryScreenPrinter } from './ScreenPrinter.js'
+import { MemoryScreenPrinter } from './MemoryScreenPrinter.js'
 class ScreenPrinterMock extends MemoryScreenPrinter {}
 
 let mp3Xattr = {
