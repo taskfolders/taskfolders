@@ -1,6 +1,6 @@
 import type { CodePosition } from '../stack/locate/CodePosition.js'
 import { FindCaller } from '../stack/locate/FindCaller.js'
-import { BaseLogServer } from './BaseLogServer.js'
+import { LogServer } from './LogServer.js'
 import { LogLevelName } from './helpers.js'
 import { passThreshold } from './passThreshold.js'
 import { getCallerFile } from '../stack/locate/getCallerFile.js'
@@ -14,7 +14,7 @@ interface LogOptions {
 //type LogArgs = [message: string | Object, obj?: any, options?: LogOptions]
 
 function createLogLevelFunction(level: LogLevelName) {
-  return function (this: BaseLogger, ...args: any[]) {
+  return function (this: Logger, ...args: any[]) {
     this._logRaw({ args, levelName: level })
     return args[0]
   }
@@ -41,8 +41,8 @@ interface UserLogEvent {
   forceLink?: boolean
 }
 
-export abstract class BaseLogger {
-  abstract server: BaseLogServer
+export abstract class Logger {
+  abstract server: LogServer
   name: string
 
   constructor() {}

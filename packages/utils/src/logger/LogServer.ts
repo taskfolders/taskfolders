@@ -1,14 +1,25 @@
 import { levelNumbers, defaultLogLevel, LogLevelName } from './helpers.js'
-import type { LogEvent } from './BaseLogger.js'
+import type { LogEvent } from './Logger.js'
 import { passThreshold } from './passThreshold.js'
 
-export abstract class BaseLogServer {
+function printLogEventBasic(ev: LogEvent) {
+  let parts = [ev.levelName.toUpperCase().padEnd(4), '|', ...ev.args]
+
+  console.log(...parts)
+}
+
+export class LogServer {
   levelThresholdName = defaultLogLevel()
 
-  abstract printLog: (ev: LogEvent) => void
+  printLog: (ev: LogEvent) => void
+
+  static request() {
+    return singleton
+  }
 
   constructor(kv: { level?: LogLevelName } = {}) {
     this.levelThresholdName = kv.level ?? defaultLogLevel()
+    this.printLog = printLogEventBasic
   }
 
   handleLog(log: LogEvent) {
@@ -45,3 +56,5 @@ export abstract class BaseLogServer {
     this.printLog(log)
   }
 }
+
+const singleton: LogServer = new LogServer()

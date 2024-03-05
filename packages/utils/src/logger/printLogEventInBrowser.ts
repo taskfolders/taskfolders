@@ -1,4 +1,4 @@
-import type { LogEvent } from './BaseLogger.js'
+import type { LogEvent } from './Logger.js'
 import { LogLevelName } from './helpers.js'
 
 const levelMap: Record<LogLevelName, keyof typeof console> = {

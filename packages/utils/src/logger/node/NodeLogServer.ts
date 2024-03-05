@@ -1,9 +1,9 @@
-import { BaseLogServer } from '../BaseLogServer.js'
+import { LogServer } from '../LogServer.js'
 import { printLogEventInNode } from './printLogEventInNode.js'
-import { LogEvent } from '../BaseLogger.js'
+import { LogEvent } from '../Logger.js'
 import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 
-export class NodeLogServer extends BaseLogServer {
+export class NodeLogServer extends LogServer {
   screen = new ScreenPrinter()
 
   printLog: (LogEvent) => void = (ev: LogEvent) => {
@@ -18,4 +18,4 @@ export class NodeLogServer extends BaseLogServer {
   }
 }
 
-export const singleton: BaseLogServer = new NodeLogServer()
+export const singleton: LogServer = new NodeLogServer()

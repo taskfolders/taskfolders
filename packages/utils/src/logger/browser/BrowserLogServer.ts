@@ -1,8 +1,8 @@
 import { printLogEventInBrowser } from '../printLogEventInBrowser.js'
-import { BaseLogServer } from '../BaseLogServer.js'
-import { LogEvent } from '../BaseLogger.js'
+import { LogServer } from '../LogServer.js'
+import { LogEvent } from '../Logger.js'
 
-export class BrowserLogServer extends BaseLogServer {
+export class BrowserLogServer extends LogServer {
   printLog = (ev: LogEvent) => {
     printLogEventInBrowser(ev)
   }
@@ -13,4 +13,4 @@ export class BrowserLogServer extends BaseLogServer {
   }
 }
 
-export const singleton: BaseLogServer = new BrowserLogServer()
+export const singleton: LogServer = new BrowserLogServer()

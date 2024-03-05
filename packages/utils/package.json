@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc",
     "publish": "npm publish --access public",
-    "test:watch": "vitest watch --hideSkippedTests --changed",
+    "test:watch": "vitest watch --hideSkippedTests --changed --disable-console-intercept",
     "test:ci": "sh ./bin/test--ci.sh",
     "test": "vitest --run"
   },
