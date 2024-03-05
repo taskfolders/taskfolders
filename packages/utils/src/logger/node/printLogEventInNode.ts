@@ -2,7 +2,7 @@ import { FindCaller } from '../../stack/locate/FindCaller.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { inspect } from 'node:util'
 import { type LogLevelName } from '../helpers.js'
-import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../../screen/ScreenPrinter.js'
 import { LogEvent } from '../Logger.js'
 import { CodePosition } from '../../stack/locate/CodePosition.js'
 import { passThreshold } from '../passThreshold.js'
@@ -23,7 +23,7 @@ export function hasShellLinks(key: string) {
   return value?.includes(key)
 }
 
-export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
+export const printLogEventInNode = (kv: { screen: MemoryScreenPrinter }) => {
   let screen = kv.screen
   let th = screen.style
 
@@ -140,7 +140,7 @@ export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
 }
 
 export class NodeLogPrinter extends LogPrinter {
-  screen = new ScreenPrinter()
+  screen = new MemoryScreenPrinter()
 
   printLogEvent(ev: LogEvent) {
     let { screen } = this
@@ -148,6 +148,6 @@ export class NodeLogPrinter extends LogPrinter {
 
     // TODO ugly hack to not accumulate lines...
     // #waiting for ScreenPrinterMock
-    this.screen = new ScreenPrinter()
+    this.screen = new MemoryScreenPrinter()
   }
 }

@@ -44,7 +44,7 @@ interface LogOptions {
 /**  collect Lines for console printing */
 // TODO
 // export class Screen implements ConsolePrinterProtocol {
-export class ScreenPrinter {
+export class BaseScreenPrinter {
   // FEATURE: Debug mode
   //
   // Print lines while building screen dump
@@ -52,6 +52,7 @@ export class ScreenPrinter {
 
   debugLive: boolean // echo each generated line with prefix
   debugInline: boolean // prefix each line with developer hyperlink
+  padding = 0
 
   echo: boolean
   liveMode = true
@@ -77,33 +78,12 @@ export class ScreenPrinter {
     // console.log('----', { de: this.debug })
   }
 
-  isEmpty() {
-    return this.lines.length === 0
-  }
-
   set debug(x: boolean) {
     this.debugLive = x
   }
 
-  child() {
-    let obj = new ScreenPrinter()
-    obj.debugLive = this.debugLive
-    obj.liveMode = this.liveMode
-    obj._lines = this._lines
-    obj.padding = this.padding
-    return obj
-  }
-
-  clone() {
-    let obj = new ScreenPrinter()
-    obj.debugLive = this.debugLive
-    obj.liveMode = this.liveMode
-    return obj
-  }
-
   static fromJSON(doc) {
     let obj = new this()
-    obj._lines = doc?._lines || []
     return obj
   }
 
@@ -124,28 +104,275 @@ export class ScreenPrinter {
   static style = new ConsoleTheme()
   style = new ConsoleTheme()
 
-  _lines: string[] = []
-  padding = 0
-
   create() {
-    let obj = new ScreenPrinter()
+    let obj = new MemoryScreenPrinter()
     obj.debugLive = this.debugLive
     return obj
   }
 
-  hasText() {
-    return this._lines.length > 0
+  #logString(first: unknown = '', kv: LogOptions = {}) {
+    // TODO clean duplicated from old .log() #tmp
+    let line = indent(first as any, this.padding)
+
+    // TODO #bug high #risk of breaking...  template!
+    if (kv.data && kv.template !== false) {
+      line = parseLineTemplate(line, kv.data).text
+    }
+    let newLines = line.split('\n')
+    if (this.debugInline) {
+      // let loc = myGetCaller()
+      let loc = FindCaller.whenDevelopment()
+      let label = shellHyperlink({
+        text: 'screen',
+        path: loc.path,
+        lineNumber: loc.lineNumber,
+        scheme: 'mscode',
+      })
+      newLines = newLines.map(line =>
+        ConsoleTheme.devToolPrefixed(label, line, true),
+      )
+    }
+    newLines.forEach(x => {
+      x = indent(x, kv.indent ?? 0)
+      this._pushLine(x)
+    })
+
+    if (this.debugLive && process.env.SCREEN !== '0') {
+      let loc = FindCaller.whenDevelopment()
+      let label = 'screen'
+      if (loc) {
+        // let loc = myGetCaller()
+        // let link = UserEditorLink.fromSource(loc).link()
+        label = shellHyperlink({
+          text: label,
+          path: loc?.path,
+          scheme: 'vscode',
+          lineNumber: loc?.lineNumber,
+        })
+      }
+
+      // eslint-disable-next-line
+      console.log(ConsoleTheme.devToolPrefixed(label, line, true))
+    } else {
+      this._printLive(line, kv)
+    }
+
+    if (this.echo) {
+      // eslint-disable-next-line
+      console.log(line)
+    }
   }
 
-  lines(kv: { color?; stripAnsi? } = {}) {
-    if (kv.color === false) {
-      return this._lines.map(decolorize)
+  _printLive(line: string, ops: LogOptions) {
+    if (this.liveMode) {
+      let pastRewrite = this.latest?.options?.rewrite
+      if (pastRewrite) {
+        if (pastRewrite !== ops.rewrite) {
+          // console.log('new line - YES')
+          process.stdout.write('\n')
+        } else {
+          // console.log('new line - NO', { pastRewrite, ops })
+          // $dev('ok')
+        }
+      }
+      if (this.debugInline !== true) {
+        if (ops.rewrite) {
+          process.stdout.clearLine(0)
+          process.stdout.cursorTo(0)
+          process.stdout.write(line)
+        } else {
+          // eslint-disable-next-line
+          console.log(line)
+        }
+      } else {
+        let loc = FindCaller.whenDevelopment()
+        // let loc = myGetCaller()
+        let label = shellHyperlink({
+          text: 'screen',
+          path: loc.path,
+          lineNumber: loc.lineNumber,
+          scheme: 'mscode',
+        })
+        // eslint-disable-next-line
+        console.log(ConsoleTheme.devToolPrefixed(label, line, true))
+      }
     }
-    if (kv.stripAnsi) {
-      return this._lines.map(stripAnsiCodes)
-    }
-    return this._lines
   }
+
+  merge(x) {}
+
+  log2(thing: unknown = '', kv: LogOptions = {}) {
+    if (typeof thing === 'string') {
+      this.#logString(thing, kv)
+    } else if (typeof thing === 'number') {
+      this.#logString(thing.toString(), kv)
+    } else if (typeof thing === 'function') {
+      this.log(thing(this.style), kv)
+    } else if (thing instanceof MemoryScreenPrinter) {
+      this.merge(thing)
+    } else if (isPromise(thing)) {
+      throw Error(`ScreenPrinter cannot print promises`)
+    } else {
+      this.logRecord(thing as any, kv)
+    }
+    return this
+  }
+
+  clearLine(kv: { markerId: string; text?: string }) {
+    let txt = kv.text ?? ''
+    // what will happen to next prints?
+    //   - overlap this last line \r
+    //   - print after this last line \n
+    txt += '\n'
+    this.log(txt, { rewrite: kv.markerId })
+    return this
+  }
+
+  log(thing: (theme: ConsoleTheme) => any, kv?: LogOptions): MemoryScreenPrinter
+  log(string, kv?: LogOptions): MemoryScreenPrinter
+  log(): MemoryScreenPrinter
+  log<T extends BaseScreenPrinter>(
+    this: T,
+    thing: unknown = '',
+    kv: LogOptions = {},
+  ): T {
+    if (process.env.DEBUG === 'screen') {
+      // TODO review
+      delete kv.rewrite
+    }
+    let first = Array.isArray(thing) ? thing.filter(Boolean).join(' ') : thing
+    let res = this.log2(first, kv)
+    this.latest = { input: first, options: kv }
+    return res
+  }
+
+  _pushLine(x) {}
+  log_1(first = '', ...x) {
+    // FROZEN (duplicated to log2)
+    let start = indent(first, this.padding)
+    let line = [start, ...x].join(' ')
+    let newLines = line.split('\n')
+    if (this.debugInline) {
+      let loc = FindCaller.whenDevelopment()
+      // let loc = myGetCaller()
+      let label = shellHyperlink({
+        text: 'screen',
+        path: loc.path,
+        lineNumber: loc.lineNumber,
+        scheme: 'mscode',
+      })
+      newLines = newLines.map(line =>
+        ConsoleTheme.devToolPrefixed(label, line, true),
+      )
+    }
+    newLines.forEach(x => this._pushLine(x))
+
+    if (this.debugLive) {
+      let loc = FindCaller.whenDevelopment()
+      // let loc = myGetCaller()
+      let label = shellHyperlink({
+        text: 'screen',
+        path: loc.path,
+        lineNumber: loc.lineNumber,
+        scheme: 'mscode',
+      })
+      // eslint-disable-next-line
+      console.log(ConsoleTheme.devToolPrefixed(label, line, true))
+    }
+
+    if (this.liveMode) {
+      // eslint-disable-next-line
+      console.log(line)
+    }
+    if (this.echo) {
+      // eslint-disable-next-line
+      console.log(line)
+    }
+    return this
+  }
+
+  write(txt) {
+    process.stdout.write(txt)
+  }
+
+  // TODO review dedup with ObjectTable
+  logRecord(rec: Record<string, unknown>, kv: LogOptions = {}) {
+    let op_indent = kv.indent ?? 0
+    // let txt = inspect(rec, { breakLength: 1 }).slice(2, -1)
+    Object.entries(rec).forEach(([key, value]) => {
+      let value_s: string
+      if (typeof value === 'string') {
+        value_s = sanitizeString(value)
+        if (value_s.includes('\n')) {
+          value_s = '\n' + value_s
+          value_s = indent(value_s, 2 + op_indent)
+        }
+      } else {
+        if (value == undefined) {
+          // TODO missing test for #edge
+          value_s = '-{undefined}-'
+        } else {
+          value_s = value.toString()
+        }
+      }
+
+      let key_s = chalk.green(indent(key, op_indent))
+      this.log(`${key_s}: ${value_s}`)
+    })
+    // txt = indent(txt, 2)
+    return this
+  }
+
+  child() {
+    let obj = new MemoryScreenPrinter()
+    obj.debugLive = this.debugLive
+    obj.liveMode = this.liveMode
+    obj.padding = this.padding
+    return obj
+  }
+
+  indent(x = 2) {
+    let copy = this.child()
+    copy.padding += x
+    return copy
+  }
+
+  dedent(x = 2) {
+    let copy = this.child()
+    copy.padding -= x
+    return copy
+  }
+
+  object(data: Record<string, unknown>) {
+    let obj = new ObjectPrinter({ screen: this, data: data })
+    return obj
+  }
+
+  logObject(data: Record<string, unknown>, kv: { extraPadding? } = {}) {
+    this.object(data).print(kv)
+    return this
+  }
+
+  map<T>(all: T[], cb: (x: T) => any) {
+    all.forEach(x => {
+      let res = cb(x)
+      this.log(res)
+    })
+    return this
+  }
+
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    return `<${this.constructor.name} >`
+  }
+}
+
+/** Stateful ScreenPrinter
+ *
+ * @deprecated Under review. Should this be a mock? or is there a reason for
+ * users to pack and delay screen printing?
+ */
+export class MemoryScreenPrinter extends BaseScreenPrinter {
+  _lines: string[] = []
 
   text(
     kv: {
@@ -185,185 +412,30 @@ export class ScreenPrinter {
     return output
   }
 
-  #logString(first: unknown = '', kv: LogOptions = {}) {
-    // TODO clean duplicated from old .log() #tmp
-    let line = indent(first as any, this.padding)
-
-    // TODO #bug high #risk of breaking...  template!
-    if (kv.data && kv.template !== false) {
-      line = parseLineTemplate(line, kv.data).text
-    }
-    let newLines = line.split('\n')
-    if (this.debugInline) {
-      // let loc = myGetCaller()
-      let loc = FindCaller.whenDevelopment()
-      let label = shellHyperlink({
-        text: 'screen',
-        path: loc.path,
-        lineNumber: loc.lineNumber,
-        scheme: 'mscode',
-      })
-      newLines = newLines.map(line =>
-        ConsoleTheme.devToolPrefixed(label, line, true),
-      )
-    }
-    newLines.forEach(x => {
-      x = indent(x, kv.indent ?? 0)
-      this._lines.push(x)
-    })
-
-    if (this.debugLive && process.env.SCREEN !== '0') {
-      let loc = FindCaller.whenDevelopment()
-      let label = 'screen'
-      if (loc) {
-        // let loc = myGetCaller()
-        // let link = UserEditorLink.fromSource(loc).link()
-        label = shellHyperlink({
-          text: label,
-          path: loc?.path,
-          scheme: 'vscode',
-          lineNumber: loc?.lineNumber,
-        })
-      }
-
-      // eslint-disable-next-line
-      console.log(ConsoleTheme.devToolPrefixed(label, line, true))
-    } else {
-      this._printLive(line, kv)
-    }
-
-    if (this.echo) {
-      // eslint-disable-next-line
-      console.log(line)
-    }
-  }
-
-  private _printLive(line: string, ops: LogOptions) {
-    if (this.liveMode) {
-      let pastRewrite = this.latest?.options?.rewrite
-      if (pastRewrite) {
-        if (pastRewrite !== ops.rewrite) {
-          // console.log('new line - YES')
-          process.stdout.write('\n')
-        } else {
-          // console.log('new line - NO', { pastRewrite, ops })
-          // $dev('ok')
-        }
-      }
-      if (this.debugInline !== true) {
-        if (ops.rewrite) {
-          process.stdout.clearLine(0)
-          process.stdout.cursorTo(0)
-          process.stdout.write(line)
-        } else {
-          // eslint-disable-next-line
-          console.log(line)
-        }
-      } else {
-        let loc = FindCaller.whenDevelopment()
-        // let loc = myGetCaller()
-        let label = shellHyperlink({
-          text: 'screen',
-          path: loc.path,
-          lineNumber: loc.lineNumber,
-          scheme: 'mscode',
-        })
-        // eslint-disable-next-line
-        console.log(ConsoleTheme.devToolPrefixed(label, line, true))
-      }
-    }
-  }
-
-  log2(thing: unknown = '', kv: LogOptions = {}) {
-    if (typeof thing === 'string') {
-      this.#logString(thing, kv)
-    } else if (typeof thing === 'number') {
-      this.#logString(thing.toString(), kv)
-    } else if (typeof thing === 'function') {
-      this.log(thing(this.style), kv)
-    } else if (thing instanceof ScreenPrinter) {
-      this.merge(thing)
-    } else if (isPromise(thing)) {
-      throw Error(`ScreenPrinter cannot print promises`)
-    } else {
-      this.logRecord(thing as any, kv)
-    }
+  clear() {
+    this._lines = []
     return this
   }
 
-  clearLine(kv: { markerId: string; text?: string }) {
-    let txt = kv.text ?? ''
-    // what will happen to next prints?
-    //   - overlap this last line \r
-    //   - print after this last line \n
-    txt += '\n'
-    this.log(txt, { rewrite: kv.markerId })
-    return this
+  hasText() {
+    return this._lines.length > 0
   }
 
-  log(thing: (theme: ConsoleTheme) => any, kv?: LogOptions): ScreenPrinter
-  log(string, kv?: LogOptions): ScreenPrinter
-  log(): ScreenPrinter
-  log(thing: unknown = '', kv: LogOptions = {}): ScreenPrinter {
-    if (process.env.DEBUG === 'screen') {
-      // TODO review
-      delete kv.rewrite
+  lines(kv: { color?; stripAnsi? } = {}) {
+    if (kv.color === false) {
+      return this._lines.map(decolorize)
     }
-    let first = Array.isArray(thing) ? thing.filter(Boolean).join(' ') : thing
-    let res = this.log2(first, kv)
-    this.latest = { input: first, options: kv }
-    return res
+    if (kv.stripAnsi) {
+      return this._lines.map(stripAnsiCodes)
+    }
+    return this._lines
   }
 
-  log_1(first = '', ...x) {
-    // FROZEN (duplicated to log2)
-    let start = indent(first, this.padding)
-    let line = [start, ...x].join(' ')
-    let newLines = line.split('\n')
-    if (this.debugInline) {
-      let loc = FindCaller.whenDevelopment()
-      // let loc = myGetCaller()
-      let label = shellHyperlink({
-        text: 'screen',
-        path: loc.path,
-        lineNumber: loc.lineNumber,
-        scheme: 'mscode',
-      })
-      newLines = newLines.map(line =>
-        ConsoleTheme.devToolPrefixed(label, line, true),
-      )
-    }
-    newLines.forEach(x => this._lines.push(x))
-
-    if (this.debugLive) {
-      let loc = FindCaller.whenDevelopment()
-      // let loc = myGetCaller()
-      let label = shellHyperlink({
-        text: 'screen',
-        path: loc.path,
-        lineNumber: loc.lineNumber,
-        scheme: 'mscode',
-      })
-      // eslint-disable-next-line
-      console.log(ConsoleTheme.devToolPrefixed(label, line, true))
-    }
-
-    if (this.liveMode) {
-      // eslint-disable-next-line
-      console.log(line)
-    }
-    if (this.echo) {
-      // eslint-disable-next-line
-      console.log(line)
-    }
-    return this
+  isEmpty() {
+    return this.lines.length === 0
   }
 
-  write(txt) {
-    process.stdout.write(txt)
-  }
-
-  merge(other: ScreenPrinter) {
+  merge(other: MemoryScreenPrinter) {
     this._lines = [...this._lines, ...other._lines]
     other._lines.forEach(x =>
       this._printLive(
@@ -374,65 +446,15 @@ export class ScreenPrinter {
     )
   }
 
-  // TODO review dedup with ObjectTable
-  logRecord(rec: Record<string, unknown>, kv: LogOptions = {}) {
-    let op_indent = kv.indent ?? 0
-    // let txt = inspect(rec, { breakLength: 1 }).slice(2, -1)
-    Object.entries(rec).forEach(([key, value]) => {
-      let value_s: string
-      if (typeof value === 'string') {
-        value_s = sanitizeString(value)
-        if (value_s.includes('\n')) {
-          value_s = '\n' + value_s
-          value_s = indent(value_s, 2 + op_indent)
-        }
-      } else {
-        if (value == undefined) {
-          // TODO missing test for #edge
-          value_s = '-{undefined}-'
-        } else {
-          value_s = value.toString()
-        }
-      }
-
-      let key_s = chalk.green(indent(key, op_indent))
-      this.log(`${key_s}: ${value_s}`)
-    })
-    // txt = indent(txt, 2)
-    return this
-  }
-
-  indent(x = 2) {
-    let copy = this.child()
-    copy.padding += x
-    return copy
-  }
-  dedent(x = 2) {
-    let copy = this.child()
-    copy.padding -= x
-    return copy
-  }
-
-  object(data: Record<string, unknown>) {
-    let obj = new ObjectPrinter({ screen: this, data: data })
+  clone() {
+    let obj = new MemoryScreenPrinter()
+    obj.debugLive = this.debugLive
+    obj.liveMode = this.liveMode
     return obj
   }
-  logObject(data: Record<string, unknown>, kv: { extraPadding? } = {}) {
-    this.object(data).print(kv)
-    return this
-  }
 
-  clear() {
-    this._lines = []
-    return this
-  }
-
-  map<T>(all: T[], cb: (x: T) => any) {
-    all.forEach(x => {
-      let res = cb(x)
-      this.log(res)
-    })
-    return this
+  _pushLine(x) {
+    this._lines.push(x)
   }
 
   [Symbol.for('nodejs.util.inspect.custom')]() {

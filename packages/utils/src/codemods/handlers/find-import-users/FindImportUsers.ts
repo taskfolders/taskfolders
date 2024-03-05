@@ -5,7 +5,7 @@ import * as Path from 'node:path'
 import { parseJtsImports } from '../explain-imports/parseJtsImports.js'
 import { applyDevInspect } from '../explain-imports/applyDevInspect.js'
 import { JsonFile } from '../../../fs/JsonFile.js'
-import { ScreenPrinter } from '../../../screen/ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../../../screen/ScreenPrinter.js'
 import type { PackageJsonType } from '../../../vendors/npm/PackageJsonType.js'
 import { $dev } from '../../../logger/index.js'
 
@@ -61,7 +61,7 @@ export class FindImportUsers {
     let dir = process.env.TASKFOLDERS_ROOT
 
     let packageDirs = findPackages(dir)
-    let screen = new ScreenPrinter()
+    let screen = new MemoryScreenPrinter()
     screen.debug = true
 
     // THIS DEV

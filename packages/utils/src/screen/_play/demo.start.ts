@@ -1,7 +1,7 @@
-import { ScreenPrinter } from '../ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../ScreenPrinter.js'
 
 function main() {
-  let scr = new ScreenPrinter()
+  let scr = new MemoryScreenPrinter()
   scr //
     .log('one')
     .indent()
