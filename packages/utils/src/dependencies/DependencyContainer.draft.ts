@@ -11,7 +11,7 @@ class CustomError {
   }
 }
 
-import { $dev, $log } from '../logger/node/index.js'
+import { $dev, $log } from '../logger/index.js'
 import { getsert } from '../native/object/getsert.js'
 import { ExcludeOptionalProps } from '../types/ExcludeOptionalProps.js'
 import { assertNever } from '../types/assertNever.js'

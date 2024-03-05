@@ -83,5 +83,6 @@ export class Logger {
   put(txt: string) {
     let parts = [txt]
     console.log(parts.join(' '))
+    return this
   }
 }

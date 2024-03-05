@@ -1,7 +1,6 @@
 import { expect, describe, it } from 'vitest'
 import { setupLogger } from '../_test/setupLogger.js'
 import { NodeLogger } from './NodeLogger.js'
-import { NodeLogServer } from './NodeLogServer.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { LoggerMock } from './LoggerMock.js'
 

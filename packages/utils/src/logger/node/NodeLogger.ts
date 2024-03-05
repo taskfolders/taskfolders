@@ -3,7 +3,6 @@ import { FindCaller } from '../../stack/locate/FindCaller.js'
 import { getCallerFile } from '../../stack/locate/getCallerFile.js'
 import { LogServer } from '../LogServer.js'
 import { Logger, LogEvent } from '../Logger.js'
-import { NodeLogServer } from './NodeLogServer.js'
 import { isDebug } from '../../runtime/isDebug.js'
 //import { magenta } from 'chalk'
 import chalk from 'chalk'
@@ -16,7 +15,6 @@ export class NodeLogger extends Logger {
 
   constructor(kv: { server?: LogServer } = {}) {
     super()
-    this.server = kv.server ?? NodeLogServer.request()
   }
 
   _logRaw(kv: LogEvent) {

@@ -7,7 +7,7 @@ import { applyDevInspect } from '../explain-imports/applyDevInspect.js'
 import { JsonFile } from '../../../fs/JsonFile.js'
 import { ScreenPrinter } from '../../../screen/ScreenPrinter.js'
 import type { PackageJsonType } from '../../../vendors/npm/PackageJsonType.js'
-import { $dev } from '../../../logger/node/index.js'
+import { $dev } from '../../../logger/index.js'
 
 export function scanSourceImports(sourceFilePath: string) {
   let body = fs.readFileSync(sourceFilePath).toString()

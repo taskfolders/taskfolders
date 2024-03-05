@@ -2,7 +2,7 @@
 // import { CustomError } from '@taskfolders/core/errors'
 // import { splitText } from '@taskfolders/core/native/string'
 
-import { $dev } from '../logger/node/index.js'
+import { $dev } from '../logger/index.js'
 import { CustomError } from '../errors/CustomError.js'
 
 // import { parseAllDocuments, Document } from 'yaml'

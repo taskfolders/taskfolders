@@ -1,5 +1,5 @@
-import { NodeLogger } from '../NodeLogger.js'
+import { Logger } from '../Logger.js'
 
-export function printMore(log: NodeLogger) {
+export function printMore(log: Logger) {
   log.warn('inside helper more')
 }

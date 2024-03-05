@@ -21,7 +21,7 @@
     "test": "vitest --run"
   },
   "exports": {
-    "./logger/node": "./logger/node/index.js",
+    "./logger/node": "./logger/index.js",
     "./logger/LoggerMock": "./logger/node/LoggerMock.js",
     "./logger/browser": "./logger/browser/index.js",
     "./logger/node.start": "./logger/node.start.js",

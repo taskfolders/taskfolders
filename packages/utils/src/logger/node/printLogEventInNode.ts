@@ -23,8 +23,8 @@ export function hasShellLinks(key: string) {
   return value?.includes(key)
 }
 
-export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
-  let screen = kv.screen ?? new ScreenPrinter()
+export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
+  let screen = kv.screen
   let th = screen.style
 
   function makeLabel(log: LogEvent, location: CodePosition) {
@@ -123,13 +123,14 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
 
     if (oneLine.length < 70) {
       parts.push(oneLine)
-      console.log(...parts)
+      //console.log(...parts)
+      screen.log(parts)
       return
     }
 
     parts.push(first)
-    console.log(...parts)
-    // screen.log(parts)
+    //console.log(...parts)
+    screen.log(parts)
 
     //console.log(inspect(log.args, { colors: true }))
     if (second) {
@@ -139,7 +140,14 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
 }
 
 export class NodeLogPrinter extends LogPrinter {
+  screen = new ScreenPrinter()
+
   printLogEvent(ev: LogEvent) {
-    return printLogEventInNode()(ev)
+    let { screen } = this
+    printLogEventInNode({ screen })(ev)
+
+    // TODO ugly hack to not accumulate lines...
+    // #waiting for ScreenPrinterMock
+    this.screen = new ScreenPrinter()
   }
 }

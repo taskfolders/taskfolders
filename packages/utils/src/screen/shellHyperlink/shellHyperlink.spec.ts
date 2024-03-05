@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest'
 import ansiEscapes from 'ansi-escapes'
 import { shellHyperlink } from './shellHyperlink.js'
 import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'
-import { $dev } from '../../logger/node/index.js'
+import { $dev } from '../../logger/index.js'
 
 function tryReplace<T>(obj: T, key: keyof T, fakeValue, cb: () => void) {
   let valueBefore = obj[key]

@@ -15,7 +15,7 @@ import {
   findSourceCodeFiles,
   scanSourceImports,
 } from '../find-import-users/FindImportUsers.js'
-import { $dev } from '../../../logger/node/index.js'
+import { $dev } from '../../../logger/index.js'
 
 describe('x', () => {
   it('x imports', async function () {

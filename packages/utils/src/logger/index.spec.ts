@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest'
 import { Logger } from './Logger.js'
 import { LogServer } from './LogServer.js'
-// import { $dev } from './index.js'
+import { $dev } from './index.js'
 
 it('x', async () => {
   let log = new Logger()
@@ -9,6 +9,8 @@ it('x', async () => {
   log.dev('hi')
 })
 
-it.skip('x #live', async () => {
-  // $dev('hello world')
+it('x #live #manual', async () => {
+  // TEST global without import too
+
+  $dev('hello world')
 })
