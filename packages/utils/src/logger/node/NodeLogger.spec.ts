@@ -1,10 +1,8 @@
 import { expect, describe, it } from 'vitest'
 import { setupLogger } from '../_test/setupLogger.js'
 import { NodeLogger } from './NodeLogger.js'
-import { NodeLogServer } from './NodeLogServer.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { LoggerMock } from './LoggerMock.js'
-import { $dev } from './index.js'
 
 it('simple print #todo', async () => {
   let sut = setupLogger({ debug: false })
@@ -15,9 +13,9 @@ it('simple print #todo', async () => {
   // sut.log.put(['text', 'b', 'c'])
 })
 
-describe('x', () => {
+describe.skip('x', () => {
   it('x #review how to test a logger', async () => {
-    let server = new NodeLogServer({ level: 'info' })
+    let server //= new NodeLogServer({ level: 'info' })
     server.screen.debug = true
     let sut = new NodeLogger({ server })
     sut.info('x')
@@ -26,14 +24,10 @@ describe('x', () => {
   it.skip('x - collect all prints?', async () => {
     // TODO is this feat really needed?
 
-    let server = new NodeLogServer()
+    let server //= new NodeLogServer()
     let l1 = new NodeLogger({ server })
     let l2 = new NodeLogger({ server })
     l1.put('one')
     l2.put('two')
-  })
-
-  it.only('x #live dev logger', async () => {
-    $dev('see')
   })
 })

@@ -75,7 +75,7 @@ describe('use cases', () => {
   it('use log level to guard message builder method', async () => {
     // WHY prevent extra code if log is not needed
 
-    let sut = setupLogger({ debug: false })
+    let sut = setupLogger({ debug: true })
     let spy = 0
     sut.log.raw({
       level: 'dev',

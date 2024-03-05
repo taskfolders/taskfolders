@@ -3,9 +3,11 @@ import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { inspect } from 'node:util'
 import { type LogLevelName } from '../helpers.js'
 import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
-import { LogEvent } from '../BaseLogger.js'
+import { LogEvent } from '../Logger.js'
 import { CodePosition } from '../../stack/locate/CodePosition.js'
 import { passThreshold } from '../passThreshold.js'
+import { LogPrinter } from '../LogPrinter.js'
+import { getCallerFile_v2 } from '../../stack/locate/getCallerFile.js'
 
 const levelColors: Record<LogLevelName, string> = {
   trace: 'grey',
@@ -21,8 +23,8 @@ export function hasShellLinks(key: string) {
   return value?.includes(key)
 }
 
-export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
-  let screen = kv.screen ?? new ScreenPrinter()
+export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
+  let screen = kv.screen
   let th = screen.style
 
   function makeLabel(log: LogEvent, location: CodePosition) {
@@ -46,15 +48,22 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
   return (log: LogEvent) => {
     let location: CodePosition = log.location
 
+    let getLocation = () =>
+      getCallerFile_v2({
+        afterFile: import.meta.url,
+        skipUniqueFiles: 2,
+      })
+
     if (!location) {
       // TODO #review why fail with bun
       if (log.options.forceLink) {
-        location = FindCaller.here({ offset: 4 })
+        location = getLocation()
       } else {
         if (hasShellLinks('log')) {
           if (passThreshold({ level: log.levelName, threshold: 'info' })) {
             //location = FindCaller.whenDevelopment({ offset: 5 })
-            location = FindCaller.whenDevelopment({ offset: 4 })
+            //location = FindCaller.whenDevelopment({ offset: 4 })
+            location = getLocation()
           }
         }
       }
@@ -114,17 +123,31 @@ export const printLogEventInNode = (kv: { screen?: ScreenPrinter } = {}) => {
 
     if (oneLine.length < 70) {
       parts.push(oneLine)
-      console.log(...parts)
+      //console.log(...parts)
+      screen.log(parts)
       return
     }
 
     parts.push(first)
-    console.log(...parts)
-    // screen.log(parts)
+    //console.log(...parts)
+    screen.log(parts)
 
     //console.log(inspect(log.args, { colors: true }))
     if (second) {
       screen.indent().log(second)
     }
+  }
+}
+
+export class NodeLogPrinter extends LogPrinter {
+  screen = new ScreenPrinter()
+
+  printLogEvent(ev: LogEvent) {
+    let { screen } = this
+    printLogEventInNode({ screen })(ev)
+
+    // TODO ugly hack to not accumulate lines...
+    // #waiting for ScreenPrinterMock
+    this.screen = new ScreenPrinter()
   }
 }

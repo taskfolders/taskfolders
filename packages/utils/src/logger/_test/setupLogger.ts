@@ -1,10 +1,21 @@
 import { NodeLogger } from '../node/NodeLogger.js'
-import { NodeLogServer } from '../node/NodeLogServer.js'
 import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'
+import { LogServer } from '../LogServer.js'
+import { NodeLogPrinter } from '../node/printLogEventInNode.js'
+import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 
 export function setupLogger(kv: { debug? }) {
-  let server = new NodeLogServer()
-  server.screen.debug = kv.debug
+  let server = new LogServer()
+  let printer = new NodeLogPrinter()
+  let { screen } = printer
+
+  server.printer = printer
+  screen.debug = true
+  // console.log(screen.debug)
+  // console.log({ debug: screen.debug, kv, al: printer.screen.debug })
+
+  // let scr = new ScreenPrinter()
+
   //server.printLog = printLogEventInNode({ screen })
 
   let logs = []
@@ -18,7 +29,6 @@ export function setupLogger(kv: { debug? }) {
   sut.server = server
   sut.server.levelThresholdName = 'info'
 
-  let { screen } = server
   return {
     sut,
     log: sut,

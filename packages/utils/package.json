@@ -16,15 +16,15 @@
   "scripts": {
     "build": "tsc",
     "publish": "npm publish --access public",
-    "test:watch": "vitest watch --hideSkippedTests --changed",
+    "test:watch": "vitest watch --hideSkippedTests --changed --disable-console-intercept",
     "test:ci": "sh ./bin/test--ci.sh",
     "test": "vitest --run"
   },
   "exports": {
-    "./logger/node": "./dist/esm/logger/node/index.js",
-    "./logger/LoggerMock": "./dist/esm/logger/node/LoggerMock.js",
+    "./logger": "./dist/esm/logger/index.js",
     "./logger/browser": "./dist/esm/logger/browser/index.js",
-    "./logger/node.start": "./dist/esm/logger/node.start.js",
+    "./logger/LoggerMock": "./dist/esm/logger/node/LoggerMock.js",
+    "./logger/node/register.start": "./dist/esm/logger/node.start.js",
     "./dependencies": "./dist/esm/dependencies/index.js",
     "./markdown": "./dist/esm/markdown/index.js",
     "./markdown/task-folders": "./dist/esm/markdown/task-folders/index.js",

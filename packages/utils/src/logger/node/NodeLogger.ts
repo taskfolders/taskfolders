@@ -1,22 +1,20 @@
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { FindCaller } from '../../stack/locate/FindCaller.js'
 import { getCallerFile } from '../../stack/locate/getCallerFile.js'
-import { BaseLogServer } from '../BaseLogServer.js'
-import { BaseLogger, LogEvent } from '../BaseLogger.js'
-import { NodeLogServer } from './NodeLogServer.js'
+import { LogServer } from '../LogServer.js'
+import { Logger, LogEvent } from '../Logger.js'
 import { isDebug } from '../../runtime/isDebug.js'
 //import { magenta } from 'chalk'
 import chalk from 'chalk'
 import { passThreshold } from '../passThreshold.js'
 import { hasShellLinks } from './printLogEventInNode.js'
 
-export class NodeLogger extends BaseLogger {
+export class NodeLogger extends Logger {
   _debug: boolean
-  server: BaseLogServer
+  server: LogServer
 
-  constructor(kv: { server?: BaseLogServer } = {}) {
+  constructor(kv: { server?: LogServer } = {}) {
     super()
-    this.server = kv.server ?? NodeLogServer.request()
   }
 
   _logRaw(kv: LogEvent) {

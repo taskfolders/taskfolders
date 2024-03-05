@@ -1,11 +1,19 @@
+import { BasicLogPrinter } from './BasicLogPrinter.js'
 import { levelNumbers, defaultLogLevel, LogLevelName } from './helpers.js'
-import type { LogEvent } from './BaseLogger.js'
+import type { LogEvent } from './Logger.js'
 import { passThreshold } from './passThreshold.js'
 
-export abstract class BaseLogServer {
+const globalKey = Symbol('taskfolders.com:utils:LogServer')
+
+export class LogServer {
   levelThresholdName = defaultLogLevel()
 
-  abstract printLog: (ev: LogEvent) => void
+  printer = new BasicLogPrinter()
+
+  static request() {
+    global[globalKey] ??= new LogServer()
+    return global[globalKey]
+  }
 
   constructor(kv: { level?: LogLevelName } = {}) {
     this.levelThresholdName = kv.level ?? defaultLogLevel()
@@ -42,6 +50,6 @@ export abstract class BaseLogServer {
       }
     }
 
-    this.printLog(log)
+    this.printer.printLogEvent(log)
   }
 }

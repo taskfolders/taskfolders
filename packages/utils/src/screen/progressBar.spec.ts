@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { $dev } from '../logger/node/index.js'
+import { $dev } from '../logger/index.js'
 import { progressBar } from './progressBar.js'
 
 describe('x', () => {

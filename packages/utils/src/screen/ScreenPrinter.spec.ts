@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest'
 // TODO:utils-dedup
-import { $dev } from '../logger/node/index.js'
+import { $dev } from '../logger/index.js'
 import { dedent } from '../native/string/dedent.js'
 import { ScreenPrinter } from './ScreenPrinter.js'
 class ScreenPrinterMock extends ScreenPrinter {}
@@ -172,6 +172,11 @@ describe('x', () => {
           return st.color.green('yes')
         })
         .log(st => [st.section('blue')])
+    })
+
+    it('x fix spec printing?', async () => {
+      let sut = new ScreenPrinter()
+      sut.log('yai!')
     })
   }) // #draft
 })

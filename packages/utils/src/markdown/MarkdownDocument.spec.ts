@@ -48,7 +48,7 @@ it('x', async () => {
   console.log(res)
 })
 
-it.only('x #story', async () => {
+it('x #story', async () => {
   let res = await MarkdownDocument.fromBody(
     dedent`
       fox: 1

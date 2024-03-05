@@ -4,7 +4,7 @@ import { DependencyMeta, ILifeTime } from './DependencyMeta.js'
 import { delay } from '../native/promise/delay.js'
 import { FetchAsyncError, UnregisteredValueError } from './errors.js'
 import { inspect } from 'node:util'
-import { $dev } from '../logger/node/index.js'
+import { $dev } from '../logger/index.js'
 import { expect, describe, it } from 'vitest'
 import { expectType } from '../types/expectType.js'
 
