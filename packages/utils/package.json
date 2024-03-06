@@ -17,6 +17,7 @@
     "build": "tsc",
     "publish": "npm publish --access public",
     "test:watch": "vitest watch --hideSkippedTests --changed --disable-console-intercept",
+    "test:w": "NODE_ENV=test vitest watch --hideSkippedTests --changed",
     "test:ci": "sh ./bin/test--ci.sh",
     "test": "vitest --run"
   },

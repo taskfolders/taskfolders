@@ -1,13 +1,14 @@
-import { NodeLogger } from '../node/NodeLogger.js'
+import { Logger as NodeLogger } from '../Logger.js'
 import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'
 import { LogServer } from '../LogServer.js'
 import { NodeLogPrinter } from '../node/printLogEventInNode.js'
-import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../../screen/MemoryScreenPrinter.js'
 
 export function setupLogger(kv: { debug? }) {
   let server = new LogServer()
   let printer = new NodeLogPrinter()
-  let { screen } = printer
+  let screen = new MemoryScreenPrinter()
+  printer.screen = screen
 
   server.printer = printer
   screen.debug = true

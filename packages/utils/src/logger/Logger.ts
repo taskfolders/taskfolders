@@ -1,9 +1,8 @@
 import type { CodePosition } from '../stack/locate/CodePosition.js'
-import { FindCaller } from '../stack/locate/FindCaller.js'
 import { LogServer } from './LogServer.js'
 import { LogLevelName } from './helpers.js'
 import { passThreshold } from './passThreshold.js'
-import { getCallerFile } from '../stack/locate/getCallerFile.js'
+import { ScreenPrinter } from '../screen/ScreenPrinter.js'
 
 interface LogOptions {
   depth?: number
@@ -44,6 +43,7 @@ interface UserLogEvent {
 export class Logger {
   server = LogServer.request()
   name: string
+  _screen = new ScreenPrinter()
 
   constructor() {}
 
@@ -79,10 +79,11 @@ export class Logger {
   warn = createLogLevelFunction('warn')
   error = createLogLevelFunction('error')
 
-  // TODO abstract ?
-  put(txt: string) {
-    let parts = [txt]
-    console.log(parts.join(' '))
-    return this
+  log(a, ...x) {
+    return this._screen.log(a, ...x)
+  }
+
+  put(a, ...x) {
+    return this.log(a,...x)
   }
 }

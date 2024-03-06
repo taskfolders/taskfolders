@@ -11,7 +11,7 @@ import '../../../native/groupBy.polyfill'
 // import { fileURLToPath } from 'url'
 import { getsert } from '../../../native/object/getsert.js'
 import { when } from '../../../native/flow/when.js'
-import { ScreenPrinter } from '../../../screen/ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../../../screen/MemoryScreenPrinter.js'
 import { shellHyperlink } from '../../../screen/shellHyperlink/shellHyperlink.js'
 
 /* convert import path into exact file path
@@ -111,7 +111,7 @@ function setRelativePaths(allItems: ImportItem[], cwd: string) {
 
 export class ExplainImports {
   cwd = process.cwd()
-  screen = new ScreenPrinter()
+  screen = new MemoryScreenPrinter()
   options = {
     showInside: false,
   }
@@ -281,7 +281,7 @@ export class ExplainImports {
 
     let groups = Object.groupBy(allItems, x => x.type)
 
-    let print = (items: ImportItem[], screen: ScreenPrinter) => {
+    let print = (items: ImportItem[], screen: MemoryScreenPrinter) => {
       items.map(item => {
         let link = shellHyperlink({
           path: item.pathFull,

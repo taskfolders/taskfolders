@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { NodeLogger } from './node/NodeLogger.js'
+import { Logger } from './Logger.js'
 import { setupLogger } from './_test/setupLogger.js'
 import { stripAnsiCodes } from '../native/string/stripAnsiCodes.js'
 
@@ -20,7 +20,7 @@ describe('log cases', () => {
   })
 
   it('using raw dsl', async () => {
-    let test = setupLogger({ debug: true })
+    let test = setupLogger({ debug: false })
     test.sut.raw({ level: 'dev', message: 'log raw', forceLink: true })
     let ev = test.logs[0]
 
@@ -30,7 +30,7 @@ describe('log cases', () => {
 })
 
 it('x #scaffold', async () => {
-  let sut = new NodeLogger()
+  let sut = new Logger()
   // sut.level = 'trace'
   // sut._screen.debug = true
   sut.trace('log debug')
@@ -42,7 +42,7 @@ it('x #scaffold', async () => {
 })
 
 it('x log args #todo', async () => {
-  let sut = new NodeLogger()
+  let sut = new Logger()
   // sut._screen.debug = true
   // sut.level = 'info'
   sut.dev('log dev')
@@ -106,5 +106,14 @@ describe('use cases', () => {
     })
 
     expect(spy).toBe(2)
+  })
+})
+
+describe('screen printing', () => {
+  it.only('x', async () => {
+    let { sut } = setupLogger({ debug: false })
+    sut.dev('some log')
+    sut.put('hello')
+    sut.log('one').log('two').indent().log('child')
   })
 })

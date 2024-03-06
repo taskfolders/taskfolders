@@ -7,7 +7,6 @@ import { isDebug } from '../runtime/isDebug.js'
 // import { Terminal } from './Terminal'
 import { ConsoleTheme } from './ConsoleTheme.js'
 import { indent } from '../native/string/indent.js'
-import { stripAnsiCodes } from '../native/string/stripAnsiCodes.js'
 
 // import { sanitizeString } from '../../native/string/sanitizeString'
 // import { decolorize, indent, stripAnsiCodes } from '../../native/string'
@@ -23,7 +22,7 @@ import { shellHyperlink } from './shellHyperlink/shellHyperlink.js'
 import { FindCaller } from '../stack/locate/FindCaller.js'
 const sanitizeString = x => x
 const isPromise = x => false
-const decolorize = x => x
+export const decolorize = x => x
 const parseLineTemplate = (x, y) => {
   return { text: x }
 }
@@ -52,6 +51,7 @@ export class ScreenPrinter {
 
   debugLive: boolean // echo each generated line with prefix
   debugInline: boolean // prefix each line with developer hyperlink
+  padding = 0
 
   echo: boolean
   liveMode = true
@@ -77,33 +77,12 @@ export class ScreenPrinter {
     // console.log('----', { de: this.debug })
   }
 
-  isEmpty() {
-    return this.lines.length === 0
-  }
-
   set debug(x: boolean) {
     this.debugLive = x
   }
 
-  child() {
-    let obj = new ScreenPrinter()
-    obj.debugLive = this.debugLive
-    obj.liveMode = this.liveMode
-    obj._lines = this._lines
-    obj.padding = this.padding
-    return obj
-  }
-
-  clone() {
-    let obj = new ScreenPrinter()
-    obj.debugLive = this.debugLive
-    obj.liveMode = this.liveMode
-    return obj
-  }
-
   static fromJSON(doc) {
     let obj = new this()
-    obj._lines = doc?._lines || []
     return obj
   }
 
@@ -123,67 +102,6 @@ export class ScreenPrinter {
 
   static style = new ConsoleTheme()
   style = new ConsoleTheme()
-
-  _lines: string[] = []
-  padding = 0
-
-  create() {
-    let obj = new ScreenPrinter()
-    obj.debugLive = this.debugLive
-    return obj
-  }
-
-  hasText() {
-    return this._lines.length > 0
-  }
-
-  lines(kv: { color?; stripAnsi? } = {}) {
-    if (kv.color === false) {
-      return this._lines.map(decolorize)
-    }
-    if (kv.stripAnsi) {
-      return this._lines.map(stripAnsiCodes)
-    }
-    return this._lines
-  }
-
-  text(
-    kv: {
-      trim?: boolean
-      /** @deprecated */
-      color?
-      /** @deprecated */
-      ansiCodes?
-      stripAnsi?
-      clean?
-      indent?: number
-    } = {},
-  ) {
-    let output = this._lines.join('\n')
-    if (kv.color === false) {
-      output = decolorize(output)
-    }
-    if (kv.ansiCodes === false) {
-      output = stripAnsiCodes(output)
-    }
-    if (kv.clean === true) {
-      output = stripAnsiCodes(output)
-    }
-    if (kv.stripAnsi) {
-      output = stripAnsiCodes(output)
-    }
-    if (kv.indent) {
-      output = indent(output, kv.indent)
-    }
-
-    if (kv.trim) {
-      output = output
-        .split('\n')
-        .map(x => x.trim())
-        .join('\n')
-    }
-    return output
-  }
 
   #logString(first: unknown = '', kv: LogOptions = {}) {
     // TODO clean duplicated from old .log() #tmp
@@ -209,7 +127,7 @@ export class ScreenPrinter {
     }
     newLines.forEach(x => {
       x = indent(x, kv.indent ?? 0)
-      this._lines.push(x)
+      this._pushLine(x)
     })
 
     if (this.debugLive && process.env.SCREEN !== '0') {
@@ -238,7 +156,7 @@ export class ScreenPrinter {
     }
   }
 
-  private _printLive(line: string, ops: LogOptions) {
+  _printLive(line: string, ops: LogOptions) {
     if (this.liveMode) {
       let pastRewrite = this.latest?.options?.rewrite
       if (pastRewrite) {
@@ -274,6 +192,8 @@ export class ScreenPrinter {
     }
   }
 
+  merge(x) {}
+
   log2(thing: unknown = '', kv: LogOptions = {}) {
     if (typeof thing === 'string') {
       this.#logString(thing, kv)
@@ -281,7 +201,7 @@ export class ScreenPrinter {
       this.#logString(thing.toString(), kv)
     } else if (typeof thing === 'function') {
       this.log(thing(this.style), kv)
-    } else if (thing instanceof ScreenPrinter) {
+    } else if (thing instanceof this.constructor) {
       this.merge(thing)
     } else if (isPromise(thing)) {
       throw Error(`ScreenPrinter cannot print promises`)
@@ -301,10 +221,18 @@ export class ScreenPrinter {
     return this
   }
 
-  log(thing: (theme: ConsoleTheme) => any, kv?: LogOptions): ScreenPrinter
-  log(string, kv?: LogOptions): ScreenPrinter
-  log(): ScreenPrinter
-  log(thing: unknown = '', kv: LogOptions = {}): ScreenPrinter {
+  log<T extends ScreenPrinter>(
+    this: T,
+    thing: (theme: ConsoleTheme) => any,
+    kv?: LogOptions,
+  ): T
+  log<T extends ScreenPrinter>(this: T, string, kv?: LogOptions): T
+  log<T extends ScreenPrinter>(this: T): T
+  log<T extends ScreenPrinter>(
+    this: T,
+    thing: unknown = '',
+    kv: LogOptions = {},
+  ): T {
     if (process.env.DEBUG === 'screen') {
       // TODO review
       delete kv.rewrite
@@ -315,6 +243,22 @@ export class ScreenPrinter {
     return res
   }
 
+  put<T extends ScreenPrinter>(
+    this: T,
+    thing: (theme: ConsoleTheme) => any,
+    kv?: LogOptions,
+  ): T
+  put<T extends ScreenPrinter>(this: T, string, kv?: LogOptions): T
+  put<T extends ScreenPrinter>(this: T): T
+  put<T extends ScreenPrinter>(
+    this: T,
+    thing: unknown = '',
+    kv: LogOptions = {},
+  ): T {
+    return this.log(thing, kv)
+  }
+
+  _pushLine(x) {}
   log_1(first = '', ...x) {
     // FROZEN (duplicated to log2)
     let start = indent(first, this.padding)
@@ -333,7 +277,7 @@ export class ScreenPrinter {
         ConsoleTheme.devToolPrefixed(label, line, true),
       )
     }
-    newLines.forEach(x => this._lines.push(x))
+    newLines.forEach(x => this._pushLine(x))
 
     if (this.debugLive) {
       let loc = FindCaller.whenDevelopment()
@@ -361,17 +305,6 @@ export class ScreenPrinter {
 
   write(txt) {
     process.stdout.write(txt)
-  }
-
-  merge(other: ScreenPrinter) {
-    this._lines = [...this._lines, ...other._lines]
-    other._lines.forEach(x =>
-      this._printLive(
-        x,
-        // TODO bug?
-        {},
-      ),
-    )
   }
 
   // TODO review dedup with ObjectTable
@@ -402,11 +335,21 @@ export class ScreenPrinter {
     return this
   }
 
+  child() {
+    let klass = this.constructor as any
+    let obj = new klass()
+    obj.debugLive = this.debugLive
+    obj.liveMode = this.liveMode
+    obj.padding = this.padding
+    return obj
+  }
+
   indent(x = 2) {
     let copy = this.child()
     copy.padding += x
     return copy
   }
+
   dedent(x = 2) {
     let copy = this.child()
     copy.padding -= x
@@ -417,13 +360,9 @@ export class ScreenPrinter {
     let obj = new ObjectPrinter({ screen: this, data: data })
     return obj
   }
+
   logObject(data: Record<string, unknown>, kv: { extraPadding? } = {}) {
     this.object(data).print(kv)
-    return this
-  }
-
-  clear() {
-    this._lines = []
     return this
   }
 
@@ -436,6 +375,6 @@ export class ScreenPrinter {
   }
 
   [Symbol.for('nodejs.util.inspect.custom')]() {
-    return `<${this.constructor.name} lines=${this._lines.length}>`
+    return `<${this.constructor.name} >`
   }
 }

@@ -1,12 +1,12 @@
 import { expect, describe, it } from 'vitest'
 import { setupLogger } from '../_test/setupLogger.js'
-import { NodeLogger } from './NodeLogger.js'
+import { Logger } from '../Logger.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { LoggerMock } from './LoggerMock.js'
 
 class Panda {
   alien: string
-  log = new NodeLogger()
+  log = new Logger()
 }
 
 it('spy .put printed text #deprecated', async () => {

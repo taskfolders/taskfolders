@@ -1,14 +1,14 @@
 import { visualLength, padEnd } from '../native/string/index.js'
-import { ScreenPrinter } from './ScreenPrinter.js'
+import { MemoryScreenPrinter } from './MemoryScreenPrinter.js'
 
 export const printTable = (kv: {
   rows: string[][]
-  screen?: ScreenPrinter
+  screen?: MemoryScreenPrinter
   headers?: string[]
 }) => {
   let padding = 2
   let maxLength: number[]
-  let screen = kv.screen ?? new ScreenPrinter()
+  let screen = kv.screen ?? new MemoryScreenPrinter()
 
   if (kv.headers) {
     maxLength = kv.headers.map(x => x.length + padding)

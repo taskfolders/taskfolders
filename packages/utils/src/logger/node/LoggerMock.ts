@@ -1,4 +1,6 @@
-import { NodeLogger } from './NodeLogger.js'
+// TODO review needed? just use setupLogger?
+
+import { Logger as NodeLogger } from '../Logger.js'
 import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'
 import * as chalk from 'chalk'
 

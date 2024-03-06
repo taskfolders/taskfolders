@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import { padEnd } from './padEnd.js'
 
 import { stripAnsiCodes } from './stripAnsiCodes.js'
-import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
+import { MemoryScreenPrinter } from '../../screen/MemoryScreenPrinter.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 
 function padRight(txt: string, size: number) {
@@ -30,7 +30,7 @@ describe('x', () => {
   })
 
   it('x #ci-broken', async () => {
-    let screen = new ScreenPrinter()
+    let screen = new MemoryScreenPrinter()
     screen.log(x => {
       let link = shellHyperlink({ path: '/tmp/foo.json', text: 'foo' })
       return [x.color.blue('one'), link].join(':')
