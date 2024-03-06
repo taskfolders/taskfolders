@@ -17,35 +17,50 @@ export const ShellError = CustomError.defineGroup('ShellError', {
 
 export class ShellClient {
   child: ChildProcess
-  cwd: string
+  defaultOptions: Options = {}
 
   constructor(kv: { cwd?: string } = {}) {
-    this.cwd = kv.cwd ?? process.cwd()
+    this.defaultOptions.cwd = kv.cwd ?? process.cwd()
   }
 
-  static async execute(command: string, ops: Options = {}) {
+  static create(ops: Options = {}) {
     let obj = new this()
-    return await obj.execute(command, ops)
+    obj.defaultOptions = ops
+    return obj
   }
 
-  static async query(command: string) {
-    let obj = new this()
-    let res = await obj.execute(command)
-    return res.stdout.trim()
-  }
-
-  async execute(
+  static async command(
     command: string,
     ops: Options = {},
   ): Promise<{ stdout; stderr }> {
-    let run = await this.executeRaw(command, ops)
+    return await this.create().command(command, ops)
+  }
 
+  static async query(
+    command: string,
+    ops: Options = {},
+  ): Promise<{ stdout; stderr }> {
+    return await this.create().query(command, ops)
+  }
+
+  async command(
+    command: string,
+    ops: Options = {},
+  ): Promise<{ stdout; stderr }> {
+    let run = await this.execute(command, ops)
     run.start()
     let res = await run.done()
     return res
   }
 
-  async executeRaw(
+  async query(command: string, ops: Options = {}): Promise<{ stdout; stderr }> {
+    let run = await this.execute(command, ops)
+    run.start()
+    let res = await run.done()
+    return res.output.toString()
+  }
+
+  execute(
     command: string,
     ops: Options = {},
   ): Promise<{ stdout; stderr; output; done; start }> {
@@ -55,9 +70,10 @@ export class ShellClient {
 
     //let { command, args } = this
     let args = []
-    let cwd = ops.cwd ?? this.cwd
+    let options = { ...this.defaultOptions, ...ops }
+    options.cwd ??= process.cwd()
     const child = spawn(command, args, {
-      cwd,
+      cwd: options.cwd,
       shell: true,
       stdio: ops.inherit ? 'inherit' : undefined,
     })
@@ -112,7 +128,6 @@ export class ShellClient {
     }
 
     // TODO should this be ShellCommand? or new class ShellCommandRun -ning
-    await running
     return {
       // pid: child.pid,
       stdout,

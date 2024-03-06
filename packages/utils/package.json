@@ -32,6 +32,7 @@
     "./shell": "./dist/esm/shell/index.js",
     "./dependencies/DCTester": "./dist/esm/dependencies/DCTester.js",
     "./native/array/*": "./dist/esm/native/array/*.js",
+    "./native/string/*": "./dist/esm/native/string/*.js",
     "./fs/*": "./dist/esm/fs/*.js",
     "./vendors/npm": "./dist/esm/vendors/npm/index.js",
     "./vendors/*": "./dist/esm/vendors/*.js",

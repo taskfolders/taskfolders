@@ -8,7 +8,7 @@ it.skip('x query', async () => {
 })
 
 it('x - inherit #todo', async () => {
-  let res = await ShellClient.execute('pwd', {
+  let res = await ShellClient.command('pwd', {
     inherit: true,
     cwd: '/tmp',
     mustMock: false,
@@ -17,7 +17,7 @@ it('x - inherit #todo', async () => {
 })
 
 it('x echo #todo ', async () => {
-  let res = await ShellClient.execute('pwd', {
+  let res = await ShellClient.command('pwd', {
     echo: true,
     cwd: '/tmp',
     mustMock: false,
@@ -28,7 +28,7 @@ it('x echo #todo ', async () => {
 describe('executions', () => {
   //
   it('x echo #todo ', async () => {
-    let res = await ShellClient.execute('pwd', {
+    let res = await ShellClient.create().command('pwd', {
       echo: true,
       cwd: '/tmp',
       mustMock: false,
@@ -41,15 +41,15 @@ describe('testing', () => {
   it('guard .execute under test', async () => {
     let sut = new ShellClient()
 
-    let error = await sut.execute('pwd').catch(e => e)
+    let error = await sut.command('pwd').catch(e => e)
     expect(ShellError.mustMock.is(error)).toBe(true)
 
-    let res = await sut.execute('pwd', { mustMock: false })
+    let res = await sut.command('pwd', { mustMock: false })
   })
 
   it('x', async () => {
     let sut = new ShellClientMock()
-    sut.execute('pwd')
+    sut.command('pwd')
     expect(sut.calls[0].request.command).toBe('pwd')
   })
 })
