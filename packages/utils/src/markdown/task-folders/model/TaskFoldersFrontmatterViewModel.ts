@@ -1,5 +1,5 @@
 import {
-  TaskFoldersFrontmatterWriteModel,
+  TaskFoldersFrontmatterWriteModel as WriteModel,
   ScriptDef,
 } from './TaskFoldersFrontmatterWriteModel.js'
 import { forwardProxy } from '../forwardProxy.js'
@@ -8,15 +8,12 @@ function ensureWords(thing: string | string[]): string[] {
   let words = typeof thing === 'string' ? thing.split(',') : thing
   return words.map(x => x.trim())
 }
-
 export class TaskFoldersFrontmatterViewModel {
-  _write: TaskFoldersFrontmatterWriteModel
-  _cache
+  _write: WriteModel
+  private _cache
   readonly title: string
 
-  static fromWriteModel(
-    model: TaskFoldersFrontmatterWriteModel,
-  ): TaskFoldersFrontmatterViewModel {
+  static fromWriteModel(model: WriteModel): TaskFoldersFrontmatterViewModel {
     let obj = new this()
     obj._write = model
 
@@ -25,6 +22,11 @@ export class TaskFoldersFrontmatterViewModel {
 
   get tags() {
     return ensureWords(this._write.tags ?? []) // ?? []
+  }
+
+  setValue<K extends keyof WriteModel>(key: K, value) {
+    this._write[key] = value
+    delete this._cache
   }
 
   get scripts(): Record<string, ScriptDef> {
