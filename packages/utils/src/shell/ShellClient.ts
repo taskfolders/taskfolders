@@ -9,11 +9,26 @@ interface Options {
 }
 
 export const ShellError = CustomError.defineGroup('ShellError', {
+  execute: class extends CustomError<{ command; exitCode; stderr }> {
+    message = 'Shell execution did fail'
+  },
+  notRunning: class extends CustomError<{ command: string }> {
+    message = 'Cannot wait for non running command'
+  },
   mustMock: class extends CustomError<{ command: string }> {
     message =
       'Shell executions disabled under test. Did you forget mocking this call?'
   },
 })
+
+interface ExecuteResult {
+  isStarted: boolean
+  stdout: Buffer
+  stderr: Buffer
+  output: Buffer
+  done(): Promise<{ ok: true } | { ok: false; error }>
+  start()
+}
 
 export class ShellClient {
   child: ChildProcess
@@ -29,41 +44,29 @@ export class ShellClient {
     return obj
   }
 
-  static async command(
-    command: string,
-    ops: Options = {},
-  ): Promise<{ stdout; stderr }> {
-    return await this.create().command(command, ops)
+  static async command(command: string, ops: Options = {}): Promise<void> {
+    await this.create().command(command, ops)
   }
 
-  static async query(
-    command: string,
-    ops: Options = {},
-  ): Promise<{ stdout; stderr }> {
+  static async query(command: string, ops: Options = {}): Promise<string> {
     return await this.create().query(command, ops)
   }
 
-  async command(
-    command: string,
-    ops: Options = {},
-  ): Promise<{ stdout; stderr }> {
+  async command(command: string, ops: Options = {}): Promise<void> {
     let run = await this.execute(command, ops)
     run.start()
     let res = await run.done()
-    return res
+    if (res.ok === false) throw res.error
   }
 
-  async query(command: string, ops: Options = {}): Promise<{ stdout; stderr }> {
+  async query(command: string, ops: Options = {}): Promise<string> {
     let run = await this.execute(command, ops)
     run.start()
-    let res = await run.done()
-    return res.output.toString()
+    await run.done()
+    return run.output.toString()
   }
 
-  execute(
-    command: string,
-    ops: Options = {},
-  ): Promise<{ stdout; stderr; output; done; start }> {
+  execute(command: string, ops: Options = {}): ExecuteResult {
     if (process.env.NODE_ENV === 'test' && ops.mustMock !== false) {
       throw ShellError.mustMock.create({ command })
     }
@@ -78,30 +81,35 @@ export class ShellClient {
       stdio: ops.inherit ? 'inherit' : undefined,
     })
     this.child = child
-    let stderr = ''
-    let stdout = ''
-    let stdout_acu = []
-    let output = ''
+
+    // TODO memory leak #bug #risk
+    // long running process will saturate this.. but need to capture first traces for errors
+    let stderr = []
+    let stdout = []
+    let output = []
 
     let running
+
     let start = () => {
+      if (result.isStarted) {
+        return
+      }
+      result.isStarted = true
       running = new Promise((resolve, reject) => {
         child.stdout?.on('data', data => {
-          let next = data.toString()
-          stdout_acu.push(data)
-          stdout += next
-          output += next
+          stdout.push(data)
+          output.push(data)
           if (ops.echo) {
-            process.stdout.write(next)
+            process.stdout.write(data.toString())
           }
           // console.log(`stderr: ${data}`)
           // console.log(`stdout: ${data}`)
         })
 
         child.stderr?.on('data', data => {
-          stderr += data.toString()
-          output += data.toString()
-          console.log(`stderr: ${data}`)
+          stderr.push(data)
+          output.push(data)
+          // console.log(`stderr: ${data}`)
         })
 
         child.on('error', cause => {
@@ -111,35 +119,47 @@ export class ShellClient {
 
         child.on('close', exitCode => {
           if (exitCode === 0) {
-            resolve(null)
+            resolve({ ok: true })
           } else {
-            let error = Error('Command fail')
-            error.name = 'ShellError'
-            // @ts-expect-error TODO
-            error.data = {
+            let error = ShellError.execute.create({
               command: [command, args].join(' '),
               exitCode,
-              stderr,
-            }
+              stderr: Buffer.concat(stderr).toString(),
+            })
             reject(error)
+            //resolve({ ok: false, error })
           }
         })
       })
     }
 
     // TODO should this be ShellCommand? or new class ShellCommandRun -ning
-    return {
+    let result: ExecuteResult = {
+      isStarted: false,
       // pid: child.pid,
-      stdout,
-      stderr,
-      output,
+      stdout: null,
+      stderr: null,
+      output: null,
       start,
 
       async done() {
-        await running
-        let stdout = Buffer.concat(stdout_acu)
-        return { stdout, stderr, output }
+        if (!running) {
+          throw new ShellError.notRunning()
+        }
+        let res = await running
+
+        this.stdout = Buffer.concat(stdout)
+        this.stderr = Buffer.concat(stderr)
+        this.output = Buffer.concat(output)
+        return res
+
+        // let stdout = Buffer.concat(stdout)
+        // return { stdout, stderr, output }
       },
     }
+
+    start()
+
+    return result
   }
 }

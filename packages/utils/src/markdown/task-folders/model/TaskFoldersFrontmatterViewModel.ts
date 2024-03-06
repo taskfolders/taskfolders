@@ -14,6 +14,7 @@ export class TaskFoldersFrontmatterViewModel {
   readonly uid: string
   readonly sid: string
   readonly title: string
+  readonly type: string
 
   static fromWriteModel(model: WriteModel): TaskFoldersFrontmatterViewModel {
     let obj = new this()

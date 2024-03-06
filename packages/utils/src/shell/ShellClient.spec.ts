@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest'
 
 import { ShellClient, ShellError } from './ShellClient.js'
-import { ShellClientMock } from './ShellClientMock.js'
+import { ShellClientMock } from './test/ShellClientMock.js'
 
 it.skip('x query', async () => {
   //let res = await ShellCommand.query('pwd')
@@ -25,8 +25,36 @@ it('x echo #todo ', async () => {
   // console.log(res)
 })
 
-describe('executions', () => {
-  //
+describe('execute styles', () => {
+  describe('raw execute', () => {
+    it('ok', async () => {
+      let res = await ShellClient.create().execute('pwd', { mustMock: false })
+      await res.done()
+      expect(res.stdout.toString()).toContain('packages/utils')
+      expect(res.output.toString()).toContain('packages/utils')
+    })
+
+    it.only('fail', async () => {
+      let res = await ShellClient.create().execute('ls bogus', {
+        mustMock: false,
+      })
+      let error = await res.done().catch(e => e)
+      expect(ShellError.execute.is(error)).toBe(true)
+      console.log(error)
+    })
+  })
+
+  it('query', async () => {
+    let res = await ShellClient.create().query('pwd', { mustMock: false })
+    expect(res).toContain('packages/utils')
+  })
+
+  it('command', async () => {
+    let res = await ShellClient.create().command('pwd', { mustMock: false })
+  })
+})
+
+describe('x', () => {
   it('x echo #todo ', async () => {
     let res = await ShellClient.create().command('pwd', {
       echo: true,
