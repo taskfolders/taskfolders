@@ -14,7 +14,7 @@ function ensureWords(thing: string | string[]): string[] {
   return words.map(x => x.trim())
 }
 
-export class TaskFoldersFrontmatter {
+export class TaskFoldersFrontmatterWriteModel {
   _meta = {
     input: null,
     issues: null,
@@ -53,7 +53,7 @@ export class TaskFoldersFrontmatter {
   }
 }
 
-DataModel.decorate(TaskFoldersFrontmatter, {
+DataModel.decorate(TaskFoldersFrontmatterWriteModel, {
   type: {
     value: TYPE,
     field: 'type',
@@ -72,7 +72,7 @@ DataModel.decorate(TaskFoldersFrontmatter, {
     },
     scripts: {
       fromJSON(doc) {
-        let target = {} as TaskFoldersFrontmatter['scripts']
+        let target = {} as TaskFoldersFrontmatterWriteModel['scripts']
         Object.entries<any>(doc).forEach(([key, value]) => {
           if (typeof value === 'string') {
             target[key] = { run: value }

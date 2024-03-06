@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { TaskFoldersFrontmatter } from './TaskFoldersFrontmatter.js'
+import { TaskFoldersFrontmatterWriteModel } from './TaskFoldersFrontmatterWriteModel.js'
 import dedent from 'dedent'
 import { toMarkdowns } from './toMarkdowns.js'
 import { isUUID } from '../../regex/isUUID.js'
@@ -12,7 +12,7 @@ describe('guess markdown format', () => {
     ---`
     let b2 = dedent`
     ---
-    type: ${TaskFoldersFrontmatter.type}
+    type: ${TaskFoldersFrontmatterWriteModel.type}
     title: one
     ---`
 
@@ -47,7 +47,7 @@ describe('guess markdown format', () => {
 
     let r2 = await toMarkdowns(b3, { coerce: true })
     expect(r2.standard).toBeTruthy()
-    expect(r2.standard.data.type).toBe(TaskFoldersFrontmatter.type)
+    expect(r2.standard.data.type).toBe(TaskFoldersFrontmatterWriteModel.type)
     expect(isUUID(r2.standard.data.uid)).toBe(true)
   })
 })

@@ -1,21 +1,27 @@
 import { expect, describe, it } from 'vitest'
-import { TaskFoldersFrontmatter } from './TaskFoldersFrontmatter.js'
+import { TaskFoldersFrontmatterWriteModel } from './TaskFoldersFrontmatterWriteModel.js'
 
 let toJsonDoc = x => JSON.parse(JSON.stringify(x))
 
 it.skip('x', async () => {
-  let sut = TaskFoldersFrontmatter.create()
+  let sut = TaskFoldersFrontmatterWriteModel.create()
   let doc = toJsonDoc(sut)
-  let s1 = TaskFoldersFrontmatter.fromJSON({ ...doc, tags: 'one,two' })
-  let s2 = TaskFoldersFrontmatter.fromJSON({ ...doc, tags: ['a', 'b'] })
+  let s1 = TaskFoldersFrontmatterWriteModel.fromJSON({
+    ...doc,
+    tags: 'one,two',
+  })
+  let s2 = TaskFoldersFrontmatterWriteModel.fromJSON({
+    ...doc,
+    tags: ['a', 'b'],
+  })
   console.log(s1)
 })
 
 it('x sanitize #story', async () => {
   let uid = 'e2a2c6ae-fbb5-49ff-a0f6-de91eb25e10b'
-  let sut = TaskFoldersFrontmatter.create({ uid })
+  let sut = TaskFoldersFrontmatterWriteModel.create({ uid })
   let doc = toJsonDoc(sut)
-  let s1 = TaskFoldersFrontmatter.fromJSON({
+  let s1 = TaskFoldersFrontmatterWriteModel.fromJSON({
     ...doc,
     tags: 'a,b,  c',
     scripts: { one: 'echo one', two: { run: 'echo two' } },

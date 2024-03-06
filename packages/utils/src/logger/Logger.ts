@@ -84,6 +84,6 @@ export class Logger {
   }
 
   put(a, ...x) {
-    return this.log(a,...x)
+    return this.log(a, ...x)
   }
 }

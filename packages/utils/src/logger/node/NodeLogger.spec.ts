@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest'
 import { setupLogger } from '../_test/setupLogger.js'
-import { NodeLogger } from './NodeLogger.js'
+import { Logger as NodeLogger } from '../Logger.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { LoggerMock } from './LoggerMock.js'
 
@@ -17,7 +17,7 @@ describe.skip('x', () => {
   it('x #review how to test a logger', async () => {
     let server //= new NodeLogServer({ level: 'info' })
     server.screen.debug = true
-    let sut = new NodeLogger({ server })
+    let sut = new NodeLogger()
     sut.info('x')
   })
 
@@ -25,8 +25,8 @@ describe.skip('x', () => {
     // TODO is this feat really needed?
 
     let server //= new NodeLogServer()
-    let l1 = new NodeLogger({ server })
-    let l2 = new NodeLogger({ server })
+    let l1 = new NodeLogger()
+    let l2 = new NodeLogger()
     l1.put('one')
     l2.put('two')
   })

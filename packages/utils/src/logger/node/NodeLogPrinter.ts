@@ -140,7 +140,7 @@ export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
 }
 
 export class NodeLogPrinter extends LogPrinter {
-  screen = new ScreenPrinter()
+  screen = new ScreenPrinter({ echo: true })
 
   printLogEvent(ev: LogEvent) {
     let { screen } = this
@@ -148,6 +148,6 @@ export class NodeLogPrinter extends LogPrinter {
 
     // TODO ugly hack to not accumulate lines...
     // #waiting for ScreenPrinterMock
-    this.screen = new ScreenPrinter()
+    this.screen = new ScreenPrinter({ echo: true })
   }
 }

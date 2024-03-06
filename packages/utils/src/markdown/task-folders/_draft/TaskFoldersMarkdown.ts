@@ -1,13 +1,13 @@
 import { MarkdownDocument } from '../../MarkdownDocument.js'
-import { TaskFoldersFrontmatter } from '../TaskFoldersFrontmatter.js'
+import { TaskFoldersFrontmatterWriteModel } from '../TaskFoldersFrontmatterWriteModel.js'
 
-export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter> {
+export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatterWriteModel> {
   static async fromBody<T extends typeof MarkdownDocument<any>>(
     this: T,
     body: string,
   ): Promise<InstanceType<T>> {
     let next = await super.fromBody(body)
-    next.data = await TaskFoldersFrontmatter.fromJSON(next.data)
+    next.data = await TaskFoldersFrontmatterWriteModel.fromJSON(next.data)
     return next as any //TaskFoldersMarkdownDocument
   }
 
@@ -23,7 +23,7 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
   static async fromBodyMaybe(str): Promise<TaskFoldersMarkdown> {
     let next = await super.fromBody(str)
     try {
-      next.data = await TaskFoldersFrontmatter.fromJSON(next.data)
+      next.data = await TaskFoldersFrontmatterWriteModel.fromJSON(next.data)
     } catch (e) {
       return null
     }

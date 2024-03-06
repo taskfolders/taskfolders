@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { MarkdownDocument } from './MarkdownDocument.js'
 import { dedent } from '../native/string/dedent.js'
 import { readFileSync } from 'node:fs'
-import { TaskFoldersFrontmatter } from './task-folders/TaskFoldersFrontmatter.js'
+import { TaskFoldersFrontmatterWriteModel } from './task-folders/TaskFoldersFrontmatterWriteModel.js'
 import { expectType } from '../types/expectType.js'
 
 it('x #now #tmp', async () => {
@@ -43,7 +43,7 @@ it('x', async () => {
       ---
 
       more`)
-  let data = TaskFoldersFrontmatter.fromJSON(res.data)
+  let data = TaskFoldersFrontmatterWriteModel.fromJSON(res.data)
   res.data = data
   console.log(res)
 })

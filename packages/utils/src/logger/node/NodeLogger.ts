@@ -7,7 +7,7 @@ import { isDebug } from '../../runtime/isDebug.js'
 //import { magenta } from 'chalk'
 import chalk from 'chalk'
 import { passThreshold } from '../passThreshold.js'
-import { hasShellLinks } from './printLogEventInNode.js'
+import { hasShellLinks } from './NodeLogPrinter.js'
 
 class NodeLogger_DROP extends Logger {
   _debug: boolean

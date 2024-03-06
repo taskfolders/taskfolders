@@ -1,4 +1,4 @@
-import { printLogEventInNode } from './printLogEventInNode.js'
+import { printLogEventInNode } from './NodeLogPrinter.js'
 import { setupLogger } from '../_test/setupLogger.js'
 import { expect, describe, it } from 'vitest'
 import { stripAnsiCodes } from '../../native/string/stripAnsiCodes.js'

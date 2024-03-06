@@ -341,6 +341,7 @@ export class ScreenPrinter {
     obj.debugLive = this.debugLive
     obj.liveMode = this.liveMode
     obj.padding = this.padding
+    obj.echo = this.echo
     return obj
   }
 

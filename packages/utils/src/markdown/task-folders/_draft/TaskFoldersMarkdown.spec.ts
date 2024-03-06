@@ -2,17 +2,17 @@ import { expect, describe, it } from 'vitest'
 import { TaskFoldersMarkdown } from './TaskFoldersMarkdown.js'
 import { dedent } from '../../../native/string/dedent.js'
 import { MarkdownDocument } from '../../MarkdownDocument.js'
-import { TaskFoldersFrontmatter } from '../TaskFoldersFrontmatter.js'
+import { TaskFoldersFrontmatterWriteModel } from '../TaskFoldersFrontmatterWriteModel.js'
 
 const SUT = TaskFoldersMarkdown
 
 function tryStandardClone(
   md: MarkdownDocument,
-): MarkdownDocument<TaskFoldersFrontmatter> {
+): MarkdownDocument<TaskFoldersFrontmatterWriteModel> {
   try {
     let r1 = md.clone()
-    r1.data = TaskFoldersFrontmatter.fromJSON(r1.data)
-    return r1 as MarkdownDocument<TaskFoldersFrontmatter>
+    r1.data = TaskFoldersFrontmatterWriteModel.fromJSON(r1.data)
+    return r1 as MarkdownDocument<TaskFoldersFrontmatterWriteModel>
   } catch (e) {
     return null
   }
@@ -79,7 +79,7 @@ describe('infer Standard Markdown', async () => {
     ---`)
     let r2 = await SUT.fromBodyMaybe(dedent`
     ---
-    type: ${TaskFoldersFrontmatter.type}
+    type: ${TaskFoldersFrontmatterWriteModel.type}
     title: one
     ---`)
     expect(r1).toBe(null)
