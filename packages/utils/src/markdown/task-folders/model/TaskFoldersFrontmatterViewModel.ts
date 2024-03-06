@@ -11,7 +11,10 @@ function ensureWords(thing: string | string[]): string[] {
 export class TaskFoldersFrontmatterViewModel {
   _write: WriteModel
   private _cache
+  readonly uid: string
+  readonly sid: string
   readonly title: string
+  readonly type: string
 
   static fromWriteModel(model: WriteModel): TaskFoldersFrontmatterViewModel {
     let obj = new this()

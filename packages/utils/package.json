@@ -25,18 +25,19 @@
     "./logger": "./dist/esm/logger/index.js",
     "./logger/browser": "./dist/esm/logger/browser/index.js",
     "./logger/LoggerMock": "./dist/esm/logger/node/LoggerMock.js",
-    "./logger/node/register.start": "./dist/esm/logger/node.start.js",
+    "./logger/node/register.start": "./dist/esm/logger/node/register.start.js",
+    "./logger/node/register-global.start": "./dist/esm/logger/node/register-global.start.js",
     "./dependencies": "./dist/esm/dependencies/index.js",
     "./markdown": "./dist/esm/markdown/index.js",
     "./markdown/task-folders": "./dist/esm/markdown/task-folders/index.js",
-    "./shell": "./dist/esm/shell/index.js",
     "./dependencies/DCTester": "./dist/esm/dependencies/DCTester.js",
     "./native/array/*": "./dist/esm/native/array/*.js",
+    "./native/string/*": "./dist/esm/native/string/*.js",
     "./fs/*": "./dist/esm/fs/*.js",
     "./vendors/npm": "./dist/esm/vendors/npm/index.js",
     "./vendors/*": "./dist/esm/vendors/*.js",
     "./types/*": "./dist/esm/types/*.js",
-    "./*": "./dist/esm/*"
+    "./*": "./dist/esm/*/index.js"
   },
   "typesVersions": {
     "*": {
