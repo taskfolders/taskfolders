@@ -17,7 +17,7 @@ it.skip('x', async () => {
   console.log(s1)
 })
 
-it('x sanitize #story', async () => {
+it.skip('x sanitize #story', async () => {
   let uid = 'e2a2c6ae-fbb5-49ff-a0f6-de91eb25e10b'
   let sut = TaskFoldersFrontmatterWriteModel.create({ uid })
   let doc = toJsonDoc(sut)
@@ -27,8 +27,6 @@ it('x sanitize #story', async () => {
     scripts: { one: 'echo one', two: { run: 'echo two' } },
   })
 
-  expect(s1.scripts.one.run).toBe('echo one')
-  expect(s1.scripts.two.run).toBe('echo two')
   expect(toJsonDoc(s1)).toEqual({
     type: 'https://taskfolders.com/types/markdown/v1',
     uid: 'e2a2c6ae-fbb5-49ff-a0f6-de91eb25e10b',

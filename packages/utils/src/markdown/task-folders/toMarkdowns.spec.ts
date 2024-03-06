@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { TaskFoldersFrontmatterWriteModel } from './TaskFoldersFrontmatterWriteModel.js'
+import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatterWriteModel.js'
 import dedent from 'dedent'
 import { toMarkdowns } from './toMarkdowns.js'
 import { isUUID } from '../../regex/isUUID.js'
@@ -17,13 +17,13 @@ describe('guess markdown format', () => {
     ---`
 
     let r1 = await toMarkdowns(b1)
-    expect(r1.markdown.data.type).toBe('alien')
-    expect(r1.standard).toBeUndefined()
+    expect(r1.plain.data.type).toBe('alien')
+    expect(r1.taskFolder).toBeUndefined()
 
     let r2 = await toMarkdowns(b2)
-    expect(r2.markdown.data.title).toBe('one')
-    expect(r2.standard.data.title).toBe('one')
-    console.log(r2.standard.toString())
+    expect(r2.plain.data.title).toBe('one')
+    expect(r2.taskFolder.data.title).toBe('one')
+    console.log(r2.taskFolder.toString())
   })
 
   it('implicit frontmatter', async () => {
@@ -32,8 +32,8 @@ describe('guess markdown format', () => {
     fox
     `
     let res = await toMarkdowns(b1)
-    expect(res.markdown.data.title).toBe('one')
-    expect(res.standard).toBeUndefined()
+    expect(res.plain.data.title).toBe('one')
+    expect(res.taskFolder).toBeUndefined()
   })
 
   it('coerce', async () => {
@@ -43,11 +43,11 @@ describe('guess markdown format', () => {
     ---`
 
     let r1 = await toMarkdowns(b3)
-    expect(r1.standard).not.toBeTruthy()
+    expect(r1.taskFolder).not.toBeTruthy()
 
     let r2 = await toMarkdowns(b3, { coerce: true })
-    expect(r2.standard).toBeTruthy()
-    expect(r2.standard.data.type).toBe(TaskFoldersFrontmatterWriteModel.type)
-    expect(isUUID(r2.standard.data.uid)).toBe(true)
+    expect(r2.taskFolder).toBeTruthy()
+    expect(r2.taskFolder.data.type).toBe(TaskFoldersFrontmatterWriteModel.type)
+    expect(isUUID(r2.taskFolder.data.uid)).toBe(true)
   })
 })

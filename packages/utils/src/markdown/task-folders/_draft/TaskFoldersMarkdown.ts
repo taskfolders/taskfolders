@@ -1,5 +1,5 @@
 import { MarkdownDocument } from '../../MarkdownDocument.js'
-import { TaskFoldersFrontmatterWriteModel } from '../TaskFoldersFrontmatterWriteModel.js'
+import { TaskFoldersFrontmatterWriteModel } from '../model/TaskFoldersFrontmatterWriteModel.js'
 
 export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatterWriteModel> {
   static async fromBody<T extends typeof MarkdownDocument<any>>(

@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { MarkdownDocument } from './MarkdownDocument.js'
 import { dedent } from '../native/string/dedent.js'
 import { readFileSync } from 'node:fs'
-import { TaskFoldersFrontmatterWriteModel } from './task-folders/TaskFoldersFrontmatterWriteModel.js'
+import { TaskFoldersFrontmatterWriteModel } from './task-folders/model/TaskFoldersFrontmatterWriteModel.js'
 import { expectType } from '../types/expectType.js'
 
 it('x #now #tmp', async () => {

@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { TaskFoldersMarkdown } from './TaskFoldersMarkdown.js'
 import { dedent } from '../../../native/string/dedent.js'
 import { MarkdownDocument } from '../../MarkdownDocument.js'
-import { TaskFoldersFrontmatterWriteModel } from '../TaskFoldersFrontmatterWriteModel.js'
+import { TaskFoldersFrontmatterWriteModel } from '../model/TaskFoldersFrontmatterWriteModel.js'
 
 const SUT = TaskFoldersMarkdown
 

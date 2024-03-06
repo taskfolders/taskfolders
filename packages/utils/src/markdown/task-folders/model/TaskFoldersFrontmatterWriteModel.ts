@@ -1,4 +1,4 @@
-import { DataModel } from '../../models/DataModel.js'
+import { DataModel } from '../../../models/DataModel.js'
 
 const TYPE = 'https://taskfolders.com/types/markdown/v1'
 function isEmpty(obj) {
@@ -14,21 +14,28 @@ function ensureWords(thing: string | string[]): string[] {
   return words.map(x => x.trim())
 }
 
+export interface ScriptDef {
+  run: string
+  describe?: string
+  alias?: string
+}
+
 export class TaskFoldersFrontmatterWriteModel {
-  _meta = {
-    input: null,
-    issues: null,
-  }
+  // _meta = {
+  //   input: null,
+  //   issues: null,
+  // }
 
   static type = TYPE
   type = TYPE
   uid = null
   title: string
-  scripts?: Record<string, { run: string; describe?: string; alias?: string }>
+  scripts?: Record<string, string | ScriptDef>
   review?
   before?
   status?
-  tags?: string[]
+  tags?: string[] | string
+  exclude?: Record<string, string>
 
   static fromJSON(doc) {
     let md = DataModel.deserialize(this, doc)
@@ -44,7 +51,7 @@ export class TaskFoldersFrontmatterWriteModel {
 
   toJSON() {
     let copy = { ...this }
-    delete copy._meta
+    // delete copy._meta
 
     for (let key of Object.keys(copy)) {
       isEmpty
@@ -59,6 +66,9 @@ DataModel.decorate(TaskFoldersFrontmatterWriteModel, {
     field: 'type',
   },
   before(doc) {
+    if (doc.type === 'tf') {
+      doc.type = TYPE
+    }
     return doc
   },
   properties: {
@@ -67,21 +77,9 @@ DataModel.decorate(TaskFoldersFrontmatterWriteModel, {
       //  - encourage all lowercase kebab case
       //  - warn about camel case
       parse(ctx) {
-        ctx.value = ensureWords(ctx.value)
+        //
       },
     },
-    scripts: {
-      fromJSON(doc) {
-        let target = {} as TaskFoldersFrontmatterWriteModel['scripts']
-        Object.entries<any>(doc).forEach(([key, value]) => {
-          if (typeof value === 'string') {
-            target[key] = { run: value }
-          } else {
-            target[key] = value
-          }
-        })
-        return target
-      },
-    },
+    scripts: {},
   },
 })
