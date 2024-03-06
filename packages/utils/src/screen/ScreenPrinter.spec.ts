@@ -3,6 +3,7 @@ import { expect, describe, it } from 'vitest'
 import { $dev } from '../logger/index.js'
 import { dedent } from '../native/string/dedent.js'
 import { MemoryScreenPrinter } from './MemoryScreenPrinter.js'
+import { ScreenPrinter } from './ScreenPrinter.js'
 class ScreenPrinterMock extends MemoryScreenPrinter {}
 
 let mp3Xattr = {
@@ -174,8 +175,9 @@ describe('x', () => {
         .log(st => [st.section('blue')])
     })
 
-    it('x fix spec printing?', async () => {
-      let sut = new MemoryScreenPrinter()
+    it.only('x fix spec printing?', async () => {
+      let sut = new ScreenPrinter()
+      sut.echo = true
       sut.log('yai!')
     })
   }) // #draft

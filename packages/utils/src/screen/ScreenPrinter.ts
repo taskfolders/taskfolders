@@ -243,6 +243,21 @@ export class ScreenPrinter {
     return res
   }
 
+  put<T extends ScreenPrinter>(
+    this: T,
+    thing: (theme: ConsoleTheme) => any,
+    kv?: LogOptions,
+  ): T
+  put<T extends ScreenPrinter>(this: T, string, kv?: LogOptions): T
+  put<T extends ScreenPrinter>(this: T): T
+  put<T extends ScreenPrinter>(
+    this: T,
+    thing: unknown = '',
+    kv: LogOptions = {},
+  ): T {
+    return this.log(thing, kv)
+  }
+
   _pushLine(x) {}
   log_1(first = '', ...x) {
     // FROZEN (duplicated to log2)

@@ -79,10 +79,11 @@ export class Logger {
   warn = createLogLevelFunction('warn')
   error = createLogLevelFunction('error')
 
-  // TODO abstract ?
-  put(txt: string) {
-    let parts = [txt]
-    console.log(parts.join(' '))
-    return this
+  log(a, ...x) {
+    return this._screen.log(a, ...x)
+  }
+
+  put(a, ...x) {
+    return this.log(a,...x)
   }
 }

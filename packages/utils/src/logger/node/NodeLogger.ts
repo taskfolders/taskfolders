@@ -9,7 +9,7 @@ import chalk from 'chalk'
 import { passThreshold } from '../passThreshold.js'
 import { hasShellLinks } from './printLogEventInNode.js'
 
-export class NodeLogger extends Logger {
+class NodeLogger_DROP extends Logger {
   _debug: boolean
   server: LogServer
 
@@ -40,7 +40,7 @@ export class NodeLogger extends Logger {
     },
   }
 
-  put(text: string) {
+  put_NODE(text: string) {
     let parts = [text]
     this.screen.print(text)
 
@@ -51,7 +51,6 @@ export class NodeLogger extends Logger {
         text: 'screen',
         path: pos.path,
         lineNumber: pos.lineNumber,
-        scheme: 'mscode',
       })
       label = chalk.magenta(label)
       parts = [label, ...parts]
