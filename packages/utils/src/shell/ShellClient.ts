@@ -2,10 +2,18 @@ import { spawn, ChildProcess } from 'child_process'
 import { CustomError } from '../errors/CustomError.js'
 
 interface Options {
+  /** print output while capturing */
   echo?: boolean
+
   inherit?: boolean
+
+  /** prevent execute when NODE_ENV === test */
   mustMock?: boolean
+
   cwd?: string
+
+  /** print command before execute */
+  verbose?: boolean
 }
 
 export const ShellError = CustomError.defineGroup('ShellError', {
@@ -75,6 +83,7 @@ export class ShellClient {
     let args = []
     let options = { ...this.defaultOptions, ...ops }
     options.cwd ??= process.cwd()
+    if (options.verbose) console.log('+', command)
     const child = spawn(command, args, {
       cwd: options.cwd,
       shell: true,
