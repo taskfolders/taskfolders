@@ -8,13 +8,5 @@
     "**/_*", 
     "**/_play", 
     "**/_test" 
-  ],
-  "compilerOptions": { 
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist/esm", 
-    //"module": "esnext"
-    //"module": "NodeNext"
-   } 
+  ]
 }

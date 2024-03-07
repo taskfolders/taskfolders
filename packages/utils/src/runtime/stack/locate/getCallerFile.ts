@@ -96,7 +96,7 @@ export function getCallStack(): ICallSite[] {
  *     mentions chrome support !!!
  *     can this solve bad stack trace printer view in Browser?
  */
-export function getCallerFile(kv: FindCallerParams = {}): SourcePosition {
+export function getCallerFile_v1(kv: FindCallerParams = {}): SourcePosition {
   if (process.env.DEBUG?.includes('get-caller-call')) {
     console.log('DEBUG: get-caller-call')
   }
@@ -207,7 +207,7 @@ export function getCallerFile(kv: FindCallerParams = {}): SourcePosition {
   return pos
 }
 
-export function getCallerFile_v2(kv: {
+export function getCallerFile(kv: {
   afterFile: string
   debug?: boolean
   skipUniqueFiles?: number

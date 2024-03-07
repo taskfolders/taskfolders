@@ -4,7 +4,7 @@ import { foo, debugMe, useVersion2 } from './_test/fooFunction.js'
 import {
   getCallStack,
   toClearStackFrame,
-  getCallerFile_v2,
+  getCallerFile,
 } from './getCallerFile.js'
 
 describe('x', () => {

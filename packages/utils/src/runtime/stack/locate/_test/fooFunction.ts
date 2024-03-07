@@ -1,12 +1,12 @@
 import {
-  getCallerFile_v2,
-  getCallStack,
   getCallerFile,
+  getCallStack,
+  getCallerFile_v1,
   toClearStackFrame,
 } from '../getCallerFile.js'
 
 export function foo() {
-  return { callerFile: getCallerFile(), stack: getCallStack() }
+  return { callerFile: getCallerFile_v1(), stack: getCallStack() }
 }
 
 export function debugMe() {
@@ -15,8 +15,6 @@ export function debugMe() {
   console.log(import.meta.url)
 }
 
-export function useVersion2(
-  kv: Partial<Parameters<typeof getCallerFile_v2>[0]>,
-) {
-  return getCallerFile_v2({ ...kv, afterFile: import.meta.url })
+export function useVersion2(kv: Partial<Parameters<typeof getCallerFile>[0]>) {
+  return getCallerFile({ ...kv, afterFile: import.meta.url })
 }

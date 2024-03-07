@@ -1,1 +1,1 @@
-export { SourcePosition as CodePosition } from '../../position/SourcePosition.js'
+export { getCallerFile } from './getCallerFile.js'

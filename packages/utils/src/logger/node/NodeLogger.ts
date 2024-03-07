@@ -1,6 +1,6 @@
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { FindCaller } from '../../runtime/stack/locate/FindCaller.js'
-import { getCallerFile } from '../../runtime/stack/locate/getCallerFile.js'
+import { getCallerFile_v1 } from '../../runtime/stack/locate/getCallerFile.js'
 import { LogServer } from '../LogServer.js'
 import { Logger, LogEvent } from '../Logger.js'
 import { isDebug } from '../../runtime/isDebug.js'
@@ -46,7 +46,7 @@ class NodeLogger_DROP extends Logger {
 
     let hasDebug = this._debug ?? isDebug('put') ?? isDebug('screen')
     if (hasDebug) {
-      let pos = getCallerFile()
+      let pos = getCallerFile_v1()
       let label = shellHyperlink({
         text: 'screen',
         path: pos.path,

@@ -6,7 +6,7 @@ import { LogEvent } from '../Logger.js'
 import { SourcePosition } from '../../runtime/position/SourcePosition.js'
 import { passThreshold } from '../passThreshold.js'
 import { LogPrinter } from '../LogPrinter.js'
-import { getCallerFile_v2 } from '../../runtime/stack/locate/getCallerFile.js'
+import { getCallerFile } from '../../runtime/stack/locate/getCallerFile.js'
 import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 
 const levelColors: Record<LogLevelName, string> = {
@@ -49,7 +49,7 @@ export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
     let location: SourcePosition = log.location
 
     let getLocation = () =>
-      getCallerFile_v2({
+      getCallerFile({
         afterFile: import.meta.url,
         skipUniqueFiles: 2,
       })

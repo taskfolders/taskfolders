@@ -2,7 +2,7 @@
 //
 
 // import { tryGetSourceFile } from './tryGetSourceFile.node'
-import { getCallerFile, FindCallerParams } from './getCallerFile.js'
+import { getCallerFile_v1, FindCallerParams } from './getCallerFile.js'
 
 /* TODO get file tree call?
  *
@@ -29,7 +29,7 @@ export class CodePosition {
   }
 
   static findCallingFileWhenDev(kv: FindCallerParams = {}) {
-    return getCallerFile(kv)
+    return getCallerFile_v1(kv)
   }
 
   tmp() {
@@ -101,17 +101,17 @@ export class FindCaller {
     // return getCallerFile({ offset: 3, ...kv })
     let env = process.env.NODE_ENV
     if (env === 'development' || process.env.TF_DEV === '1') {
-      return getCallerFile({ offset: 3, ...kv })
+      return getCallerFile_v1({ offset: 3, ...kv })
     }
   }
 
   static here(kv: FindCallerParams = {}): CodePosition | null {
-    return getCallerFile({ offset: 3, ...kv })
+    return getCallerFile_v1({ offset: 3, ...kv })
   }
 
   static whenDevelopment(kv: FindCallerParams = {}): CodePosition | null {
     if (isDeveloperMode()) {
-      return getCallerFile({ offset: 3, ...kv })
+      return getCallerFile_v1({ offset: 3, ...kv })
     }
   }
 
