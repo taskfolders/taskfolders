@@ -1,6 +1,6 @@
 {
   "name": "@taskfolders/utils",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Generic codign utilities and helpers",
   "access": "public",
   "type": "module",
@@ -8,18 +8,17 @@
     "type": "git",
     "url": "git+https://github.com/taskfolders/taskfolders.git"
   },
+  "publishConfig": {
+    "fgarcia:registry": "https://npm.pkg.github.com"
+  },
   "files": [
     "dist",
     "LICENSE.md",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "publish": "npm publish --access public",
-    "test:watch": "vitest watch --hideSkippedTests --changed --disable-console-intercept",
     "test:w": "NODE_ENV=test vitest watch --hideSkippedTests --changed",
-    "test:ci": "sh ./bin/test--ci.sh",
-    "test": "vitest --run"
+    "test:ci": "sh ./bin/test--ci.sh"
   },
   "exports": {
     "./logger": "./dist/esm/logger/index.js",
