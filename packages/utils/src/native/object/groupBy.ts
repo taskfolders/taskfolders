@@ -1,4 +1,12 @@
-/** @deprecated Use polyfill to encourage standard usage */
+/**
+ *
+ * @deprecated Use polyfill to encourage standard usage
+ *
+ * @example
+ * let all = [1, 2, 3]
+ * let res = Object.groupBy(all, x => (x % 2 === 1 ? 'odd' : 'even'))
+ *
+ */
 export function groupBy<T, K extends string>(
   list: T[],
   keyGetter: (x: T) => K,
