@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import { join } from 'node:path'
 import * as Path from 'node:path'
 
-import '../../../native/groupBy.polyfill'
+import '../../../native/object/groupBy.polyfill.js'
 
 // import { dirname } from 'path'
 // import { fileURLToPath } from 'url'
