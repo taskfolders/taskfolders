@@ -11,7 +11,7 @@
 
 // import { smp } from './smp.node'
 import smp from 'source-map-support'
-import { CodePosition } from './CodePosition.js'
+import { SourcePosition } from '../../position/SourcePosition.js'
 
 const dumpSites = (all: ICallSite[]) => {
   let toClear = (x: ICallSite) => {
@@ -96,7 +96,7 @@ export function getCallStack(): ICallSite[] {
  *     mentions chrome support !!!
  *     can this solve bad stack trace printer view in Browser?
  */
-export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
+export function getCallerFile(kv: FindCallerParams = {}): SourcePosition {
   if (process.env.DEBUG?.includes('get-caller-call')) {
     console.log('DEBUG: get-caller-call')
   }
@@ -191,7 +191,7 @@ export function getCallerFile(kv: FindCallerParams = {}): CodePosition {
 
   let path = (fileSource ?? fileBuild).replace(/^file:\/\//, '')
   let lineNumber = callSite.getLineNumber()
-  let pos = new CodePosition({ path, lineNumber })
+  let pos = new SourcePosition({ path, lineNumber })
   // TODO review if replace needed on esm AND commonjs packages
   if (fileBuild !== fileSource) {
     pos.fileBuild = fileBuild.replace(/^file:\/\//, '')
@@ -211,7 +211,7 @@ export function getCallerFile_v2(kv: {
   afterFile: string
   debug?: boolean
   skipUniqueFiles?: number
-}): CodePosition {
+}): SourcePosition {
   if (process.env.DEBUG?.includes('get-caller-call')) {
     console.log('DEBUG: get-caller-call')
   }
@@ -249,7 +249,7 @@ export function getCallerFile_v2(kv: {
     let found = positionsUnique.at(idx + skipUniqueFiles + 1)
     if (!found) return null
 
-    let pos = new CodePosition({
+    let pos = new SourcePosition({
       path: found.path,
       lineNumber: found.lineNumber,
     })

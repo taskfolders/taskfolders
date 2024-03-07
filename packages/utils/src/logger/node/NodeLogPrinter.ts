@@ -1,12 +1,12 @@
-import { FindCaller } from '../../stack/locate/FindCaller.js'
+import { FindCaller } from '../../runtime/stack/locate/FindCaller.js'
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
 import { inspect } from 'node:util'
 import { type LogLevelName } from '../helpers.js'
 import { LogEvent } from '../Logger.js'
-import { CodePosition } from '../../stack/locate/CodePosition.js'
+import { SourcePosition } from '../../runtime/position/SourcePosition.js'
 import { passThreshold } from '../passThreshold.js'
 import { LogPrinter } from '../LogPrinter.js'
-import { getCallerFile_v2 } from '../../stack/locate/getCallerFile.js'
+import { getCallerFile_v2 } from '../../runtime/stack/locate/getCallerFile.js'
 import { ScreenPrinter } from '../../screen/ScreenPrinter.js'
 
 const levelColors: Record<LogLevelName, string> = {
@@ -27,7 +27,7 @@ export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
   let screen = kv.screen
   let th = screen.style
 
-  function makeLabel(log: LogEvent, location: CodePosition) {
+  function makeLabel(log: LogEvent, location: SourcePosition) {
     let levelName = log.levelName ?? 'info'
     let color = levelColors[levelName]
     let colorize = th.color[color] ?? (x => x)
@@ -46,7 +46,7 @@ export const printLogEventInNode = (kv: { screen: ScreenPrinter }) => {
   }
 
   return (log: LogEvent) => {
-    let location: CodePosition = log.location
+    let location: SourcePosition = log.location
 
     let getLocation = () =>
       getCallerFile_v2({

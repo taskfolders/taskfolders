@@ -1,5 +1,5 @@
-import { FindCaller } from '../stack/locate/FindCaller.js'
-import { CodePosition } from '../stack/locate/CodePosition.js'
+import { FindCaller } from '../runtime/stack/locate/FindCaller.js'
+import { SourcePosition } from '../runtime/position/SourcePosition.js'
 
 type IssueSeverity = 'error' | 'warning' | 'info' | 'update'
 
@@ -20,7 +20,7 @@ export class IssueItem<T = unknown, Params = void> {
 
   url?: string
   fix?
-  sourceCode?: CodePosition
+  sourceCode?: SourcePosition
 
   static test: (x) => any
 

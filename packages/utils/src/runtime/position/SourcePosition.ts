@@ -7,7 +7,7 @@
  */
 
 // TODO:dedup-code-pos 3201f400-3e98-4a42-a943-5cc63a4a6af1
-export class CodePosition {
+export class SourcePosition {
   path: string
   fileBuild: string
   lineNumber?: number

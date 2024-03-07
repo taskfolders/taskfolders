@@ -19,7 +19,7 @@ import { indent } from '../native/string/indent.js'
 // import { FindCaller } from '../../stack'
 // import { UserEditorLink } from '../../_draft'
 import { shellHyperlink } from './shellHyperlink/shellHyperlink.js'
-import { FindCaller } from '../stack/locate/FindCaller.js'
+import { FindCaller } from '../runtime/stack/locate/FindCaller.js'
 const sanitizeString = x => x
 const isPromise = x => false
 export const decolorize = x => x

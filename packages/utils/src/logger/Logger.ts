@@ -1,4 +1,4 @@
-import type { CodePosition } from '../stack/locate/CodePosition.js'
+import type { SourcePosition } from '../runtime/position/SourcePosition.js'
 import { LogServer } from './LogServer.js'
 import { LogLevelName } from './helpers.js'
 import { passThreshold } from './passThreshold.js'
@@ -26,7 +26,7 @@ export interface LogEvent {
   levelValue?: number
   loggerName?: string
   options?: LogOptions
-  location?: CodePosition
+  location?: SourcePosition
 }
 
 interface UserLogEvent {

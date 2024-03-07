@@ -54,7 +54,7 @@ export class CodePosition {
   }
 }
 
-import { isDeveloperMode } from '../../runtime/isDeveloperMode.js'
+import { isDeveloperMode } from '../../isDeveloperMode.js'
 const tryGetSourceFile = null
 export class SourcePosition {
   file: string

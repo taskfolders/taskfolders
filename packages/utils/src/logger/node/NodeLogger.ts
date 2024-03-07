@@ -1,6 +1,6 @@
 import { shellHyperlink } from '../../screen/shellHyperlink/shellHyperlink.js'
-import { FindCaller } from '../../stack/locate/FindCaller.js'
-import { getCallerFile } from '../../stack/locate/getCallerFile.js'
+import { FindCaller } from '../../runtime/stack/locate/FindCaller.js'
+import { getCallerFile } from '../../runtime/stack/locate/getCallerFile.js'
 import { LogServer } from '../LogServer.js'
 import { Logger, LogEvent } from '../Logger.js'
 import { isDebug } from '../../runtime/isDebug.js'
