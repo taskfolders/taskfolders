@@ -9,13 +9,13 @@
 export class CodePosition {
   path: string
   fileBuild: string
-  lineNumber: number
+  lineNumber?: number
   columnNumber: number
   context: string
   stackIndex: number
   stack: any[] = []
 
-  constructor(kv: { path: string; lineNumber: number }) {
+  constructor(kv: { path: string; lineNumber?: number }) {
     this.path = kv.path
     this.lineNumber = kv.lineNumber
     Object.defineProperty(this, 'stack', { enumerable: false })

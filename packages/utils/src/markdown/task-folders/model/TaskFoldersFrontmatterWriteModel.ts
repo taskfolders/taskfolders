@@ -16,6 +16,7 @@ function ensureWords(thing: string | string[]): string[] {
 
 export interface ScriptDef {
   run: string
+  title?: string
   cwd?: 'cwd' | 'project' | 'root'
   describe?: string
   alias?: string

@@ -1,4 +1,5 @@
-import _groupBy from 'lodash/groupBy.js'
+// TODO #review after:2025 Drop when standard
+import { groupBy } from './groupBy.js'
 
 declare global {
   interface Object {
@@ -10,4 +11,4 @@ declare global {
   }
 }
 // eslint-disable-next-line
-Object.groupBy ||= _groupBy
+Object.groupBy ||= groupBy
