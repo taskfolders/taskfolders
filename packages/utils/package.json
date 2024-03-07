@@ -1,6 +1,6 @@
 {
   "name": "@taskfolders/utils",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Generic codign utilities and helpers",
   "access": "public",
   "type": "module",
@@ -21,29 +21,29 @@
     "test:ci": "sh ./bin/test--ci.sh"
   },
   "exports": {
-    "./logger": "./dist/esm/logger/index.js",
-    "./logger/browser": "./dist/esm/logger/browser/index.js",
-    "./logger/LoggerMock": "./dist/esm/logger/node/LoggerMock.js",
-    "./logger/node/register.start": "./dist/esm/logger/node/register.start.js",
-    "./logger/node/register-global.start": "./dist/esm/logger/node/register-global.start.js",
-    "./dependencies": "./dist/esm/dependencies/index.js",
-    "./markdown": "./dist/esm/markdown/index.js",
-    "./markdown/task-folders": "./dist/esm/markdown/task-folders/index.js",
-    "./dependencies/DCTester": "./dist/esm/dependencies/DCTester.js",
-    "./native/array/*": "./dist/esm/native/array/*.js",
-    "./native/object/groupBy.polyfill": "./dist/esm/native/object/groupBy.polyfill.js",
-    "./native/string/*": "./dist/esm/native/string/*.js",
-    "./fs/*": "./dist/esm/fs/*.js",
-    "./vendors/npm": "./dist/esm/vendors/npm/index.js",
-    "./vendors/*": "./dist/esm/vendors/*.js",
-    "./types/*": "./dist/esm/types/*.js",
-    "./*": "./dist/esm/*/index.js"
+    "./logger": "./dist/logger/index.js",
+    "./logger/browser": "./dist/logger/browser/index.js",
+    "./logger/LoggerMock": "./dist/logger/node/LoggerMock.js",
+    "./logger/node/register.start": "./dist/logger/node/register.start.js",
+    "./logger/node/register-global.start": "./dist/logger/node/register-global.start.js",
+    "./dependencies": "./dist/dependencies/index.js",
+    "./markdown": "./dist/markdown/index.js",
+    "./markdown/task-folders": "./dist/markdown/task-folders/index.js",
+    "./dependencies/DCTester": "./dist/dependencies/DCTester.js",
+    "./native/array/*": "./dist/native/array/*.js",
+    "./native/object/groupBy.polyfill": "./dist/native/object/groupBy.polyfill.js",
+    "./native/string/*": "./dist/native/string/*.js",
+    "./fs/*": "./dist/fs/*.js",
+    "./vendors/npm": "./dist/vendors/npm/index.js",
+    "./vendors/*": "./dist/vendors/*.js",
+    "./types/*": "./dist/types/*.js",
+    "./*": "./dist/*/index.js"
   },
   "typesVersions": {
     "*": {
       "*": [
-        "dist/esm/*",
-        "dist/esm/*/index.d.ts"
+        "dist/*",
+        "dist/*/index.d.ts"
       ]
     }
   },
