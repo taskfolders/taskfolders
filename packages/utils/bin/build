@@ -5,5 +5,5 @@ rm -rf dist
 npx tsc -P tsconfig--build.json 
 # npx tsc -P tsconfig--build.json --outDir dist/cjs --module commonjs --moduleResolution node
 
-echo '{ "type": "module" }' > dist/esm/package.json
+# echo '{ "type": "module" }' > dist/esm/package.json
 # echo '{ "type": "commonjs" }' > dist/cjs/package.json

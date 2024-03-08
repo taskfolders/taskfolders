@@ -8,5 +8,9 @@
     "**/_*", 
     "**/_play", 
     "**/_test" 
-  ]
+  ],
+  "compilerOptions": {
+    // for .d.ts.map files
+    "declarationMap": false
+  }
 }

@@ -14,7 +14,7 @@ export class MarkdownDocument<T = unknown> {
   static async fromBody<T extends typeof MarkdownDocument<any>>(
     this: T,
     body: string,
-    kv: { implicitFrontmatter?: boolean } = {},
+    kv: { implicitFrontmatter?: boolean; unsafe?: boolean } = {},
   ): Promise<InstanceType<T>> {
     let fm = await extractFrontMatter(body, { guess: kv.implicitFrontmatter })
 

@@ -1,6 +1,5 @@
 import dedent from 'dedent'
 import { expect, describe, it } from 'vitest'
-import { toMarkdowns, toTaskFoldersMarkdown } from '../toMarkdowns.js'
 import { TaskFoldersFrontmatterWriteModel } from './TaskFoldersFrontmatterWriteModel.js'
 import { TaskFoldersFrontmatterViewModel } from './TaskFoldersFrontmatterViewModel.js'
 

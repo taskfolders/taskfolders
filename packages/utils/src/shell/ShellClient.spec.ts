@@ -34,7 +34,7 @@ describe('execute styles', () => {
       expect(res.output.toString()).toContain('packages/utils')
     })
 
-    it.only('fail', async () => {
+    it('fail', async () => {
       let res = await ShellClient.create().execute('ls bogus', {
         mustMock: false,
       })
