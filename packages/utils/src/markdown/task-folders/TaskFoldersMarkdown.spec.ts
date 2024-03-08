@@ -1,8 +1,11 @@
 import { expect, describe, it } from 'vitest'
 import { TaskFoldersMarkdown } from './TaskFoldersMarkdown.js'
-import { dedent } from '../../../native/string/dedent.js'
-import { MarkdownDocument } from '../../MarkdownDocument.js'
-import { TaskFoldersFrontmatterWriteModel } from '../model/TaskFoldersFrontmatterWriteModel.js'
+import { dedent } from '../../native/string/dedent.js'
+import { MarkdownDocument } from '../MarkdownDocument.js'
+import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatterWriteModel.js'
+import { isUUID } from '../../regex/isUUID.js'
+import { DataModelError } from '../../models/DataModel.js'
+const Model = TaskFoldersFrontmatterWriteModel
 
 const SUT = TaskFoldersMarkdown
 
@@ -93,5 +96,81 @@ describe('infer Standard Markdown', async () => {
     ---
     type: alien
     ---`)
+  })
+})
+
+describe('type field handling', () => {
+  it('type upgrade #todo', async () => {
+    let b1 = dedent`
+    ---
+    type: tf  
+    ---`
+    let r1 = await SUT.fromBody(b1)
+    expect(r1.data.type).toBe(Model.type)
+
+    // TODO drop
+    let b2 = dedent`
+    ---
+    type: https://taskfolders.com/docs/markdown
+    ---`
+    let r2 = await SUT.fromBody(b2)
+
+    // TODO
+    // expect(r2.data.type).toBe(Model.type)
+  })
+
+  it('coerce and upgrade', async () => {
+    let b3 = dedent`
+    ---
+    title: one
+    ---`
+
+    // let r1 = await SUT.parse(b3)
+    // expect(r1.taskfolder).not.toBeTruthy()
+
+    let r2 = await SUT.parse(b3, { coerce: true })
+    expect(r2.taskfolder).toBeTruthy()
+    expect(r2.taskfolder.data.type).toBe(TaskFoldersFrontmatterWriteModel.type)
+    expect(isUUID(r2.taskfolder.data.uid)).toBe(true)
+  })
+
+  it('foreign types', async () => {
+    let b1 = dedent`
+    ---
+    type: alien
+    ---`
+
+    // Do not convert in .parse
+    let r1 = await SUT.parse(b1)
+    expect(r1.plain.data.type).toBe('alien')
+    expect(r1.taskfolder).toBeUndefined()
+
+    // fail in .fromBody
+    let r2 = await SUT.fromBody(b1).catch(e => e)
+    expect(DataModelError.invalidType.is(r2)).toBe(true)
+  })
+
+  it('valid type', async () => {
+    let b2 = dedent`
+    ---
+    type: ${TaskFoldersFrontmatterWriteModel.type}
+    title: one
+    ---`
+    let r2 = await SUT.parse(b2)
+    expect(r2.plain.data.title).toBe('one')
+    expect(r2.taskfolder.data.title).toBe('one')
+    // $dev(r2.taskfolder.toString())
+  })
+})
+
+describe('x #draft', () => {
+  it('implicit frontmatter', async () => {
+    let b1 = dedent`
+    title: one
+    fox
+    `
+    let res = await SUT.parse(b1)
+    expect(res.plain.data.title).toBe('one')
+    expect(res.taskfolder).toBeUndefined()
   })
 })

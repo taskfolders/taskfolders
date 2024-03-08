@@ -175,7 +175,7 @@ describe('x', () => {
         .log(st => [st.section('blue')])
     })
 
-    it.only('x fix spec printing?', async () => {
+    it('x fix spec printing?', async () => {
       let sut = new ScreenPrinter()
       sut.echo = true
       sut.log('yai!')

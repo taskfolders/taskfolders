@@ -1,6 +1,8 @@
-import { DataModel } from '../../../models/DataModel.js'
+import { DataModel, DataModelError } from '../../../models/DataModel.js'
 
 const TYPE = 'https://taskfolders.com/types/markdown/v1'
+
+const Type_OLD = 'https://taskfolders.com/docs/markdown'
 function isEmpty(obj) {
   return Object.keys(obj).length === 0
 }
@@ -63,13 +65,19 @@ export class TaskFoldersFrontmatterWriteModel {
 }
 
 DataModel.decorate(TaskFoldersFrontmatterWriteModel, {
-  type: {
-    value: TYPE,
-    field: 'type',
-  },
+  // type: {
+  //   value: TYPE,
+  //   field: 'type',
+  // },
   before(doc) {
-    if (doc.type === 'tf') {
+    if (doc.type === TYPE) {
+      // OK
+    } else if (doc.type === 'tf') {
       doc.type = TYPE
+    } else if (doc.type === Type_OLD) {
+      //
+    } else {
+      throw DataModelError.invalidType.create({ wanted: TYPE, given: doc.type })
     }
     return doc
   },
