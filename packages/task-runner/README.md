@@ -1,0 +1,1 @@
+[![GitHub Actions](https://github.com/taskfolders/taskfolders/actions/workflows/task-runner--build.yml/badge.svg)](https://github.com/taskfolders/taskfolders/actions/workflows/task-runner--build.yml)
