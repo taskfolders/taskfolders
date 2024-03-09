@@ -1,9 +1,6 @@
 {
   "name": "tf-open",
   "description": "",
-  "workspaces": [
-    "./packages/*"
-  ],
   "scripts": {
     "outdated": "npm outdated",
     "code": "xdg-open tf-open.code-workspace",
