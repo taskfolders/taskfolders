@@ -1,0 +1,25 @@
+#!/bin/sh
+if [ -z "$JS_ENGINE" ]; then
+  if command -v "bun" > /dev/null 2>&1; then
+    engine="bun"
+  else
+    echo ": WARNING bun not found, falling back to node"
+    engine="node"
+  fi
+else
+  engine=$JS_ENGINE
+fi
+
+script_dir="$(CDPATH= cd -- "$(dirname -- "$(realpath $0)")" && pwd -P)"
+
+run="$engine $script_dir/../dist/app.start.js"
+if [ "$DEV" = "1" ]; then
+  echo ": WARNING Using TK development version"
+  run="$engine $script_dir/../src/app.start.ts"
+fi
+
+if [ "$VERBOSE" = "1" ]; then
+  echo + $run $@
+fi
+
+exec $run $@

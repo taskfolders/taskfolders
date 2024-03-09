@@ -1,0 +1,18 @@
+#!/bin/sh
+if command -v "bun" > /dev/null 2>&1; then
+  engine="bun"
+else
+  echo ": WARNING bun not found, falling back to node"
+  engine="node"
+fi
+
+script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)"
+
+run="$engine $script_dir/../dist/app.start.js"
+if [ "$DEV" = "1" ]; then
+  echo ": Using TK development version"
+  run="$engine $script_dir/../src/app.start.ts"
+fi
+
+# echo + $run
+exec $run $@
