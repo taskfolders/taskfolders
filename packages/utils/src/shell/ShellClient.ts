@@ -7,7 +7,7 @@ import {
 } from 'child_process'
 import { CustomError } from '../errors/CustomError.js'
 
-interface Options {
+export interface Options {
   /** print output while capturing */
   echo?: boolean
 
@@ -41,7 +41,7 @@ export const ShellError = CustomError.defineGroup('ShellError', {
   },
 })
 
-interface ExecuteResult {
+export interface ExecuteResult {
   isStarted: boolean
   stdout: Buffer
   stderr: Buffer

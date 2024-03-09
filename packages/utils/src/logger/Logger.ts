@@ -3,6 +3,7 @@ import { LogServer } from './LogServer.js'
 import { LogLevelName } from './helpers.js'
 import { passThreshold } from './passThreshold.js'
 import { ScreenPrinter } from '../screen/ScreenPrinter.js'
+import { ConsoleTheme } from '../screen/ConsoleTheme.js'
 
 interface LogOptions {
   depth?: number
@@ -40,12 +41,24 @@ interface UserLogEvent {
   forceLink?: boolean
 }
 
+type foo = Parameters<ScreenPrinter['log']>
+
 export class Logger {
   server = LogServer.request()
   name: string
-  _screen = new ScreenPrinter()
+  screen = new ScreenPrinter()
 
-  constructor() {}
+  put(thing: (theme: ConsoleTheme) => any, kv?: LogOptions): ScreenPrinter
+  put(string, kv?: LogOptions): ScreenPrinter
+  put(): ScreenPrinter
+  put(thing: unknown = '', kv: LogOptions = {}): ScreenPrinter {
+    // @ts-expect-error TODO
+    return this.screen.log(thing, kv)
+  }
+
+  constructor() {
+    this.put = this.screen.log.bind(this.screen)
+  }
 
   _logRaw(kv: LogEvent) {
     let log = { ...kv, loggerName: this.name, options: kv.args.at(2) ?? {} }
@@ -80,10 +93,6 @@ export class Logger {
   error = createLogLevelFunction('error')
 
   log(a, ...x) {
-    return this._screen.log(a, ...x)
-  }
-
-  put(a, ...x) {
-    return this.log(a, ...x)
+    return this.screen.log(a, ...x)
   }
 }

@@ -117,3 +117,16 @@ describe('screen printing', () => {
     sut.log('one').log('two').indent().log('child')
   })
 })
+
+describe('x #draft', () => {
+  it.only('x put as screen', async () => {
+    let { sut } = setupLogger({ debug: true })
+    sut.screen.debug = true
+
+    sut.put('x')
+    sut
+      .put(t => t.color.cyan('yes'))
+      .indent()
+      .put(['a', 'b'])
+  })
+})

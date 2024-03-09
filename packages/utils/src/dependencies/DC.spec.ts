@@ -71,7 +71,6 @@ describe('constructions', () => {
       constructor(public delta) {}
     }
     DC.decorate(Panda, { lifetime: 'value' })
-
     sut.register(Panda, { value: new Panda(222) })
     let r2 = sut.fetch(Panda)
     expect(r2.delta).toBe(222)
@@ -453,3 +452,24 @@ describe('x', () => {
     expect(inspect(child_2)).toContain('global:parent:child-1')
   })
 })
+
+describe('x #draft', () => {
+  it('x play :value for :tk', async () => {
+    class Panda {
+      constructor(public value = 1) {}
+    }
+    DC.decorate(Panda, { lifetime: 'value' })
+    let CwdToken = DependencyToken.define({
+      create() {
+        return 123
+      },
+    })
+
+    let sut = new DC()
+    sut.register(Panda, { value: new Panda(222) })
+    let res = sut.fetch(Panda)
+    let r2 = sut.fetch(CwdToken)
+    $dev(res)
+    $dev(r2)
+  })
+}) // #draft

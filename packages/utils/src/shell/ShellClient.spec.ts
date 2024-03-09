@@ -94,4 +94,9 @@ describe('testing', () => {
     sut.command('pwd')
     expect(sut.calls[0].request.command).toBe('pwd')
   })
+
+  it('x', async () => {
+    let e = ShellError.mustMock.create({ command: 'ls' })
+    ShellError.mustMock.is(e)
+  })
 })

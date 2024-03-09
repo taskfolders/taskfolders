@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest'
 import { fs as memFS, vol } from 'memfs'
 import { VFile } from './LocalFileSystem.js'
-import { LocalFileSystemMock } from './LocalFileSystemMock.js'
+import { LocalFileSystemMock } from './test/LocalFileSystemMock.js'
 
 function setup(disk?) {
   disk ??= {

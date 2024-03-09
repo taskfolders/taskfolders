@@ -1,5 +1,5 @@
 import { Volume } from 'memfs'
-import { LocalFileSystem } from './LocalFileSystem.js'
+import { LocalFileSystem } from '../LocalFileSystem.js'
 
 export class LocalFileSystemMock extends LocalFileSystem {
   static fromFake(disk: Record<string, any>) {
