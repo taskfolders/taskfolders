@@ -119,7 +119,7 @@ describe('screen printing', () => {
 })
 
 describe('x #draft', () => {
-  it.only('x put as screen', async () => {
+  it('x put as screen', async () => {
     let { sut } = setupLogger({ debug: true })
     sut.screen.debug = true
 
