@@ -1,6 +1,6 @@
 {
   "name": "@taskfolders/utils",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Generic codign utilities and helpers",
   "access": "public",
   "type": "module",

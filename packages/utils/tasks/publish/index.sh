@@ -1,3 +1,3 @@
 set -ex
 npm version patch
-npm publish
+npm publish --public
