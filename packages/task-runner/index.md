@@ -9,6 +9,4 @@ scripts:
     run: echo hi 2
 ---
 
-xx
-1
 1

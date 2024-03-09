@@ -1,4 +1,4 @@
-name: tk -- build
+name: task-runner -- build
 on:
   release:
     types: [published]
