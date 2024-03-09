@@ -1,0 +1,33 @@
+name: tk -- build
+on:
+  release:
+    types: [published]
+
+  push:
+    branches: 
+      - main
+      - develop
+    paths:
+      - "packages/task-runner/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/task-runner
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      # Setup .npmrc file to publish to GitHub Packages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@taskfolders'
+      - run: npm install
+      - run: npx tsc
+      - run: npm run test:ci
+
