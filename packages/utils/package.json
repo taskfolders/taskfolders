@@ -1,6 +1,6 @@
 {
   "name": "@taskfolders/utils",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Generic codign utilities and helpers",
   "access": "public",
   "type": "module",
@@ -36,6 +36,7 @@
     "./native/string/*": "./dist/native/string/*.js",
     "./native/promise/*": "./dist/native/promise/*.js",
     "./fs/*": "./dist/fs/*.js",
+    "./fs/test": "./dist/fs/test/index.js",
     "./vendors/npm": "./dist/vendors/npm/index.js",
     "./vendors/*": "./dist/vendors/*.js",
     "./types/*": "./dist/types/*.js",
