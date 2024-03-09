@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "hello": "echo Hello from npm $@ - $(pwd)",
+    "ping-npm": "echo Pong from npm $@",
     "test:ci": "NODE_ENV=test vitest --run",
     "test:w": "NODE_ENV=test vitest",
     "slow": "sh slow.sh",
