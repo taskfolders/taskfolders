@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@inquirer/prompts": "^4.1.0",
-    "@taskfolders/utils": "^0.0",
+    "@taskfolders/utils": "^0.0.9",
     "yargs": "^17.7.2"
   }
 }
