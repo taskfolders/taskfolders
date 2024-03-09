@@ -1,5 +1,6 @@
 import { expect, describe, it } from 'vitest'
 import { delay } from './delay.js'
+import { $dev } from '../../logger/index.js'
 
 it.skip('x #manual', async () => {
   $dev('1')

@@ -33,16 +33,16 @@ class NodeLogger_DROP extends Logger {
     this.server.handleLog(log)
   }
 
-  screen = {
-    debug: false,
-    print(text: string) {
-      //
-    },
-  }
+  // screen = {
+  //   debug: false,
+  //   print(text: string) {
+  //     //
+  //   },
+  // }
 
   put_NODE(text: string) {
     let parts = [text]
-    this.screen.print(text)
+    //this.screen.print(text)
 
     let hasDebug = this._debug ?? isDebug('put') ?? isDebug('screen')
     if (hasDebug) {
