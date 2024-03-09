@@ -34,6 +34,7 @@
     "./native/object/groupBy.polyfill": "./dist/native/object/groupBy.polyfill.js",
     "./native/date/*": "./dist/native/date/*.js",
     "./native/string/*": "./dist/native/string/*.js",
+    "./native/promise/*": "./dist/native/promise/*.js",
     "./fs/*": "./dist/fs/*.js",
     "./vendors/npm": "./dist/vendors/npm/index.js",
     "./vendors/*": "./dist/vendors/*.js",

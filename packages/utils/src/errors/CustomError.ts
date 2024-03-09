@@ -26,7 +26,7 @@ export class CustomError<T = any> extends Error {
     if (!klassCode) {
       throw Error(`Class ${this.name} does not define error code`)
     }
-    if (error.code === klassCode) {
+    if (error?.code === klassCode) {
       return true
     }
     return false

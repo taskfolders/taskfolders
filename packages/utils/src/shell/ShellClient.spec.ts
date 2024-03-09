@@ -54,7 +54,7 @@ describe('execute styles', () => {
   })
 })
 
-describe('x', () => {
+describe('x #draft', () => {
   it('x echo #todo ', async () => {
     let res = await ShellClient.create().command('pwd', {
       echo: true,
@@ -62,6 +62,20 @@ describe('x', () => {
       mustMock: false,
     })
     // console.log(res)
+  })
+
+  it('x stream', async () => {
+    let spy
+    let res = await ShellClient.create().command('pwd', {
+      echo: true,
+      cwd: '/tmp',
+      mustMock: false,
+      onData: x => {
+        spy = { output: x.output.toString(), stdout: x.output.toString() }
+      },
+    })
+    expect(spy.output).toBe('/tmp\n')
+    expect(spy.stdout).toBe('/tmp\n')
   })
 })
 

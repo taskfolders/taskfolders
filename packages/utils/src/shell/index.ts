@@ -1,1 +1,2 @@
-export { ShellClient } from './ShellClient.js'
+export { ShellClient, ShellError } from './ShellClient.js'
+export { setTabTitle } from './tabs.js'

@@ -1,10 +1,17 @@
-import { spawn, ChildProcess } from 'child_process'
+import {
+  spawn,
+  ChildProcess,
+  StdioPipeNamed,
+  StdioPipe,
+  StdioNull,
+} from 'child_process'
 import { CustomError } from '../errors/CustomError.js'
 
 interface Options {
   /** print output while capturing */
   echo?: boolean
 
+  /** @deprecated Use stdio */
   inherit?: boolean
 
   /** prevent execute when NODE_ENV === test */
@@ -12,8 +19,13 @@ interface Options {
 
   cwd?: string
 
+  stdio?: StdioPipeNamed | StdioNull | (StdioPipe | StdioNull)[] | undefined
+  env?: NodeJS.ProcessEnv
+
   /** print command before execute */
   verbose?: boolean
+
+  onData?: (ctx: { output: Buffer; stdout?: Buffer; stderr?: Buffer }) => void
 }
 
 export const ShellError = CustomError.defineGroup('ShellError', {
@@ -74,6 +86,7 @@ export class ShellClient {
     return run.output.toString()
   }
 
+  /** @deprecated Unstable interface, use .command or .query */
   execute(command: string, ops: Options = {}): ExecuteResult {
     if (process.env.NODE_ENV === 'test' && ops.mustMock !== false) {
       throw ShellError.mustMock.create({ command })
@@ -87,7 +100,8 @@ export class ShellClient {
     const child = spawn(command, args, {
       cwd: options.cwd,
       shell: true,
-      stdio: ops.inherit ? 'inherit' : undefined,
+      stdio: ops.inherit ? 'inherit' : (options.stdio as any),
+      env: options.env,
     })
     this.child = child
 
@@ -108,6 +122,8 @@ export class ShellClient {
         child.stdout?.on('data', data => {
           stdout.push(data)
           output.push(data)
+          options.onData?.({ stdout: data, output: data })
+
           if (ops.echo) {
             process.stdout.write(data.toString())
           }
@@ -118,6 +134,7 @@ export class ShellClient {
         child.stderr?.on('data', data => {
           stderr.push(data)
           output.push(data)
+          options.onData?.({ stderr: data, output: data })
           // console.log(`stderr: ${data}`)
         })
 

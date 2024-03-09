@@ -110,7 +110,7 @@ describe('use cases', () => {
 })
 
 describe('screen printing', () => {
-  it.only('x', async () => {
+  it('x', async () => {
     let { sut } = setupLogger({ debug: false })
     sut.dev('some log')
     sut.put('hello')
