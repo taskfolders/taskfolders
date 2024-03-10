@@ -39,3 +39,10 @@ it('x', async () => {
   expect(doc.tags).toBe('a,  b')
   expect(doc.scripts.one).toBe('echo one')
 })
+
+it.only('x #story', async () => {
+  // exclude
+  expect(setup({ exclude: true }).exclude).toEqual(['.'])
+  expect(setup({ exclude: ['build'] }).exclude).toEqual(['build'])
+  expect(setup({}).exclude).toEqual([])
+})

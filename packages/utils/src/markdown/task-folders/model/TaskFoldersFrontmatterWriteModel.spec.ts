@@ -28,7 +28,7 @@ it.skip('x sanitize #story', async () => {
   })
 
   expect(toJsonDoc(s1)).toEqual({
-    type: 'https://taskfolders.com/types/markdown/v1',
+    type: 'https://taskfolders.com/docs/markdown/v1',
     uid: 'e2a2c6ae-fbb5-49ff-a0f6-de91eb25e10b',
     tags: ['a', 'b', 'c'],
     scripts: { one: { run: 'echo one' }, two: { run: 'echo two' } },

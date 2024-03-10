@@ -1,6 +1,6 @@
 import { DataModel, DataModelError } from '../../../models/DataModel.js'
 
-const TYPE = 'https://taskfolders.com/types/markdown/v1'
+const TYPE = 'https://taskfolders.com/docs/markdown/v1'
 
 const Type_OLD = 'https://taskfolders.com/docs/markdown'
 function isEmpty(obj) {
@@ -24,6 +24,13 @@ export interface ScriptDef {
   alias?: string
 }
 
+/**
+ * Model of what you can see written in the frontmatter of a TaskFolders
+ * markdown document
+ *
+ * For a more strict and sanitized version of what a developer use the ViewModel
+ * variant
+ */
 export class TaskFoldersFrontmatterWriteModel {
   // _meta = {
   //   input: null,
@@ -39,7 +46,7 @@ export class TaskFoldersFrontmatterWriteModel {
   before?
   status?
   tags?: string[] | string
-  exclude?: Record<string, string>
+  exclude?: string[] | true
 
   static fromJSON(doc) {
     let md = DataModel.deserialize(this, doc)

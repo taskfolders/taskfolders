@@ -10,5 +10,7 @@ declare global {
     ): Record<K, T[]>
   }
 }
+
 // eslint-disable-next-line
+// @ts-expect-error TODO
 Object.groupBy ||= groupBy

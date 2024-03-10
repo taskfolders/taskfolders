@@ -1,5 +1,6 @@
+// @template f9d31823-c11d-4863-bebc-abd417381596
 {
-  "include": ["src", "bin"],
+  "include": ["src"],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 

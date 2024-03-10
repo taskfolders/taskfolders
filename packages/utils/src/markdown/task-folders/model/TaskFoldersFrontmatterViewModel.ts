@@ -8,8 +8,9 @@ function ensureWords(thing: string | string[]): string[] {
   let words = typeof thing === 'string' ? thing.split(',') : thing
   return words.map(x => x.trim())
 }
+
 export class TaskFoldersFrontmatterViewModel {
-  _write: WriteModel
+  _writeModel: WriteModel
   private _cache
   readonly uid: string
   readonly sid: string
@@ -18,23 +19,23 @@ export class TaskFoldersFrontmatterViewModel {
 
   static fromWriteModel(model: WriteModel): TaskFoldersFrontmatterViewModel {
     let obj = new this()
-    obj._write = model
+    obj._writeModel = model
 
     return forwardProxy({ first: obj, alternative: model })
   }
 
   get tags() {
-    return ensureWords(this._write.tags ?? []) // ?? []
+    return ensureWords(this._writeModel.tags ?? []) // ?? []
   }
 
   setValue<K extends keyof WriteModel>(key: K, value) {
-    this._write[key] = value
+    this._writeModel[key] = value
     delete this._cache
   }
 
   get scripts(): Record<string, ScriptDef> {
     let target = {} as Record<string, ScriptDef>
-    let doc = this._write.scripts ?? {}
+    let doc = this._writeModel.scripts ?? {}
     Object.entries<any>(doc).forEach(([key, value]) => {
       if (typeof value === 'string') {
         target[key] = { run: value }
@@ -46,10 +47,11 @@ export class TaskFoldersFrontmatterViewModel {
   }
 
   get exclude() {
-    return this._write.exclude ?? []
+    if (this._writeModel.exclude === true) return ['.']
+    return this._writeModel.exclude ?? []
   }
 
   toJSON() {
-    return this._write.toJSON()
+    return this._writeModel.toJSON()
   }
 }

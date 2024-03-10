@@ -25,7 +25,7 @@ it('x', async () => {
   let res = await TaskFoldersMarkdown.fromBody(dedent`
     ---
     uid: 2e7f80e2-89c5-4626-9e9d-cfc0082786ec 
-    type: https://taskfolders.com/types/markdown/v1
+    type: https://taskfolders.com/docs/markdown/v1
     scripts:
       one: echo one
       two:
@@ -39,7 +39,7 @@ it('x', async () => {
   let m1 = await MarkdownDocument.fromBody(dedent`
     ---
     uid: 2e7f80e2-89c5-4626-9e9d-cfc0082786ec 
-    type: https://taskfolders.com/types/markdown/v1
+    type: https://taskfolders.com/docs/markdown/v1
     ---
     `)
   let m2 = await MarkdownDocument.fromBody(dedent`

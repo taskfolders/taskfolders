@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# @job 30ad0d1a-4fc0-42d1-8c6c-15065146ef77
+#
 if [ -z "$JS_ENGINE" ]; then
   if command -v "bun" > /dev/null 2>&1; then
     engine="bun"

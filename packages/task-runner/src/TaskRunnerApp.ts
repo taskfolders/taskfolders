@@ -50,7 +50,7 @@ export class TaskRunnerApp {
 
   async executeRequest(kv: { line: string } | { argv: string[] }) {
     let { fs } = this
-    let out = Yargs(process.argv.slice(2)).scriptName('runner')
+    let out = Yargs(process.argv.slice(2)).scriptName('tk')
 
     let res = await out.parse(
       // @ts-expect-error TODO
