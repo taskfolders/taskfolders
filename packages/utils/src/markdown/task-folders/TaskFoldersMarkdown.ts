@@ -52,8 +52,8 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
     return obj as any
   }
 
-  static async fromBodyMaybe(str): Promise<TaskFoldersMarkdown> {
-    let next = await super.fromBody(str)
+  static async fromBodyMaybe(str: string): Promise<TaskFoldersMarkdown> {
+    let next = await super.fromBody(str, { implicitFrontmatter: true })
     try {
       next.data = await TaskFoldersFrontmatterWriteModel.fromJSON(next.data)
     } catch (e) {

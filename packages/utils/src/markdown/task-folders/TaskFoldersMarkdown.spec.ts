@@ -173,4 +173,16 @@ describe('x #draft', () => {
     expect(res.plain.data.title).toBe('one')
     expect(res.taskfolder).toBeUndefined()
   })
+
+  it.only('x tf type?', async () => {
+    let b2 = dedent`
+    ---
+    type: tf
+    exclude: 
+      - one
+    ---`
+    //let res = await SUT.parse(b2)
+    let r2 = await SUT.fromBodyMaybe(b2)
+    $dev(r2)
+  })
 })
