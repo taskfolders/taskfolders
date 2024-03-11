@@ -28,10 +28,37 @@ export class VFile<T = Record<string, unknown>> {
 export class LocalFileSystem {
   raw = fs
 
-  async read<T>(aPath: string | string[]): Promise<VFile<T>> {
-    let path = join(...[].concat(aPath))
+  constructor() {
+    Object.defineProperty(this, 'raw', { enumerable: false })
+  }
 
-    return new Promise((resolve, reject) => {
+  lsSync(aPath: string | string[]) {
+    let path = join(...[].concat(aPath))
+    let res = this.raw.readdirSync(path)
+    return res
+  }
+
+  async rm(aPath: string | string[]) {
+    let path = join(...[].concat(aPath))
+    let res = new Promise((resolve, reject) =>
+      this.raw.unlink(path, err => {
+        if (err) reject(err)
+        resolve(null)
+      }),
+    )
+    return res
+  }
+
+  async read<T>(
+    aPath: string | string[],
+    kv?: { unsafe?: boolean },
+  ): Promise<VFile<T>> {
+    let path = join(...[].concat(aPath))
+    if (kv?.unsafe) {
+      if (!this.raw.existsSync(path)) return null
+    }
+
+    return await new Promise((resolve, reject) => {
       this.raw.readFile(path, (err, data) => {
         if (err) reject(err)
         let file = new VFile<T>({ path })
@@ -68,6 +95,18 @@ export class LocalFileSystem {
 
   exists(path: string) {
     return this.raw.existsSync(path)
+  }
+
+  async mv(from: string | string[], to: string | string[]) {
+    let p_from = join(...[].concat(from))
+    let p_to = join(...[].concat(to))
+    let res = new Promise((resolve, reject) =>
+      this.raw.rename(p_from, p_to, err => {
+        if (err) reject(err)
+        resolve(null)
+      }),
+    )
+    return res
   }
 
   [Symbol.for('nodejs.util.inspect.custom')]() {

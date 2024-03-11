@@ -39,7 +39,7 @@ export class TaskFoldersFrontmatterWriteModel {
 
   static type = TYPE
   type = TYPE
-  uid = null
+  uid: string = undefined
   title: string
   scripts?: Record<string, string | ScriptDef>
   review?
@@ -50,7 +50,6 @@ export class TaskFoldersFrontmatterWriteModel {
 
   static fromJSON(doc) {
     let md = DataModel.deserialize(this, doc)
-    md.uid ??= crypto.randomUUID()
     return md
   }
 

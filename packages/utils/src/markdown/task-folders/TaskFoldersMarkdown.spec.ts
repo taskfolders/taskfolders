@@ -5,6 +5,7 @@ import { MarkdownDocument } from '../MarkdownDocument.js'
 import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatterWriteModel.js'
 import { isUUID } from '../../regex/isUUID.js'
 import { DataModelError } from '../../models/DataModel.js'
+import { readFileSync } from 'node:fs'
 const Model = TaskFoldersFrontmatterWriteModel
 
 const SUT = TaskFoldersMarkdown
@@ -174,7 +175,13 @@ describe('x #draft', () => {
     expect(res.taskfolder).toBeUndefined()
   })
 
-  it.only('x tf type?', async () => {
+  it.only('x', async () => {
+    let res = await SUT.fromBodyMaybe('hello', { coerce: true })
+    let r1 = await SUT.parse('hello', { coerce: true })
+    // $dev(r1.taskfolder.toString())
+  })
+
+  it('x tf type?', async () => {
     let b2 = dedent`
     ---
     type: tf
@@ -183,6 +190,12 @@ describe('x #draft', () => {
     ---`
     //let res = await SUT.parse(b2)
     let r2 = await SUT.fromBodyMaybe(b2)
-    $dev(r2)
+    //$dev(r2)
+  })
+
+  it.skip('#scaffold', async () => {
+    let path
+    let body = readFileSync(path).toString()
+    let res = await SUT.fromBodyMaybe(body, { coerce: true })
   })
 })

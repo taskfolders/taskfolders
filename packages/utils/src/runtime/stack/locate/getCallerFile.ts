@@ -212,8 +212,12 @@ export function getCallerFile(kv: {
   debug?: boolean
   skipUniqueFiles?: number
 }): SourcePosition {
-  if (process.env.DEBUG?.includes('get-caller-call')) {
-    console.log('DEBUG: get-caller-call')
+  if (process.env.DEBUG?.includes('get-caller:calls')) {
+    console.log('DEBUG: get-caller:calls')
+  }
+  if (process.env.DEBUG?.includes('get-caller:stack')) {
+    let err = new Error('here')
+    console.log('DEBUG: get-caller:stack', err.stack)
   }
   let stack = getCallStack()
 
@@ -230,6 +234,12 @@ export function getCallerFile(kv: {
 
   let callSiteRaw = stack[position]
   if (!callSiteRaw) return null
+
+  if (process.env.DEBUG?.includes('get-caller:stack-all')) {
+    stack.map((pos, idx) => {
+      console.log(`${idx} ) ${pos.getFileName()} ${pos.getLineNumber()}`)
+    })
+  }
 
   let afterFile = kv.afterFile.replace('file://', '')
   let skipUniqueFiles = kv.skipUniqueFiles ?? 0

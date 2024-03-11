@@ -38,7 +38,6 @@
     "./vendors/*": "./dist/vendors/*.js",
     "./regex/*": "./dist/regex/*.js",
     "./types/*": "./dist/types/*.js",
-    "./issues/*": "./dist/issues/*.js",
     "./*": "./dist/*/index.js"
   },
   "typesVersions": {

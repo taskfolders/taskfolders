@@ -1,8 +1,8 @@
 import { MarkdownDocument } from '../MarkdownDocument.js'
 import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatterWriteModel.js'
-import { TaskFoldersFrontmatterViewModel } from './model/TaskFoldersFrontmatterViewModel.js'
+import { TaskFoldersFrontmatterReadModel } from './model/TaskFoldersFrontmatterReadModel.js'
 
-export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatterViewModel> {
+export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatterReadModel> {
   static async fromBody<T extends typeof MarkdownDocument<any>>(
     this: T,
     body: string,
@@ -10,7 +10,7 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
   ): Promise<InstanceType<T>> {
     let next = await super.fromBody(body)
     let model = TaskFoldersFrontmatterWriteModel.fromJSON(next.data)
-    let view = TaskFoldersFrontmatterViewModel.fromWriteModel(model)
+    let view = TaskFoldersFrontmatterReadModel.fromWriteModel(model)
     next.data = view
     return next as any //TaskFoldersMarkdownDocument
   }
@@ -20,19 +20,19 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
     kv?: { coerce: boolean },
   ): Promise<{
     plain: MarkdownDocument<any>
-    taskfolder: TaskFoldersMarkdown
+    taskfolder?: TaskFoldersMarkdown
   }> {
     let md = await MarkdownDocument.fromBody<any>(body, {
       implicitFrontmatter: true,
     })
-    let taskfolder: MarkdownDocument<TaskFoldersFrontmatterViewModel>
+    let taskfolder: MarkdownDocument<TaskFoldersFrontmatterReadModel>
     try {
       let copy = { ...md.data }
       if (kv?.coerce) {
         copy.type ??= TaskFoldersFrontmatterWriteModel.type
       }
       let model = TaskFoldersFrontmatterWriteModel.fromJSON(copy)
-      let view = TaskFoldersFrontmatterViewModel.fromWriteModel(model)
+      let view = TaskFoldersFrontmatterReadModel.fromWriteModel(model)
       md.setData(view)
       taskfolder = md
     } catch (e) {
@@ -52,10 +52,18 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
     return obj as any
   }
 
-  static async fromBodyMaybe(str: string): Promise<TaskFoldersMarkdown> {
+  static async fromBodyMaybe(
+    str: string,
+    kv?: { coerce: boolean },
+  ): Promise<TaskFoldersMarkdown> {
     let next = await super.fromBody(str, { implicitFrontmatter: true })
     try {
-      next.data = await TaskFoldersFrontmatterWriteModel.fromJSON(next.data)
+      let data = next.data as any
+      if (kv?.coerce) {
+        data ??= {}
+        data.type ??= TaskFoldersFrontmatterWriteModel.type
+      }
+      next.data = await TaskFoldersFrontmatterWriteModel.fromJSON(data)
     } catch (e) {
       return null
     }

@@ -1,6 +1,6 @@
 import * as nodeFS from 'node:fs'
 import { $log, Logger } from '@taskfolders/utils/logger'
-import { ShellClient, ShellError } from '@taskfolders/utils/shell'
+import { ShellClient, ShellError, setTabTitle } from '@taskfolders/utils/shell'
 import { assertNever } from '@taskfolders/utils/types/assertNever'
 import { join } from 'node:path'
 import { ScriptApp } from '../scripts/ScriptApp.js'
@@ -9,7 +9,6 @@ import { TaskFinder, ScriptItem } from './FindTasks.js'
 import { DC } from '@taskfolders/utils/dependencies'
 import * as Path from 'node:path'
 import { shellHyperlink } from '@taskfolders/utils/screen'
-import { setTabTitle } from '@taskfolders/utils/shell'
 import chalk from 'chalk'
 import { TabSpinner } from '../TabSpinner.js'
 import { ShellClientMock } from '@taskfolders/utils/shell/test'
@@ -236,10 +235,15 @@ export class TaskExecute {
     $log.put(`+ ${cmd}`)
     let timer: Timer
     let done = false
+
+    let stdio = ['inherit', 'inherit', 'inherit'] as any
+    if (process.env.TK_FF_INHERIT) {
+      stdio = ['inherit', 'pipe', 'pipe']
+    }
     await shell
       .command(cmd, {
         //inherit: false,
-        stdio: ['inherit', 'pipe', 'pipe'],
+        stdio,
         env: { FORCE_COLOR: '1', ...process.env },
         cwd,
         async onData(ctx) {

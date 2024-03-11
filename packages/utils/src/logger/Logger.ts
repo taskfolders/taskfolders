@@ -24,6 +24,7 @@ export interface LogEvent {
   args?: any[]
   messageBuilder?: () => any[]
   levelName: LogLevelName
+  forceThreshold?: LogLevelName
   levelValue?: number
   loggerName?: string
   options?: LogOptions
@@ -44,6 +45,7 @@ interface UserLogEvent {
 type foo = Parameters<ScreenPrinter['log']>
 
 export class Logger {
+  _forceThreshold: LogLevelName
   server = LogServer.request()
   name: string
   screen = new ScreenPrinter()
@@ -61,7 +63,12 @@ export class Logger {
   }
 
   _logRaw(kv: LogEvent) {
-    let log = { ...kv, loggerName: this.name, options: kv.args.at(2) ?? {} }
+    let log: LogEvent = {
+      ...kv,
+      loggerName: this.name,
+      options: kv.args.at(2) ?? {},
+    }
+    log.forceThreshold = this._forceThreshold
     if (passThreshold({ level: log.levelName, threshold: 'info' })) {
       // TODO ???
       // log.location = getCallerFile()
@@ -94,5 +101,9 @@ export class Logger {
 
   log(a, ...x) {
     return this.screen.log(a, ...x)
+  }
+
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    return `<${this.constructor.name}>`
   }
 }

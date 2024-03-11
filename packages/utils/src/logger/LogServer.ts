@@ -10,7 +10,7 @@ export class LogServer {
 
   printer = new BasicLogPrinter()
 
-  static request() {
+  static request(): LogServer {
     global[globalKey] ??= new LogServer()
     return global[globalKey]
   }

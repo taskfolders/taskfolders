@@ -1,14 +1,14 @@
 import dedent from 'dedent'
 import { expect, describe, it } from 'vitest'
 import { TaskFoldersFrontmatterWriteModel } from './TaskFoldersFrontmatterWriteModel.js'
-import { TaskFoldersFrontmatterViewModel } from './TaskFoldersFrontmatterViewModel.js'
+import { TaskFoldersFrontmatterReadModel } from './TaskFoldersFrontmatterReadModel.js'
 
 function setup(doc: Partial<TaskFoldersFrontmatterWriteModel>) {
   let model = TaskFoldersFrontmatterWriteModel.fromJSON({
     type: 'tf',
     ...doc,
   })
-  let sut = TaskFoldersFrontmatterViewModel.fromWriteModel(model)
+  let sut = TaskFoldersFrontmatterReadModel.fromWriteModel(model)
   return sut
 }
 

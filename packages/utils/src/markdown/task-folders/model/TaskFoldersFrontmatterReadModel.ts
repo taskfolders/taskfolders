@@ -9,15 +9,16 @@ function ensureWords(thing: string | string[]): string[] {
   return words.map(x => x.trim())
 }
 
-export class TaskFoldersFrontmatterViewModel {
+export class TaskFoldersFrontmatterReadModel {
   _writeModel: WriteModel
   private _cache
   readonly uid: string
   readonly sid: string
   readonly title: string
   readonly type: string
+  readonly workspace: string
 
-  static fromWriteModel(model: WriteModel): TaskFoldersFrontmatterViewModel {
+  static fromWriteModel(model: WriteModel): TaskFoldersFrontmatterReadModel {
     let obj = new this()
     obj._writeModel = model
 
