@@ -2,6 +2,11 @@ import { MarkdownDocument } from '../MarkdownDocument.js'
 import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatterWriteModel.js'
 import { TaskFoldersFrontmatterReadModel } from './model/TaskFoldersFrontmatterReadModel.js'
 
+export interface MarkdownParsed {
+  plain: MarkdownDocument<any>
+  taskfolder?: TaskFoldersMarkdown
+}
+
 export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatterReadModel> {
   static async fromBody<T extends typeof MarkdownDocument<any>>(
     this: T,
@@ -18,10 +23,7 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
   static async parse(
     body: string,
     kv?: { coerce: boolean },
-  ): Promise<{
-    plain: MarkdownDocument<any>
-    taskfolder?: TaskFoldersMarkdown
-  }> {
+  ): Promise<MarkdownParsed> {
     let md = await MarkdownDocument.fromBody<any>(body, {
       implicitFrontmatter: true,
     })
@@ -31,9 +33,9 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
       if (kv?.coerce) {
         copy.type ??= TaskFoldersFrontmatterWriteModel.type
       }
-      let model = TaskFoldersFrontmatterWriteModel.fromJSON(copy)
-      let view = TaskFoldersFrontmatterReadModel.fromWriteModel(model)
-      md.setData(view)
+      let write = TaskFoldersFrontmatterWriteModel.fromJSON(copy)
+      let read = TaskFoldersFrontmatterReadModel.fromWriteModel(write)
+      md.setData(read)
       taskfolder = md
     } catch (e) {
       //
@@ -52,6 +54,7 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
     return obj as any
   }
 
+  // TODO #dry reuse .parse
   static async fromBodyMaybe(
     str: string,
     kv?: { coerce: boolean },
@@ -63,7 +66,10 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
         data ??= {}
         data.type ??= TaskFoldersFrontmatterWriteModel.type
       }
-      next.data = await TaskFoldersFrontmatterWriteModel.fromJSON(data)
+
+      let write = TaskFoldersFrontmatterWriteModel.fromJSON(data)
+      let read = TaskFoldersFrontmatterReadModel.fromWriteModel(write)
+      next.data = read
     } catch (e) {
       return null
     }

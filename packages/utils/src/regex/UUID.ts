@@ -1,5 +1,6 @@
 // TODO #alien #file
 
-const uuidRegex =
+export const regex =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-export let isUUID = (x: string) => !!uuidRegex.test(x)
+
+export let isUUID = (x: string) => !!regex.test(x)

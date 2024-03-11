@@ -3,7 +3,7 @@ import { TaskFoldersMarkdown } from './TaskFoldersMarkdown.js'
 import { dedent } from '../../native/string/dedent.js'
 import { MarkdownDocument } from '../MarkdownDocument.js'
 import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatterWriteModel.js'
-import { isUUID } from '../../regex/isUUID.js'
+import { isUUID } from '../../regex/UUID.js'
 import { DataModelError } from '../../models/DataModel.js'
 import { readFileSync } from 'node:fs'
 const Model = TaskFoldersFrontmatterWriteModel
@@ -175,7 +175,7 @@ describe('x #draft', () => {
     expect(res.taskfolder).toBeUndefined()
   })
 
-  it.only('x', async () => {
+  it('x #todo', async () => {
     let res = await SUT.fromBodyMaybe('hello', { coerce: true })
     let r1 = await SUT.parse('hello', { coerce: true })
     // $dev(r1.taskfolder.toString())
