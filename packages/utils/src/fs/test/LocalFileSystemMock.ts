@@ -9,4 +9,8 @@ export class LocalFileSystemMock extends LocalFileSystem {
     obj.raw = ss as any
     return obj
   }
+
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    return `<${this.constructor.name} in-memory>`
+  }
 }

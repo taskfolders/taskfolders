@@ -10,6 +10,8 @@ import { FetchAsyncError, UnregisteredValueError } from './errors.js'
 import { FetchRawResult } from './FetchRawResult.js'
 import { DependencyToken } from './DependencyToken.js'
 
+const SYM = Symbol('taskfolders.com:dependency-container')
+
 type IDependencyKlass<T> = { new (...x): T; name: string; create?(): never }
 type IDependencyToken<T> = { create(): T; name?: string }
 type IDependency<T> = IDependencyToken<T> | IDependencyKlass<T>
@@ -42,6 +44,10 @@ export class DC {
     if (kv.parent !== null) {
       this._parent = Container
     }
+  }
+
+  static get(obj): DC {
+    return obj[SYM]
   }
 
   static inject<T>(klass: IDependency<T>): T {
@@ -249,7 +255,11 @@ export class DC {
 
   // enable tester to hijack the exact point an object is created
   _doCreate<T>(kv, create: () => T): T {
-    return create()
+    let next = create()
+    if (typeof next === 'object') {
+      next[SYM] = this
+    }
+    return next
   }
 
   mock(thing: any, kv?: { onCreate() }) {

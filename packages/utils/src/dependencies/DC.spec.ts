@@ -472,4 +472,12 @@ describe('x #draft', () => {
     $dev(res)
     $dev(r2)
   })
+
+  it('grab DC used to build an object', async () => {
+    class Panda {}
+    let sut = new DC()
+    let res = sut.fetch(Panda)
+    expect(DC.get(res) === sut).toBe(true)
+    expect(DC.get(res)).toBeInstanceOf(DC)
+  })
 }) // #draft
