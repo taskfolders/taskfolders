@@ -276,8 +276,6 @@ export class TaskExecute {
         },
       })
       .catch(e => {
-        console.log({ ShellError })
-
         // @ts-expect-error
         if (ShellError.mustMock.is(e)) throw e
         // $log.dev(e)

@@ -11,6 +11,7 @@
     "dist"
   ],
   "scripts": {
+    "fail": "ls bogus",
     "hello": "echo Hello from npm $@ - $(pwd)",
     "ping-npm": "echo Pong from npm $@",
     "test:ci": "NODE_ENV=test vitest --run",
