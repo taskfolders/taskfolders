@@ -6,6 +6,8 @@ import {
   StdioNull,
 } from 'child_process'
 import { CustomError } from '../errors/CustomError.js'
+import { join } from 'node:path'
+const ensurePath = (x: string | string[]) => join(...[].concat(x))
 
 export interface Options {
   /** print output while capturing */
@@ -17,7 +19,7 @@ export interface Options {
   /** prevent execute when NODE_ENV === test */
   mustMock?: boolean
 
-  cwd?: string
+  cwd?: string | string[]
 
   stdio?: StdioPipeNamed | StdioNull | (StdioPipe | StdioNull)[] | undefined
   env?: NodeJS.ProcessEnv
@@ -52,15 +54,15 @@ export interface ExecuteResult {
 
 export class ShellClient {
   child: ChildProcess
-  defaultOptions: Options = {}
+  options: Options = {}
 
-  constructor(kv: { cwd?: string } = {}) {
-    this.defaultOptions.cwd = kv.cwd ?? process.cwd()
+  constructor(kv: Options = {}) {
+    this.options.cwd = kv.cwd ?? process.cwd()
   }
 
   static create(ops: Options = {}) {
     let obj = new this()
-    obj.defaultOptions = ops
+    obj.options = ops
     return obj
   }
 
@@ -94,11 +96,12 @@ export class ShellClient {
 
     //let { command, args } = this
     let args = []
-    let options = { ...this.defaultOptions, ...ops }
+    let options = { ...this.options, ...ops }
     options.cwd ??= process.cwd()
+    let cwd = ensurePath(options.cwd)
     if (options.verbose) console.log('+', command)
     const child = spawn(command, args, {
-      cwd: options.cwd,
+      cwd,
       shell: true,
       stdio: ops.inherit ? 'inherit' : (options.stdio as any),
       env: options.env,
