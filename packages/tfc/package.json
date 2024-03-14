@@ -1,6 +1,7 @@
 {
   "name": "@taskfolders/cli",
   "version": "0.0.1",
+  "description": "Main cli tool from TaskFolders",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -12,7 +13,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@taskfolders/utils": "^0.0.9",
     "ansi-escapes": "^6.2.0",
@@ -28,6 +29,5 @@
     "memfs": "^4.7.7",
     "typescript": "^5.4.2",
     "vitest": "^1.3.1"
-  },
-  "description": ""
+  }
 }

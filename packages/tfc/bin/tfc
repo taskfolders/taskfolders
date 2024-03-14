@@ -20,7 +20,6 @@ if [ "$DEV" = "1" ]; then
   echo ": WARNING Using TK development version"
   run="$engine $script_dir/../src/app.start.ts"
 fi
-run="$engine $script_dir/../src/app.start.ts"
 
 if [ "$VERBOSE" = "1" ]; then
   echo + $run $@
