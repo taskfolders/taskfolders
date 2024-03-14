@@ -57,7 +57,8 @@ export class ShellClient {
   options: Options = {}
 
   constructor(kv: Options = {}) {
-    this.options.cwd = kv.cwd ?? process.cwd()
+    this.options = kv
+    this.options.cwd ??= process.cwd()
   }
 
   static create(ops: Options = {}) {
