@@ -1,5 +1,5 @@
 {
-  "name": "@taskfolders/cli",
+  "name": "@taskfolders/tfc",
   "version": "0.0.1",
   "description": "Main cli tool from TaskFolders",
   "type": "module",
