@@ -190,6 +190,8 @@ export class TaskExecute {
 
     let { shell } = this
     let cwd = task.dir
+    console.log({ task })
+
     if (cwd !== process.cwd()) {
       $log.put(`+ cd ${cwd}`)
     }

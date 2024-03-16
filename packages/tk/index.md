@@ -1,6 +1,6 @@
 ---
-uid: c11d71ae-779a-495c-8c17-19641c3e8dae
-type: https://taskfolders.com/types/markdown/v1
+uid: a14e6c0f-b5ea-47c5-951e-678c7450a06a
+type: https://taskfolders.com/docs/markdown/v1
 scripts:
   ping-md: echo pong-md $@
   hi-1: echo hi 1

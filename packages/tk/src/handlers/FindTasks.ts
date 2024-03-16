@@ -57,15 +57,25 @@ export class TaskFinder {
     })
 
     let acu: ScriptItem[] = []
-    let scripts
     for (let path of all) {
       let txt = fs.readFileSync(path).toString()
 
-      let { taskfolder: md } = await TaskFoldersMarkdown.parse(txt)
+      let res = await TaskFoldersMarkdown.parse(txt)
+      let { taskfolder: md } = res
+
       if (!md) continue
-      scripts = md.data.scripts
-      Object.entries(scripts ?? {}).map(([key, value]) => {
-        let title = value.title ?? '> ' + value.run
+      let scripts = md.data.scripts
+      Object.entries(scripts ?? {}).map(([key, def]) => {
+        let title = def.title ?? '> ' + def.run
+
+        let dir: string
+        if (def.dir === 'source') {
+          dir = Path.dirname(path)
+        } else if (def.dir === 'cwd') {
+          dir = cwd
+        } else if (def.dir === 'package') {
+          throw Error('todo')
+        }
 
         let position = new SourcePosition({ path, lineNumber: 1 })
         acu.push({
@@ -73,7 +83,7 @@ export class TaskFinder {
           dir: Path.dirname(path),
           key,
           title,
-          value,
+          value: def,
           position,
         })
       })
@@ -116,7 +126,7 @@ export class TaskFinder {
                   dir: aPath,
                   position,
                   data,
-                })
+                } as ScriptItem)
                 continue
               }
 
@@ -124,7 +134,7 @@ export class TaskFinder {
                 path = join(dir, fileName)
                 if (fs.existsSync(path)) {
                   let position = new SourcePosition({ path })
-                  acu.push({
+                  let item: ScriptItem = {
                     key: en.name,
                     title: `> tk tasks/${en.name}`,
                     type: 'task-script',
@@ -132,7 +142,8 @@ export class TaskFinder {
                     scriptPath: path,
                     dir: aPath,
                     position,
-                  })
+                  }
+                  acu.push(item)
                   return true
                 }
               }

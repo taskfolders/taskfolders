@@ -1,7 +1,7 @@
 import { IndexMeta } from './IndexMeta.js'
 
 export class DiskIndexModel {
-  static type = 'https://taskfolders.com/docs/disk-index'
+  static type = 'https://taskfolders.com/docs/disk-index/v1'
   type = DiskIndexModel.type
 
   latestUpdate: Date

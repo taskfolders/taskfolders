@@ -6,6 +6,7 @@ import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatter
 import { isUUID } from '../../regex/UUID.js'
 import { DataModelError } from '../../models/DataModel.js'
 import { readFileSync } from 'node:fs'
+import { $dev } from '../../logger/index.js'
 const Model = TaskFoldersFrontmatterWriteModel
 
 const SUT = TaskFoldersMarkdown
@@ -196,6 +197,8 @@ describe('x #draft', () => {
   it.skip('#scaffold', async () => {
     let path
     let body = readFileSync(path).toString()
-    let res = await SUT.fromBodyMaybe(body, { coerce: true })
+    //let res = await SUT.fromBodyMaybe(body, { coerce: true })
+    let res = await SUT.parse(body, { coerce: true })
+    $dev(res)
   })
 })
