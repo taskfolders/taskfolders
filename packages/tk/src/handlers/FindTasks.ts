@@ -68,19 +68,29 @@ export class TaskFinder {
       Object.entries(scripts ?? {}).map(([key, def]) => {
         let title = def.title ?? '> ' + def.run
 
+        // set shell directory for script
         let dir: string
         if (def.dir === 'source') {
           dir = Path.dirname(path)
         } else if (def.dir === 'cwd') {
           dir = cwd
         } else if (def.dir === 'package') {
-          throw Error('todo')
+          let all = findUpAll({
+            startFrom: cwd,
+            findName: 'package.json',
+          })
+          if (all.length === 0) {
+            throw Error('Could not find package dir')
+          }
+          dir = Path.dirname(all[0])
+        } else {
+          dir = Path.dirname(path)
         }
 
         let position = new SourcePosition({ path, lineNumber: 1 })
         acu.push({
           type: 'md-script',
-          dir: Path.dirname(path),
+          dir,
           key,
           title,
           value: def,
