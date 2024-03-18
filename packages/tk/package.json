@@ -16,12 +16,11 @@
     "ping-npm": "echo Pong from npm $@",
     "test:ci": "NODE_ENV=test vitest --run",
     "test:w": "NODE_ENV=test vitest",
-    "slow": "sh slow.sh",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "slow": "sh slow.sh"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["task", "build", "scaffold", "make", "tool", "cli"],
+  "author": "Francisco Garcia",
+  "license": "MIT",
   "devDependencies": {
     "@types/bun": "^1.0.8",
     "@types/node": "^20.11.24",
