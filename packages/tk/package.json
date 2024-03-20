@@ -1,18 +1,20 @@
 {
   "name": "@taskfolders/tk",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "The one Task Runner to unify all development scripts",
   "keywords": [
-    "cli",
-    "tasks",
-    "task runner"
+    "task",
+    "build",
+    "scaffold",
+    "make",
+    "tool",
+    "cli"
   ],
   "author": {
     "name": "Francisco Garcia",
     "url": "https://taskfolders.com"
   },
   "license": "MIT",
-
   "main": "dist/index.js",
   "type": "module",
   "bin": {
@@ -29,16 +31,6 @@
     "test:w": "NODE_ENV=test vitest",
     "slow": "sh slow.sh"
   },
-  "keywords": [
-    "task",
-    "build",
-    "scaffold",
-    "make",
-    "tool",
-    "cli"
-  ],
-  "author": "Francisco Garcia",
-  "license": "MIT",
   "devDependencies": {
     "@types/bun": "^1.0.8",
     "@types/node": "^20.11.24",
