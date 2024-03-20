@@ -1,9 +1,18 @@
 {
   "name": "@taskfolders/utils",
   "version": "0.0.10",
-  "description": "Generic codign utilities and helpers",
+  "description": "Generic coding utilities and helpers",
   "access": "public",
   "type": "module",
+  "keywords": [
+    "typescript",
+    "utility"
+  ],
+  "author": {
+    "name": "Francisco Garcia",
+    "url": "https://taskfolders.com"
+  },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/taskfolders/taskfolders.git"
@@ -48,12 +57,6 @@
       ]
     }
   },
-  "keywords": [],
-  "author": {
-    "name": "Francisco Garcia",
-    "url": "https://taskfolders.com"
-  },
-  "license": "MIT",
   "dependencies": {
     "ansi-escapes": "^6.2.0",
     "date-fns": "^3.3.1",

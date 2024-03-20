@@ -2,6 +2,16 @@
   "name": "@taskfolders/tfc",
   "version": "0.0.1",
   "description": "Main cli tool from TaskFolders",
+  "keywords": [
+    "cli",
+    "markdown",
+    "utility"
+  ],
+  "author": {
+    "name": "Francisco Garcia",
+    "url": "https://taskfolders.com"
+  },
+  "license": "MIT",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -11,9 +21,6 @@
     "test:w": "NODE_ENV=test vitest --disableConsoleIntercept",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@taskfolders/utils": "^0.0.9",
     "ansi-escapes": "^6.2.0",
