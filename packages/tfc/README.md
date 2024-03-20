@@ -1,7 +1,3 @@
----
-type: readme
----
-
 TaskFolders main cli. Index, lint and query folders with markdown and source code. Full documentation available online under the [scanning workflow](https://www.taskfolders.com/docs/workflows/scanning/) and the [getting started]() guide.
 
 ## Installation

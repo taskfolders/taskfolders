@@ -1,6 +1,6 @@
 {
   "name": "@taskfolders/tfc",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Main cli tool from TaskFolders",
   "keywords": [
     "cli",
