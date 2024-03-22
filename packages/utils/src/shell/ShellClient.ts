@@ -21,13 +21,20 @@ export interface Options {
 
   cwd?: string | string[]
 
-  stdio?: StdioPipeNamed | StdioNull | (StdioPipe | StdioNull)[] | undefined
+  stdio?:
+    | StdioPipeNamed
+    | StdioNull
+    | (StdioPipe | StdioNull)[]
+    | undefined
+    | null
   env?: NodeJS.ProcessEnv
 
   /** print command before execute */
   verbose?: boolean
 
   onData?: (ctx: { output: Buffer; stdout?: Buffer; stderr?: Buffer }) => void
+
+  autoStart?: boolean
 }
 
 export const ShellError = CustomError.defineGroup('ShellError', {
@@ -83,10 +90,14 @@ export class ShellClient {
   }
 
   async query(command: string, ops: Options = {}): Promise<string> {
-    let run = await this.execute(command, ops)
+    let run = await this.execute(command, {
+      verbose: false,
+      ...ops,
+      stdio: null,
+    })
     run.start()
     await run.done()
-    return run.output.toString()
+    return run.output.toString().trim()
   }
 
   /** @deprecated Unstable interface, use .command or .query */
@@ -188,7 +199,10 @@ export class ShellClient {
       },
     }
 
-    start()
+    //console.log('..auto start', options.autoStart)
+    if (options.autoStart !== false) {
+      start()
+    }
 
     return result
   }

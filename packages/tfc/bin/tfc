@@ -17,7 +17,7 @@ script_dir="$(CDPATH= cd -- "$(dirname -- "$(realpath $0)")" && pwd -P)"
 
 run="$engine $script_dir/../dist/app.start.js"
 if [ "$DEV" = "1" ]; then
-  echo ": WARNING Using TK development version"
+  echo ": WARNING Using 'tfc' development version"
   run="$engine $script_dir/../src/app.start.ts"
 fi
 

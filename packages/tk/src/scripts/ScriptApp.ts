@@ -19,7 +19,6 @@ export class ScriptApp {
   definition?: DSL
   dirScript?: string
   dirData?: string
-  cwd = process.cwd()
 
   static is(thing: any): thing is ScriptApp {
     let lhs = thing?.constructor?.classId
@@ -29,7 +28,7 @@ export class ScriptApp {
 
   static create(
     thing: DSL | ((ctx: any) => { exitCode?: number } | void | Promise<any>),
-  ) {
+  ): ScriptApp {
     let obj = new this()
     obj.source = getCallerFile({ afterFile: import.meta.url })
 
