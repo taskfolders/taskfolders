@@ -1,6 +1,7 @@
-import { $log } from '@taskfolders/utils/logger/node'
+import { $log } from '@taskfolders/utils/logger'
+import { ScriptApp } from '@taskfolders/tk'
 
-export const runFromShell = () => {
+export default ScriptApp.create(() => {
   $log.info('hello world')
-}
-
+  throw Error('boom')
+})

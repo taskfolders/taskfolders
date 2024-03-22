@@ -74,6 +74,9 @@ export class ScriptApp {
       result = await this.definition.execute(ctx)
     } catch (e) {
       ok = false
+      // let error = new Error('Script did crash')
+      // error.cause = e
+      throw e
     }
     if (this.dirData) {
       await this.writeStatus({ ok, result, start })
