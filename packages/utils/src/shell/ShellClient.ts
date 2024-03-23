@@ -34,7 +34,7 @@ export interface Options {
 
   onData?: (ctx: { output: Buffer; stdout?: Buffer; stderr?: Buffer }) => void
 
-  autoStart?: boolean
+  dryRun?: boolean
 }
 
 export const ShellError = CustomError.defineGroup('ShellError', {
@@ -56,11 +56,11 @@ export interface ExecuteResult {
   stderr: Buffer
   output: Buffer
   done(): Promise<{ ok: true } | { ok: false; error }>
-  start()
+  start(): Promise<unknown>
 }
 
 export class ShellClient {
-  child: ChildProcess
+  //child: ChildProcess
   options: Options = {}
 
   constructor(kv: Options = {}) {
@@ -95,8 +95,7 @@ export class ShellClient {
       ...ops,
       stdio: null,
     })
-    run.start()
-    await run.done()
+    let res = await run.start()
     return run.output.toString().trim()
   }
 
@@ -111,27 +110,31 @@ export class ShellClient {
     let options = { ...this.options, ...ops }
     options.cwd ??= process.cwd()
     let cwd = ensurePath(options.cwd)
-    if (options.verbose) console.log('+', command)
-    const child = spawn(command, args, {
-      cwd,
-      shell: true,
-      stdio: ops.inherit ? 'inherit' : (options.stdio as any),
-      env: options.env,
-    })
-    this.child = child
-
     // TODO memory leak #bug #risk
     // long running process will saturate this.. but need to capture first traces for errors
     let stderr = []
     let stdout = []
     let output = []
 
-    let running
+    let running: Promise<any>
 
     let start = () => {
       if (result.isStarted) {
         return
       }
+      if (options.verbose) console.log('+', command)
+      if (options.dryRun) {
+        running = Promise.resolve(null)
+        return running
+      }
+
+      const child = spawn(command, args, {
+        cwd,
+        shell: true,
+        stdio: ops.inherit ? 'inherit' : (options.stdio as any),
+        env: options.env,
+      })
+
       result.isStarted = true
       running = new Promise((resolve, reject) => {
         child.stdout?.on('data', data => {
@@ -160,6 +163,11 @@ export class ShellClient {
 
         child.on('close', exitCode => {
           if (exitCode === 0) {
+            // TODO:output #dry
+            result.stdout = Buffer.concat(stdout)
+            result.stderr = Buffer.concat(stderr)
+            result.output = Buffer.concat(output)
+
             resolve({ ok: true })
           } else {
             let error = ShellError.execute.create({
@@ -172,6 +180,7 @@ export class ShellClient {
           }
         })
       })
+      return running
     }
 
     // TODO should this be ShellCommand? or new class ShellCommandRun -ning
@@ -189,6 +198,7 @@ export class ShellClient {
         }
         let res = await running
 
+        // TODO:output #dry
         this.stdout = Buffer.concat(stdout)
         this.stderr = Buffer.concat(stderr)
         this.output = Buffer.concat(output)
@@ -197,11 +207,6 @@ export class ShellClient {
         // let stdout = Buffer.concat(stdout)
         // return { stdout, stderr, output }
       },
-    }
-
-    //console.log('..auto start', options.autoStart)
-    if (options.autoStart !== false) {
-      start()
     }
 
     return result

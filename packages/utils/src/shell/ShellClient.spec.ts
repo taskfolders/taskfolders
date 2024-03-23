@@ -29,18 +29,19 @@ describe('execute styles', () => {
   describe('raw execute', () => {
     it('ok', async () => {
       let res = await ShellClient.create().execute('pwd', { mustMock: false })
-      await res.done()
+      await res.start()
       expect(res.stdout.toString()).toContain('packages/utils')
       expect(res.output.toString()).toContain('packages/utils')
     })
 
-    it('fail', async () => {
+    it('fail #todo', async () => {
       let res = await ShellClient.create().execute('ls bogus', {
         mustMock: false,
       })
+      res.start()
       let error = await res.done().catch(e => e)
       expect(ShellError.execute.is(error)).toBe(true)
-      console.log(error)
+      // console.log(error)
     })
   })
 
@@ -76,6 +77,18 @@ describe('x #draft', () => {
     })
     expect(spy.output).toBe('/tmp\n')
     expect(spy.stdout).toBe('/tmp\n')
+  })
+
+  it('x', async () => {
+    let res = await ShellClient.create().execute('pwd', {
+      stdio: 'inherit',
+      verbose: true,
+      cwd: '/tmp',
+      mustMock: false,
+      // FEAT
+      dryRun: true,
+    })
+    await res.start()
   })
 })
 
