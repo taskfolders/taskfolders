@@ -15,10 +15,10 @@ it('x', async () => {
   })
   sut.fs = fs
   await sut.load()
-  $dev(sut)
+  // $dev('todo')
 })
 
-it.only('x next', async () => {
+it('x #next', async () => {
   let uid = '036ee5e6-7f53-4594-b9a8-b895558f7fce'
   let sut = await setupAfterScan({
     disk: {

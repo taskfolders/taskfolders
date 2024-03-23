@@ -22,7 +22,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@taskfolders/utils": "^0.0.9",
+    "@taskfolders/utils": "^0.0.10",
     "ansi-escapes": "^6.2.0",
     "env-paths": "^3.0.0",
     "source-map-support": "^0.5.21",

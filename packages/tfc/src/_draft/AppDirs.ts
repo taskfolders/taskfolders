@@ -13,6 +13,10 @@ export class AppDirs {
 
   constructor() {
     let dirs = envPaths('TaskFolders.com', { suffix: '' })
+    let dir = process.env.TASKFOLDERS_CONFIG_DIR
+    if (dir) {
+      dirs = { ...dirs, config: dir }
+    }
     this._config = dirs.config
   }
 

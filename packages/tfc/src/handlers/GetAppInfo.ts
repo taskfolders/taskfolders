@@ -4,6 +4,7 @@ import { Logger } from '@taskfolders/utils/logger'
 import { dirname, join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
+import { LocalFileSystem } from '@taskfolders/utils/fs'
 
 export class GetAppInfo {
   async execute() {
@@ -21,12 +22,16 @@ export class GetAppInfo {
     await repo.load()
 
     let configPath = repo.dirs.configPath()
+    let fs = dc.fetch(LocalFileSystem)
 
     let fileCount = Object.keys(repo.model.uids).length
-    //let fs = dc.fetch(LocalFileSystem)
-    let dbSize = repo.dbFile
+    let size: number
+    if (await fs.exists(repo.dbFile)) {
+      size = fs.raw.statSync(repo.dbFile).size
+    }
+    let dbSize = { bytes: size }
 
-    let data = { version, configPath, fileCount }
+    let data = { version, configPath, fileCount, dbSize }
     return data
   }
 }
