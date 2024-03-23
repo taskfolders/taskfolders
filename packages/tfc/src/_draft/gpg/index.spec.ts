@@ -1,6 +1,7 @@
 import { expect, describe, it } from 'vitest'
 import { decryptGPGMessage } from './decryptGPGMessage.js'
 import { readFileSync } from 'fs'
+import { encryptGPGMessage } from './encryptGPGMessage.js'
 import {
   TaskFoldersMarkdown,
   // MarkdownDocument,
@@ -17,4 +18,16 @@ it('x', async () => {
   $dev({ md, uid })
 })
 
-it('x', async () => {})
+describe('x #noci', () => {
+  it.only('x encrypt-decrypt #story', async () => {
+    let message = 'hello fox'
+    let encrypted = await encryptGPGMessage({
+      message,
+      recipients: ['fgarcia'],
+      armor: true,
+    })
+
+    let out = await decryptGPGMessage(encrypted.buffer)
+    expect(out.message).toBe(message)
+  })
+})

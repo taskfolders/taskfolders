@@ -6,7 +6,7 @@ export function encryptGPGMessage(kv: {
   armor?: boolean
 }): Promise<{ buffer: Buffer; type: 'binary' | 'armor' }> {
   const recipients = kv.recipients.map(x => ['--recipient', x]).flat()
-  const inputText = 'Hello, world!' // insert input text here
+  const inputText = kv.message.toString()
 
   let options = ['--encrypt', ...recipients]
   if (kv.armor) options.push('--armor')
@@ -36,6 +36,7 @@ export function encryptGPGMessage(kv: {
         resolve({ buffer: stdoutBuffer, type: 'binary' })
       } else {
         let e = new Error('Encryption failed')
+        // @ts-expect-error TODO
         e.data = { exitCode: code }
         reject(e)
       }
