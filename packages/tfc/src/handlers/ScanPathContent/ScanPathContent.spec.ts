@@ -1,29 +1,8 @@
 import { expect, describe, it } from 'vitest'
 import { ScanPathContent } from './ScanPathContent.js'
-import { LocalFileSystemMock } from '@taskfolders/utils/fs/test'
 import { DC } from '@taskfolders/utils/dependencies'
-import { AppDirs } from '../../_draft/AppDirs.js'
-import { LocalFileSystem } from '@taskfolders/utils/fs'
 import { dedent } from '@taskfolders/utils/native/string/dedent'
-
-async function setup(kv: { disk; debug? }) {
-  let dc = new DC()
-  let dirs = new AppDirs()
-  dirs._config = '/app/.config'
-  dc.register(AppDirs, { value: dirs })
-
-  let fs = LocalFileSystemMock.fromFake(kv.disk)
-  // TODO dc.mock(LocalFileSystemMock)
-  dc.mock(LocalFileSystem, { onCreate: () => fs })
-
-  let sut = await ScanPathContent.create({
-    dc,
-    params: { path: '/app', convert: true },
-  })
-  sut.log.screen.debug = kv.debug
-
-  return sut
-}
+import { setup, setupAfterScan } from './_test/setup.js'
 
 it.skip('x #live #scaffold', async () => {
   let dc = new DC()
@@ -95,5 +74,23 @@ describe('x #draft', () => {
     let after = sut.fs.raw.readFileSync('/app/index.md').toString()
     expect(after).toContain('type: https://taskfolders.com')
     expect(after).toContain('uid: ')
+  })
+
+  it('x', async () => {
+    let uid = '036ee5e6-7f53-4594-b9a8-b895558f7fce'
+    let sut = await setupAfterScan({
+      disk: {
+        '/app/index.md': dedent`
+        ---
+        uid: ${uid}
+        sid: my-id
+        type: tf
+        ---
+        
+        foo note`,
+      },
+    })
+    let res = sut.disk.findById('my-id')
+    expect(res.path).toBe('/app/index.md')
   })
 })

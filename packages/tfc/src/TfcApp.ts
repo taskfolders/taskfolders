@@ -6,6 +6,7 @@ import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { join } from 'node:path'
 import { readFileSync } from 'fs'
+import { GetAppInfo } from './handlers/GetAppInfo.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export class TfcApp {
@@ -49,6 +50,30 @@ export class TfcApp {
           await handler.execute()
         },
       })
+
+      .command({
+        command: 'kv id [query]',
+        describe: 'Get key value for file',
+        handler: async argv => {
+          let { GetKeyValue } = await import('./handlers/GetKeyValue.js')
+          let sut = dc.fetch(GetKeyValue)
+          sut.params = { id: argv.id, query: argv.query }
+          let res = await sut.execute()
+          console.log(res)
+        },
+      })
+
+      .command({
+        command: 'show id',
+        describe: 'Show file by sid/uid',
+        handler: async argv => {
+          let { GetKeyValue } = await import('./handlers/GetKeyValue.js')
+          let sut = dc.fetch(GetKeyValue)
+          // sut.params = { id: argv.id, query: argv.query }
+          // let res = await sut.execute()
+        },
+      })
+
       .command({
         command: 'workspaces',
         describe: 'List workspaces',
@@ -59,13 +84,13 @@ export class TfcApp {
       })
 
       .command({
-        command: 'version',
-        describe: 'app version',
+        command: 'info',
+        describe: 'Generic info about tfc',
         handler: async argv => {
-          let p1 = join(__dirname, '../package.json')
-          let doc = JSON.parse(readFileSync(p1).toString())
-          let ver = doc.version
-          console.log(ver)
+          let { GetAppInfo } = await import('./handlers/GetAppInfo.js')
+          let handler = dc.fetch(GetAppInfo)
+          let data = await handler.execute()
+          console.log(data)
         },
       })
 

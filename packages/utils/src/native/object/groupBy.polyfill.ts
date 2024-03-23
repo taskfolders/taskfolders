@@ -12,5 +12,4 @@ declare global {
 }
 
 // eslint-disable-next-line
-// @ts-expect-error TODO
 Object.groupBy ||= groupBy

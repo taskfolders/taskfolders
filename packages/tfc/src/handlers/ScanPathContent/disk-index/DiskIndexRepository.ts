@@ -24,7 +24,7 @@ export class DiskIndexRepository {
     }
   }
 
-  upsert(kv: { file: ActiveFile; uid: string }) {
+  upsert(kv: { file: ActiveFile; uid: string; sid?: string }) {
     let { model, fs } = this
     let found = model.uids[kv.uid]
     if (found && found.path !== kv.file.path) {
@@ -44,6 +44,10 @@ export class DiskIndexRepository {
       }
     }
     model.uids[kv.uid] = { path: kv.file.path, mtime: kv.file.stat.mtime }
+
+    if (kv.sid) {
+      model.sids[kv.sid] = kv.uid
+    }
   }
 
   pathForSid(sid: string) {
@@ -59,5 +63,19 @@ export class DiskIndexRepository {
       // TODO drop
       { pretty: true },
     )
+  }
+
+  findById(id: string) {
+    let found = this.model.uids[id]
+    if (found) {
+      return { uid: id, ...found }
+    }
+    let uid = this.model.sids[id]
+    if (uid) {
+      found = this.model.uids[uid]
+      if (found) {
+        return { uid: id, ...found }
+      }
+    }
   }
 }

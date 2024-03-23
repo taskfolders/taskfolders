@@ -42,7 +42,7 @@ export class MarkdownScanner extends BaseFileScanner {
         }
 
         if (isUUID(uid)) {
-          disk.upsert({ file, uid })
+          await disk.upsert({ file, uid })
         }
 
         if (md.taskfolder) {

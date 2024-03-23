@@ -36,3 +36,23 @@ it('main #story', async () => {
   let doc = await sut.fs.read<any>(sut.dbFile)
   expect(doc.json.uids[uid].path).toBe('/app/one/other.md')
 })
+
+it('x - find sid/uid', async () => {
+  let sut = new DiskIndexRepository()
+  sut.dbFile = '/app/.config/db.json'
+  let fs = LocalFileSystemMock.fromFake({
+    '/app/.config': '',
+    '/app/one/index.md': '',
+  })
+  sut.fs = fs
+  await sut.load()
+
+  let file = ActiveFile.create({ path: '/app/one/index.md', fs: fs.raw })
+  let uid = 'e09636d-c2e4-47c6-a60c-62af650a6147'
+  let sid = 'my-id'
+  await sut.upsert({ file, uid, sid })
+  let r1 = sut.findById(uid)
+  expect(r1.path).toBe('/app/one/index.md')
+  let r2 = sut.findById(sid)
+  expect(r2.path).toBe('/app/one/index.md')
+})

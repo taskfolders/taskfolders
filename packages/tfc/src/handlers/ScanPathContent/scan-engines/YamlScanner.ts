@@ -11,7 +11,7 @@ export class YamlScanner extends BaseFileScanner {
         let ma = line.match(/#\s+@uid\s+(?<uid>\S+)/)
         let uid = ma?.groups?.uid
         if (uid) {
-          this.disk.upsert({ file, uid })
+          await this.disk.upsert({ file, uid })
           return { engine: 'yaml-comment' }
         }
       }
