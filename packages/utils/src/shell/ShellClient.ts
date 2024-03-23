@@ -203,9 +203,6 @@ export class ShellClient {
         this.stderr = Buffer.concat(stderr)
         this.output = Buffer.concat(output)
         return res
-
-        // let stdout = Buffer.concat(stdout)
-        // return { stdout, stderr, output }
       },
     }
 
