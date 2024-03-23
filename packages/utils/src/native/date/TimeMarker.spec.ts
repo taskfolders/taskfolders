@@ -5,8 +5,7 @@
 import { expect, describe, it } from 'vitest'
 
 import { TimeMarker } from './TimeMarker.js'
-//import { TimeServiceMock } from './TimeServiceMock.node'
-let TimeServiceMock
+import { TimeServiceMock } from './TimeServiceMock.node.js'
 // import { utcToZonedTime } from 'date-fns-tz'
 //import * as Sinon from 'sinon'
 import { inspect } from 'util'
@@ -14,7 +13,16 @@ import { addWeeks } from 'date-fns'
 import { $dev } from '../../logger/index.js'
 let utcToZonedTime
 let assert
+let now = new Date('2020')
 
+function setup(str: string, fakeDate?: string) {
+  let fakeNow = now
+  if (fakeDate) {
+    fakeNow = new Date(fakeDate)
+  }
+  let r1 = TimeMarker.from(str, { now: fakeNow })
+  return r1
+}
 // TODO testing #tmp parser before:w4
 
 describe.skip('x', () => {
@@ -183,9 +191,9 @@ describe('x', () => {
   // })
 
   it('x - week numbers (string)', async () => {
-    TimeServiceMock.fakeTime('2021.04.07')
-    assert.eq(TimeMarker.from('W32').final, '2021-W32')
-    assert.eq(TimeMarker.from('w32').final, '2021-W32')
+    let now = new Date('2021.04.07')
+    expect(TimeMarker.from('W32', { now }).final).toBe('2021-W32')
+    expect(TimeMarker.from('w32', { now }).final).toBe('2021-W32')
   })
 
   describe('relative dates', () => {
@@ -211,32 +219,31 @@ describe('x', () => {
 
     it('+1d', async () => {
       TimeServiceMock.fakeTime('2021-04-07')
-      let res = TimeMarker.from('+1d')
-      assert.eq(res.final, '2021-04-08')
-      assert.eq(res.isReady, false)
+      let res = TimeMarker.from('+1d', { now: new Date('2021-04-07') })
+      expect(res.final).toBe('2021-04-08')
+      expect(res.isReady).toBe(false)
     })
 
     it('+1w', async () => {
       TimeServiceMock.fakeTime('2021-01-10')
+      let now = new Date('2021-01-10')
 
-      let now = TimeServiceMock.now()
-      let ex = TimeServiceMock.explain(now)
-      // $dev({ now, ex })
+      //let now = TimeServiceMock.now()
 
-      let res = TimeMarker.from('2w')
+      let res = TimeMarker.from('2w', { now })
       expect(res.isReady).toBe(false)
 
       // with + adds exactly week (Sunday -> Sunday)
-      assert.eq(TimeMarker.from('+1w').final, '2021-01-17')
-      assert.eq(TimeMarker.from('+2w').final, '2021-01-24')
+      expect(TimeMarker.from('+1w', { now }).final).toBe('2021-01-17')
+      expect(TimeMarker.from('+2w', { now }).final).toBe('2021-01-24')
 
       // start week (Sunday -> Monday)
-      assert.eq(TimeMarker.from('1w').final, '2021-W02')
+      expect(TimeMarker.from('1w', { now }).final).toBe('2021-W02')
     })
 
     it('x #alien', async () => {
-      TimeServiceMock.fakeTime('2021-01-10')
-      let sut = TimeMarker.from('+1w')
+      let d = '2021-01-10'
+      let sut = TimeMarker.from('+1w', { now: new Date(d) })
       expect(sut.final).toBe('2021-01-17')
       expect(sut.date().toISOString()).toBe('2021-01-17T00:00:00.000Z')
       // $dev(sut.date())
@@ -245,12 +252,13 @@ describe('x', () => {
     })
 
     it('+1m', async () => {
+      let d = '2021-01-10'
       TimeServiceMock.fakeTime('2021-01-10')
-      assert.eq(TimeMarker.from('+1m').final, '2021-02-10')
-      assert.eq(TimeMarker.from('+2m').final, '2021-03-10')
+      expect(setup('+1m', d).final).toBe('2021-02-10')
+      expect(setup('+2m', d).final).toBe('2021-03-10')
 
-      let r1 = TimeMarker.from('+2m')
-      assert.eq(r1.final, '2021-03-10')
+      let r1 = setup('+2m', d)
+      expect(r1.final).toBe('2021-03-10')
       expect(r1.date().toISOString()).toBe('2021-03-10T00:00:00.000Z')
     })
   })
@@ -258,8 +266,8 @@ describe('x', () => {
   describe('compare', () => {
     it('x', async () => {
       TimeServiceMock.fakeTime('2021.05.05')
-      assert(TimeMarker.from('w10').isActive())
-      assert(!TimeMarker.from('w30').isActive())
+      expect(TimeMarker.from('w10').isActive()).toBe(true)
+      expect(!TimeMarker.from('w30').isActive()).toBe(true)
       // TODO enable?
       // assert.eq(TimeMarker.from(undefined).isActive(), true)
     })
@@ -267,9 +275,9 @@ describe('x', () => {
     describe('sort', () => {
       it('sort pushing last invalid markers', async () => {
         TimeServiceMock.fakeTime('2020.02.01')
-        let s1 = TimeMarker.from('1d')
-        let s2 = TimeMarker.from('foo')
-        let s3 = TimeMarker.from('2d')
+        let s1 = setup('1d', '2020.02.01')
+        let s2 = setup('foo', '2020.02.01')
+        let s3 = setup('2d', '2020.02.01')
         let all = [s1, s2, s3]
 
         let res = all.sort(TimeMarker.sort())
@@ -304,7 +312,7 @@ describe('x', () => {
   describe('inspect', () => {
     it('x', async () => {
       TimeServiceMock.fakeTime('2022')
-      let sut = TimeMarker.from('w10')
+      let sut = setup('w10', '2022')
       expect(inspect(sut)).toBe('<TimeMarker "2022-W10" date +sanitized>')
 
       sut = TimeMarker.from('foo')
@@ -313,7 +321,7 @@ describe('x', () => {
   })
   describe('#draft', () => {
     it('single digit week #edge', async () => {
-      let sut = TimeMarker.from('w2')
+      let sut = setup('w2')
       expect(sut.final).toBe('2020-W02')
     })
 
@@ -356,9 +364,9 @@ describe('x', () => {
     })
 
     it('today', async () => {
-      expect(TimeMarker.from('now').final).toBe('2020-01-01')
-      expect(TimeMarker.from('today').final).toBe('2020-01-01')
-      expect(TimeMarker.from('.').final).toBe('2020-01-01')
+      expect(TimeMarker.from('now', { now: now }).final).toBe('2020-01-01')
+      expect(TimeMarker.from('today', { now: now }).final).toBe('2020-01-01')
+      expect(TimeMarker.from('.', { now: now }).final).toBe('2020-01-01')
     })
 
     it('x #review #decide', async () => {

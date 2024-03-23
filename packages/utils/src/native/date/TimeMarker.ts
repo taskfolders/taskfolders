@@ -63,6 +63,7 @@ export class TimeMarker {
   isSid: boolean
   isId: boolean
   uid?: string
+  _now?: Date
 
   get isReady() {
     if (this._isReady === undefined) {
@@ -114,7 +115,7 @@ export class TimeMarker {
 
   now() {
     // let now = TimeService.now()
-    return new Date()
+    return this._now ?? new Date()
   }
 
   isActive() {
@@ -148,6 +149,8 @@ export class TimeMarker {
 
   static from(thing, kv: { now?: Date; baseDate?: Date } = {}): TimeMarker {
     let obj = new this()
+    obj._now = kv.now
+
     if (typeof thing === 'number') {
       thing = thing.toString()
     }
@@ -333,9 +336,7 @@ export class TimeMarker {
         }
       } else if (['now', '.', 'today'].includes(text)) {
         let date = now
-        // TODO:now
-        //let day = DateFormat.from(now).day()
-        let day = '-fixme-'
+        let day = toJustDateISO(now)
         obj.final = day
         obj._time = date
         obj._isReady = false

@@ -4,6 +4,7 @@ import { TimeService } from './TimeService.js'
 //import { isDate } from '.'
 // import { isSinon } from '../../_draft/isSinon'
 import { parseFuzzyDate } from './helpers.draft.js'
+import { isDate } from 'date-fns'
 
 export class TimeServiceMock extends TimeService {
   static _stub
@@ -15,8 +16,13 @@ export class TimeServiceMock extends TimeService {
   static fakeTime(thing: string | Date): Date {
     $dev('-todo-')
     return new Date()
-    // let service = this.request()
-    // let fake = isDate(thing) ? thing : parseFuzzyDate(thing)
+    let service = this.request()
+    let fake = isDate(thing)
+      ? thing
+      : parseFuzzyDate(
+          // @ts-expect-error
+          thing,
+        )
     // if (isSinon(service.now)) {
     //   // @ts-expect-error
     //   service.now.restore()
