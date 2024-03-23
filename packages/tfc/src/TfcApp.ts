@@ -2,6 +2,12 @@ import Yargs from 'yargs'
 import { DC } from '@taskfolders/utils/dependencies'
 import { ListWorkspaces } from './handlers/ListWorkspaces.js'
 
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { join } from 'node:path'
+import { readFileSync } from 'fs'
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
 export class TfcApp {
   dc = new DC()
 
@@ -49,6 +55,17 @@ export class TfcApp {
         handler: async argv => {
           let sut = dc.fetch(ListWorkspaces)
           await sut.execute()
+        },
+      })
+
+      .command({
+        command: 'version',
+        describe: 'app version',
+        handler: async argv => {
+          let p1 = join(__dirname, '../package.json')
+          let doc = JSON.parse(readFileSync(p1).toString())
+          let ver = doc.version
+          console.log(ver)
         },
       })
 
