@@ -6,6 +6,7 @@ import { LocalFileSystem } from '@taskfolders/utils/fs'
 import { MarkdownDocument } from '@taskfolders/utils/markdown'
 import jp from 'jsonpath'
 import { decryptGPGMessage } from '../../_draft/gpg/decryptGPGMessage.js'
+import { getKeyPath } from './getKeyPath'
 
 export class GetKeyValue {
   log = DC.inject(Logger)
@@ -33,7 +34,8 @@ export class GetKeyValue {
         return data
       }
 
-      let out = jp.query(data, '$..' + p.query)[0]
+      //let out = jp.query(data, '$..' + p.query)[0]
+      let out = getKeyPath(data, p.query).data
       return out
     } else if (file.path.endsWith('.md.asc')) {
       let dec = await decryptGPGMessage(file.buffer)
@@ -43,7 +45,7 @@ export class GetKeyValue {
         return data
       }
 
-      let out = jp.query(data, '$..' + p.query)[0]
+      let out = getKeyPath(data, p.query).data
       return out
     } else {
       throw Error(`Do not know how to read data from file at ${file.path}`)

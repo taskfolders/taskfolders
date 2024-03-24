@@ -5,6 +5,7 @@ import { DC } from '@taskfolders/utils/dependencies'
 import { GetKeyValue } from './GetKeyValue.js'
 import dedent from 'dedent'
 import { setupAfterScan } from '../ScanPathContent/_test/setup.js'
+import { getKeyPath } from './getKeyPath.js'
 
 it('x', async () => {
   let sut = new DiskIndexRepository()
