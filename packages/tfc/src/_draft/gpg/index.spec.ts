@@ -7,7 +7,25 @@ import {
   // MarkdownDocument,
 } from '@taskfolders/utils/markdown'
 
-it('x #todo', async () => {
+import * as os from 'os'
+import { spawn } from 'child_process'
+import { ShellClient } from '@taskfolders/utils/shell'
+
+async function shellHasCommand(cmd: string) {
+  let isWindows = process.platform == 'win32'
+  if (isWindows) return true
+  let hasGPG = await ShellClient.query(`which ${cmd}`, {
+    mustMock: false,
+  }).catch(e => false)
+  return !!hasGPG
+}
+
+it.only('x', async () => {
+  expect(await shellHasCommand('gpg')).toBe(true)
+  expect(await shellHasCommand('gpg-bogus')).toBe(false)
+})
+
+it.skip('x #todo', async () => {
   let file = readFileSync('/tmp/foo.md.asc')
   let out = await decryptGPGMessage(file)
   let md = await TaskFoldersMarkdown.fromBodyMaybe(out.message, {

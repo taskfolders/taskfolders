@@ -3,14 +3,29 @@ import { DC } from '@taskfolders/utils/dependencies'
 import { Logger } from '@taskfolders/utils/logger'
 import { dirname } from 'node:path'
 import { LocalFileSystem } from '@taskfolders/utils/fs'
-import { MarkdownDocument } from '@taskfolders/utils/markdown'
+import { fuseMarkdownData, MarkdownDocument } from '@taskfolders/utils/markdown'
 import jp from 'jsonpath'
 import { decryptGPGMessage } from '../../_draft/gpg/decryptGPGMessage.js'
-import { getKeyPath } from './getKeyPath'
+import { getKeyPath } from './getKeyPath.js'
+import { ActiveFile } from '../../_draft/walker/ActiveFile.js'
 
 export class GetKeyValue {
   log = DC.inject(Logger)
   params: { id: string; query?: string }
+
+  async parseMarkdown(raw: string) {
+    let { params: p } = this
+
+    let md = await MarkdownDocument.fromBody(raw)
+    let data = await fuseMarkdownData(md)
+    if (!p.query) {
+      return data
+    }
+
+    //let out = jp.query(data, '$..' + p.query)[0]
+    let out = getKeyPath(data, p.query).data
+    return out
+  }
 
   async execute() {
     let { params: p } = this
@@ -28,25 +43,10 @@ export class GetKeyValue {
     let file = await fs.read(path)
 
     if (file.path.endsWith('.md')) {
-      let md = await MarkdownDocument.fromBody(file.body)
-      let data = md.data
-      if (!p.query) {
-        return data
-      }
-
-      //let out = jp.query(data, '$..' + p.query)[0]
-      let out = getKeyPath(data, p.query).data
-      return out
+      return await this.parseMarkdown(file.body)
     } else if (file.path.endsWith('.md.asc')) {
       let dec = await decryptGPGMessage(file.buffer)
-      let md = await MarkdownDocument.fromBody(dec.message)
-      let data = md.data
-      if (!p.query) {
-        return data
-      }
-
-      let out = getKeyPath(data, p.query).data
-      return out
+      return await this.parseMarkdown(dec.message)
     } else {
       throw Error(`Do not know how to read data from file at ${file.path}`)
     }

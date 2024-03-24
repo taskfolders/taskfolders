@@ -1,7 +1,10 @@
 import * as Path from 'node:path'
 import { DiskIndexRepository } from '../disk-index/DiskIndexRepository.js'
 import { Logger } from '@taskfolders/utils/logger'
-import { TaskFoldersMarkdown } from '@taskfolders/utils/markdown'
+import {
+  MarkdownSections,
+  TaskFoldersMarkdown,
+} from '@taskfolders/utils/markdown'
 import { isUUID } from '@taskfolders/utils/regex/UUID'
 import { ActiveFile } from '../../../_draft/walker/ActiveFile.js'
 import { BaseFileScanner } from './BaseFileScanner.js'
@@ -54,6 +57,16 @@ export class MarkdownScanner extends BaseFileScanner {
           }
           if (data.sid) {
             disk.model.sids[data.sid] = uid
+          }
+        }
+
+        // sections
+        let sec = await MarkdownSections.parse(md.plain.content)
+        for (let section of sec.all) {
+          if (!section.data) continue
+          let uid = section.data.uid
+          if (uid) {
+            await disk.upsert({ file, uid })
           }
         }
       } catch (e) {

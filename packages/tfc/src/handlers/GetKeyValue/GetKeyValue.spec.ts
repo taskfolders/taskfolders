@@ -32,7 +32,12 @@ it('x #next', async () => {
           fox: 1
         ---
         
-        foo note`,
+        foo note
+        
+        # tango section
+        id: tango
+        delta: 123
+        `,
     },
   })
 
@@ -40,7 +45,12 @@ it('x #next', async () => {
   let dc = DC.get(sut.disk)
   let sut_2 = dc.fetch(GetKeyValue)
   sut_2.params = { id: 'my-id', query: 'data' }
-  await sut_2.execute()
+  let r1 = await sut_2.execute()
+  expect(r1).toEqual({ fox: 1 })
+
+  sut_2.params = { id: 'my-id', query: 'tango.delta' }
+  let r2 = await sut_2.execute()
+  expect(r2).toEqual(123)
 })
 
 it.skip('x #live #scaffold', async () => {
