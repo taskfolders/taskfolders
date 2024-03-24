@@ -15,9 +15,14 @@ import { ActiveFile } from '../../_draft/walker/ActiveFile.js'
 import { inspect } from 'node:util'
 import { shellHyperlink } from '@taskfolders/utils/screen'
 import { MarkdownScanner } from './scan-engines/MarkdownScanner.js'
-import { ScannerEngineResult } from './scan-engines/BaseFileScanner.js'
+import {
+  ScannerEngineResult,
+  BaseFileScanner,
+} from './scan-engines/BaseFileScanner.js'
 import { ScriptScanner } from './scan-engines/ScriptScanner.js'
 import { YamlScanner } from './scan-engines/YamlScanner.js'
+import { EncryptedMarkdownScanner } from './scan-engines/EncryptedMarkdownScanner.js'
+import { SourceCodeScanner } from './scan-engines/SourceCodeScanner.js'
 
 export class ScanPathContent {
   log = DC.inject(Logger)
@@ -62,11 +67,13 @@ export class ScanPathContent {
     let path_r = Path.relative(cwd, file.path)
     path_r = shellHyperlink({ text: path_r, path: file.path })
 
+    let fileType = kv.engineResults[0].engine
+
     let li = log
       .put(st => [
         path_r,
         `${kv.fileCounter}/${kv.fileTotal}`,
-        st.dim('markdown'),
+        st.dim(fileType),
         file.modified ? st.color.green('+modified') : null,
       ])
       .indent()
@@ -120,25 +127,29 @@ export class ScanPathContent {
       options: { convert: p.convert },
       log,
     }
-    let md = new MarkdownScanner(ctx)
 
-    let bash = new ScriptScanner(ctx)
-    let yaml = new YamlScanner(ctx)
+    let engines: BaseFileScanner[] = [
+      new MarkdownScanner(ctx),
+      new ScriptScanner(ctx),
+      new YamlScanner(ctx),
+      new SourceCodeScanner(ctx),
+    ]
+    if (process.env.TASKFOLDERS_FF_GPG) {
+      engines.push(new EncryptedMarkdownScanner(ctx))
+    }
 
     //allFiles = allFiles.slice(0, 1)
     for (let [idx, file] of allFiles.entries()) {
       let acu: ScannerEngineResult[] = []
-      let res
-
-      res = await md.execute({ file })
-      acu.push(res)
-
-      res = await bash.execute({ file })
-      acu.push(res)
-
-      res = await yaml.execute({ file })
-      acu.push(res)
-
+      for (let eng of engines) {
+        let res = await eng.execute({ file }).catch(e => {
+          $log.debug('Engine crash', file.path)
+          file.issues.push({ severity: 'error', code: 'engine-crash' })
+          let res: ScannerEngineResult = { engine: eng.code }
+          return res
+        })
+        acu.push(res as ScannerEngineResult)
+      }
       acu = acu.filter(Boolean)
 
       if (acu.length > 0) {

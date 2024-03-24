@@ -12,6 +12,7 @@ export abstract class BaseFileScanner {
   log: Logger
   options: { convert }
   disk: DiskIndexRepository
+  abstract code: string
 
   constructor(kv: Pick<BaseFileScanner, 'disk' | 'log' | 'options'>) {
     this.disk = kv.disk

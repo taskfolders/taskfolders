@@ -7,7 +7,7 @@ import {
   // MarkdownDocument,
 } from '@taskfolders/utils/markdown'
 
-it('x', async () => {
+it('x #todo', async () => {
   let file = readFileSync('/tmp/foo.md.asc')
   let out = await decryptGPGMessage(file)
   let md = await TaskFoldersMarkdown.fromBodyMaybe(out.message, {
@@ -15,11 +15,11 @@ it('x', async () => {
   })
 
   let uid = md.data.uid
-  $dev({ md, uid })
+  //$dev({ md, uid })
 })
 
 describe('x #noci', () => {
-  it.only('x encrypt-decrypt #story', async () => {
+  it('x encrypt-decrypt #story', async () => {
     let message = 'hello fox'
     let encrypted = await encryptGPGMessage({
       message,

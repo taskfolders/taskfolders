@@ -1,10 +1,10 @@
 import { expect, describe, it } from 'vitest'
-import { DiskIndexRepository } from './ScanPathContent/disk-index/DiskIndexRepository.js'
+import { DiskIndexRepository } from '../ScanPathContent/disk-index/DiskIndexRepository.js'
 import { LocalFileSystemMock } from '@taskfolders/utils/fs/test'
 import { DC } from '@taskfolders/utils/dependencies'
 import { GetKeyValue } from './GetKeyValue.js'
 import dedent from 'dedent'
-import { setupAfterScan } from './ScanPathContent/_test/setup.js'
+import { setupAfterScan } from '../ScanPathContent/_test/setup.js'
 
 it('x', async () => {
   let sut = new DiskIndexRepository()

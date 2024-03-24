@@ -76,21 +76,23 @@ describe('x #draft', () => {
     expect(after).toContain('uid: ')
   })
 
-  it('x', async () => {
-    let uid = '036ee5e6-7f53-4594-b9a8-b895558f7fce'
-    let sut = await setupAfterScan({
+  it('x index single file', async () => {
+    let sut = await setup({
       disk: {
-        '/app/index.md': dedent`
-        ---
-        uid: ${uid}
-        sid: my-id
-        type: tf
-        ---
-        
-        foo note`,
+        '/app/one.md': dedent`
+          type: tf
+          
+          foo note`,
+        '/app/two.md': dedent`
+          type: tf
+          
+          foo note`,
       },
     })
-    let res = sut.disk.findById('my-id')
-    expect(res.path).toBe('/app/index.md')
+    sut.params.path = '/app/one.md'
+    //$dev(sut.disk)
+    console.log('todo')
+    await sut.execute()
+    $dev(sut)
   })
 })

@@ -1,10 +1,12 @@
-import { DiskIndexRepository } from './ScanPathContent/disk-index/DiskIndexRepository.js'
+import { DiskIndexRepository } from '../ScanPathContent/disk-index/DiskIndexRepository.js'
 import { DC } from '@taskfolders/utils/dependencies'
 import { Logger } from '@taskfolders/utils/logger'
 import { dirname } from 'node:path'
 import { LocalFileSystem } from '@taskfolders/utils/fs'
 import { MarkdownDocument } from '@taskfolders/utils/markdown'
 import jp from 'jsonpath'
+import { decryptGPGMessage } from '../../_draft/gpg/decryptGPGMessage.js'
+
 export class GetKeyValue {
   log = DC.inject(Logger)
   params: { id: string; query?: string }
@@ -34,7 +36,17 @@ export class GetKeyValue {
       let out = jp.query(data, '$..' + p.query)[0]
       return out
     } else if (file.path.endsWith('.md.asc')) {
-      throw Error('todo')
+      let dec = await decryptGPGMessage(file.buffer)
+      let md = await MarkdownDocument.fromBody(dec.message)
+      let data = md.data
+      if (!p.query) {
+        return data
+      }
+
+      let out = jp.query(data, '$..' + p.query)[0]
+      return out
+    } else {
+      throw Error(`Do not know how to read data from file at ${file.path}`)
     }
     throw Error(`Could not find data block for :${p.id}`)
   }

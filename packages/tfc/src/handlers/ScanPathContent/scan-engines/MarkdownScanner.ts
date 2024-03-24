@@ -11,6 +11,8 @@ function isMarkdownFile(x: string) {
 }
 
 export class MarkdownScanner extends BaseFileScanner {
+  code = 'markdown'
+
   async execute(kv: { file: ActiveFile }) {
     let { file } = kv
     let { log, options, disk } = this
@@ -24,7 +26,7 @@ export class MarkdownScanner extends BaseFileScanner {
         // if (error) {
         //   file.issues.push({ severity: 'error', code: 'md-parse-error' })
         // }
-        log.debug('Scan file', file.path)
+        log.debug('Scan md file', file.path)
 
         let uid = md.plain.data?.uid ?? md.taskfolder?.data.uid
         if (isUUID(uid)) {

@@ -7,6 +7,10 @@ export const decryptGPGMessage = async (
     // stdio: ['pipe', 'pipe', 'inherit'],
     // encoding: 'utf-8',
   })
+  gpgProcess.on('error', error => {
+    console.log({ error })
+  })
+
   // Pass the GPG-encrypted message to the GPG process
   gpgProcess.stdin.write(encryptedMessage)
   gpgProcess.stdin.end()

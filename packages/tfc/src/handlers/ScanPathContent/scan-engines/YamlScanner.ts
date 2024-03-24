@@ -2,6 +2,7 @@ import { ActiveFile } from '../../../_draft/walker/ActiveFile.js'
 import { BaseFileScanner } from './BaseFileScanner.js'
 
 export class YamlScanner extends BaseFileScanner {
+  code = 'yaml'
   async execute(kv: { file: ActiveFile }) {
     let { file } = kv
     let ext = file.path.split('.').at(-1)

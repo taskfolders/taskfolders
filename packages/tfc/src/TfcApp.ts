@@ -31,10 +31,13 @@ export class TfcApp {
           const { ScanPathContent } = await import(
             './handlers/ScanPathContent/ScanPathContent.js'
           )
+
+          let path = argv.path ?? process.cwd()
+
           let handler = await ScanPathContent.create({
             dc,
             params: {
-              path: process.cwd(),
+              path,
               dryRun: argv.dryRun,
               convert: argv.convert,
             },
@@ -47,7 +50,9 @@ export class TfcApp {
         command: 'kv id [query]',
         describe: 'Get key value for file',
         handler: async argv => {
-          let { GetKeyValue } = await import('./handlers/GetKeyValue.js')
+          let { GetKeyValue } = await import(
+            './handlers/GetKeyValue/GetKeyValue.js'
+          )
           let sut = dc.fetch(GetKeyValue)
           sut.params = { id: argv.id, query: argv.query }
           let res = await sut.execute()
@@ -59,7 +64,9 @@ export class TfcApp {
         command: 'show id',
         describe: 'Show file by sid/uid',
         handler: async argv => {
-          let { GetKeyValue } = await import('./handlers/GetKeyValue.js')
+          let { GetKeyValue } = await import(
+            './handlers/GetKeyValue/GetKeyValue.js'
+          )
           let sut = dc.fetch(GetKeyValue)
           // sut.params = { id: argv.id, query: argv.query }
           // let res = await sut.execute()
