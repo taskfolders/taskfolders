@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest'
 // import { Terminal } from '../../console/_node/Terminal.js'
-import * as chalk from 'chalk'
+import chalk from 'chalk'
 import { stripAnsiCodes } from './stripAnsiCodes.js'
 import { $dev } from '../../logger/index.js'
 

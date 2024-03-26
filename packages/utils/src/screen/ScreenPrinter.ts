@@ -2,7 +2,7 @@
 
 // import { ConsoleTheme } from './ConsoleTheme'
 // import { ConsolePrinterProtocol } from './ConsolePrinterProtocol'
-import * as chalk from 'chalk'
+import chalk from 'chalk'
 import { isDebug } from '../runtime/isDebug.js'
 // import { Terminal } from './Terminal'
 import { ConsoleTheme } from './ConsoleTheme.js'
