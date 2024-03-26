@@ -1,6 +1,6 @@
 import { $dev } from '@taskfolders/utils/logger'
 import '@taskfolders/utils/logger/node/register.start'
-import 'source-map-support/register'
+import 'source-map-support/register.js'
 import Yargs from 'yargs'
 import * as Path from 'node:path'
 import { TfcApp } from './TfcApp.js'
