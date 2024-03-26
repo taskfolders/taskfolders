@@ -411,23 +411,4 @@ describe('x - OLD', () => {
     expect(res[2].heading).toBe('# two')
     expect(res[2].data).toEqual({ tango: 2 })
   })
-
-  it('x', async () => {
-    let md = await MarkdownDocument.fromBody<any>(dedent`
-      ---
-      fox: 1
-      ---
-        
-      # one
-      id: first
-      delta: 123
-      
-      # two
-      id: second
-      tango: fox
-    `)
-
-    let res = await fuseMarkdownData(md)
-    $dev(res)
-  })
 })
