@@ -1,7 +1,7 @@
 //import { UUID } from '@taskfolders/core/uids'
 // import { OmitFunctions } from '@taskfolders/core/types'
 //import { SmartDate } from '@taskfolders/core/native/date/SmartDate'
-import { isUUID } from '@taskfolders/utils/regex/isUUID'
+import { isUUID } from '@taskfolders/utils/regex/UUID'
 function isEmpty(obj) {
   return Object.keys(obj).length === 0
 }
