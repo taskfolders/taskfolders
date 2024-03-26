@@ -1,6 +1,6 @@
 {
   "name": "@taskfolders/utils",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Generic coding utilities and helpers",
   "access": "public",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@taskfolders/tk",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "The one Task Runner to unify all development scripts",
   "keywords": [
     "task",
