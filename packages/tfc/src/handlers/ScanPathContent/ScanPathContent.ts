@@ -144,7 +144,11 @@ export class ScanPathContent {
       for (let eng of engines) {
         let res = await eng.execute({ file }).catch(e => {
           $log.debug('Engine crash', file.path)
-          file.issues.push({ severity: 'error', code: 'engine-crash' })
+          file.issues.push({
+            severity: 'error',
+            code: 'engine-crash',
+            message: e.message,
+          })
           let res: ScannerEngineResult = { engine: eng.code }
           return res
         })

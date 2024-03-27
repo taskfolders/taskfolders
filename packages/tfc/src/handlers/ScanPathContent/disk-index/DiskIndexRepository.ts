@@ -4,6 +4,7 @@ import { ActiveFile } from '../../../_draft/walker/ActiveFile.js'
 import { IssueItem } from '@taskfolders/utils/issues'
 import { DC } from '@taskfolders/utils/dependencies'
 import { AppDirs } from '../../../_draft/AppDirs.js'
+import * as Path from 'node:path'
 
 export class DiskIndexRepository {
   dbFile: string
@@ -26,7 +27,13 @@ export class DiskIndexRepository {
 
   upsert(kv: { file: ActiveFile; uid: string; sid?: string }) {
     let { model, fs } = this
+    let path = kv.file.path
+    if( !Path.isAbsolute(path) ) {
+      throw Error(`Not an absolute path: ${path}`)
+    }
+
     let found = model.uids[kv.uid]
+    
     if (found && found.path !== kv.file.path) {
       if (fs.raw.existsSync(found.path)) {
         kv.file.issues.push(
@@ -43,7 +50,7 @@ export class DiskIndexRepository {
         // moved file
       }
     }
-    model.uids[kv.uid] = { path: kv.file.path, mtime: kv.file.stat.mtime }
+    model.uids[kv.uid] = { path, mtime: kv.file.stat.mtime }
 
     if (kv.sid) {
       model.sids[kv.sid] = kv.uid
