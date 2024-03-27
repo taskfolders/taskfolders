@@ -40,7 +40,7 @@ it('x', async () => {
   expect(doc.scripts.one).toBe('echo one')
 })
 
-it.only('x #story', async () => {
+it('x #story', async () => {
   // exclude
   expect(setup({ exclude: true }).exclude).toEqual(['.'])
   expect(setup({ exclude: ['build'] }).exclude).toEqual(['build'])
