@@ -1,0 +1,5 @@
+{
+  "name": "@taskfolders/tfc",
+  "version": "0.0.1",
+  "exports": "./src/app.start.ts"
+}

@@ -107,7 +107,11 @@ export class ScanPathContent {
 
   async execute() {
     let { fs, params: p, log, disk } = this
-    let cwd = p.cwd ?? p.path
+    let path = p.path
+    if (path === '.') {
+      path = process.cwd()
+    }
+    let cwd = p.cwd ?? path
     this.cwd = cwd
 
     log.info('Start scan')
@@ -117,7 +121,8 @@ export class ScanPathContent {
     let { exclude } = settings
 
     walker.fs = fs
-    let allFiles = await walker.lsRecurse(p.path, { exclude })
+
+    let allFiles = await walker.lsRecurse(path, { exclude })
     //$dev(allFiles[0].issues)
 
     log.put(`Found ${allFiles.length} files to scan`)

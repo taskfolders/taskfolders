@@ -81,3 +81,17 @@ it('x #story', async () => {
     more
   `)
 })
+
+it.only('x bad fm #edge', async () => {
+  let res
+  await MarkdownDocument.fromBody(
+    dedent`
+      ---
+      fox: 1
+      bar
+      --- `,
+  ).catch(e => {
+    res = e
+  })
+  $dev(res.message)
+})

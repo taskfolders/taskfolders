@@ -1,5 +1,10 @@
 import { extractFrontMatter } from './extractFrontMatter.js'
 import YAML from 'yaml'
+import { CustomError } from '../errors/CustomError.js'
+
+const MarkdownError = CustomError.defineGroup('MarkdownError', {
+  invalidFrontmatter: class extends CustomError {},
+})
 
 export class MarkdownDocument<T = unknown> {
   _inputBody: string
@@ -16,7 +21,14 @@ export class MarkdownDocument<T = unknown> {
     body: string,
     kv: { implicitFrontmatter?: boolean; unsafe?: boolean } = {},
   ): Promise<InstanceType<T>> {
-    let fm = await extractFrontMatter(body, { guess: kv.implicitFrontmatter })
+    let fm = await extractFrontMatter(body, {
+      guess: kv.implicitFrontmatter,
+    }).catch(e => {
+      let error = new Error('Unreadable frontmatter')
+      // @ts-expect-error
+      error.cause = e
+      throw error
+    })
 
     let data = (await fm.getData()) as T
     // if (process.env.NODE_ENV === 'test') {

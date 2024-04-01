@@ -389,7 +389,7 @@ describe.skip('x - OLD', () => {
   }) // #draft
 })
 
-describe('x - OLD', () => {
+describe('x - NEW', () => {
   it('x', async () => {
     let doc = dedent`
     no heading
@@ -410,5 +410,24 @@ describe('x - OLD', () => {
     expect(res[1].data).toEqual({ fox: 1 })
     expect(res[2].heading).toBe('# two')
     expect(res[2].data).toEqual({ tango: 2 })
+  })
+
+  it('null body #edge', async () => {
+    let sut = await MarkdownSections.parse(null)
+    expect(sut.all).toEqual([])
+  })
+
+  it('x #robust', async () => {
+    let res
+    let sut = await MarkdownSections.parse(
+      dedent`
+    # one
+    fox: 1
+    fox: 2
+    `,
+    ).catch(e => {
+      res = e
+    })
+    expect(res.code).toBe('md-section-unreadable-fm')
   })
 })

@@ -71,7 +71,13 @@ export class MarkdownScanner extends BaseFileScanner {
         }
       } catch (e) {
         log.debug({ path: file.path, error: e })
-        file.issues.push({ severity: 'error', code: 'md-parse-error' })
+        console.log(e)
+
+        file.issues.push({
+          severity: 'error',
+          code: 'md-parse-error',
+          //message: e.message,
+        })
       }
 
       return { engine: 'tf-markdown' }
