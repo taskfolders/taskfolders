@@ -1,0 +1,12 @@
+{
+  "type": "taskfolders.com/types/workspace-data",
+  "timestamp": "2024-12-24T18:56:50.957Z",
+  "uids": {
+    "bc55f37b-f4ce-4979-9690-a4dbc188ae2a": {
+      "path": "action/now/index.md"
+    },
+    "e26300cf-b362-4336-9d95-8b54380e2f64": {
+      "path": "action/now/learn-tf.md"
+    }
+  }
+}
