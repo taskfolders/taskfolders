@@ -72,5 +72,6 @@ it('x', async () => {
   })
 
   expect(sut.flags).toEqual(['workspace'])
-  let cal = CalendarEvent.fromJSON(sut.calendar[0])
+  $dev(sut.calendar)
+  // expect(sut.tags.includes('payment')).toBe(true)
 })

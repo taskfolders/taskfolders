@@ -4,11 +4,7 @@ import {
 } from './WriteModel.js'
 import { forwardProxy } from '../forwardProxy.js'
 import { CalendarEvent } from './CalendarEvent.js'
-
-function ensureWords(thing: string | string[]): string[] {
-  let words = typeof thing === 'string' ? thing.split(',') : thing
-  return words.map(x => x.trim())
-}
+import { ensureWords } from './ensureWords.js'
 
 export class TaskFoldersFrontmatterReadModel {
   _writeModel: WriteModel

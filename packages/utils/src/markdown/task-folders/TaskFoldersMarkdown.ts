@@ -1,13 +1,43 @@
 import { MarkdownDocument } from '../MarkdownDocument.js'
 import { TaskFoldersFrontmatterWriteModel } from './model/WriteModel.js'
 import { TaskFoldersFrontmatterReadModel } from './model/ReadModel.js'
+import * as FS from 'node:fs'
 
 export interface MarkdownParsed {
   plain: MarkdownDocument<any>
   taskfolder?: TaskFoldersMarkdown
 }
 
+const mdTypes = [
+  'https://taskfolders.com/docs/markdown/v1',
+  'https://taskfolders.com/docs/markdown',
+  'taskfolders.com/docs/markdown',
+  'taskfolders.com/types/markdown',
+  'https://taskfolders.com/types/markdown',
+
+  TaskFoldersFrontmatterWriteModel.type,
+]
+
 export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatterReadModel> {
+  static from(
+    kv: ({ text?: string } | { file?: string }) & {
+      coerce?: boolean
+      fs?: typeof FS
+    },
+  ) {
+    let body: string
+    if ('text' in kv) {
+      body = kv.text
+    } else if ('file' in kv) {
+      let fs = kv.fs ?? FS
+      body = fs.readFileSync(kv.file).toString()
+    } else {
+      throw Error('invalid params')
+    }
+
+    return TaskFoldersMarkdown.parse(body)
+  }
+
   static async fromBody<T extends typeof MarkdownDocument<any>>(
     this: T,
     body: string,
@@ -27,16 +57,23 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
     let md = await MarkdownDocument.fromBody<any>(body, {
       implicitFrontmatter: true,
     })
-    let taskfolder: MarkdownDocument<TaskFoldersFrontmatterReadModel>
+    let taskfolder: TaskFoldersMarkdown
     try {
       let copy = { ...md.data }
-      if (kv?.coerce) {
-        copy.type ??= TaskFoldersFrontmatterWriteModel.type
+
+      let hasMdType = md.data?.type && mdTypes.includes(md.data.type)
+      let canCoerce = kv?.coerce && !md.data?.type
+
+      if (hasMdType || canCoerce) {
+        if (kv?.coerce) {
+          copy.type ??= TaskFoldersFrontmatterWriteModel.type
+        }
+
+        let write = TaskFoldersFrontmatterWriteModel.fromJSON(copy)
+        let read = TaskFoldersFrontmatterReadModel.fromWriteModel(write)
+        md.setData(read)
+        taskfolder = new TaskFoldersMarkdown(read, body)
       }
-      let write = TaskFoldersFrontmatterWriteModel.fromJSON(copy)
-      let read = TaskFoldersFrontmatterReadModel.fromWriteModel(write)
-      md.setData(read)
-      taskfolder = md
     } catch (e) {
       //
     }
@@ -74,5 +111,9 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
       return null
     }
     return next as TaskFoldersMarkdown
+  }
+
+  isWorkspace() {
+    return this.data.flags?.includes('workspace')
   }
 }

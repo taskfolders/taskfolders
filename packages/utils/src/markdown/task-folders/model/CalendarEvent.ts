@@ -1,4 +1,5 @@
 import { Temporal } from 'temporal-polyfill'
+import { ensureWords } from './ensureWords.js'
 
 export class CalendarEvent {
   date: Temporal.PlainDate
@@ -9,6 +10,7 @@ export class CalendarEvent {
     let obj = new this()
     Object.assign(obj, doc)
     obj.date = Temporal.PlainDate.from(doc.date)
+    obj.tags = ensureWords(doc.tags)
     return obj
   }
 }
