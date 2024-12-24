@@ -851,7 +851,7 @@ export class DependencyContainer {
   async fetchAsync<T>(klass: DependencyToken<T>): Promise<T>
   async fetchAsync<T>(klass: { new (...x): T }): Promise<T>
   async fetchAsync(klass) {
-    if (null as any) {
+    if (0) {
       // let result: FetchResult<InstanceType<T>>
       let result: FetchResult<any>
       result = this.fetch_X({
