@@ -183,6 +183,7 @@ export async function extractFrontMatter(
   kv: { guess? } = {},
 ): Promise<MarkdownRawParts_2> {
   let parts = extractFrontMatter_v1(txt, { guess: kv.guess })
+
   if (parts.error) {
     return toParts_v2({
       parts,
