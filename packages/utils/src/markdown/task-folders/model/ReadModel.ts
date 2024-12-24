@@ -1,8 +1,9 @@
 import {
   TaskFoldersFrontmatterWriteModel as WriteModel,
   ScriptDef,
-} from './TaskFoldersFrontmatterWriteModel.js'
+} from './WriteModel.js'
 import { forwardProxy } from '../forwardProxy.js'
+import { CalendarEvent } from './CalendarEvent.js'
 
 function ensureWords(thing: string | string[]): string[] {
   let words = typeof thing === 'string' ? thing.split(',') : thing
@@ -27,6 +28,19 @@ export class TaskFoldersFrontmatterReadModel {
 
   get tags() {
     return ensureWords(this._writeModel.tags ?? []) // ?? []
+  }
+
+  get flags() {
+    return ensureWords(this._writeModel.flags ?? []) // ?? []
+  }
+
+  get labels() {
+    return ensureWords(this._writeModel.labels ?? []) // ?? []
+  }
+
+  get calendar() {
+    let all = this._writeModel.calendar ?? []
+    return all.map(x => CalendarEvent.fromJSON(x))
   }
 
   setValue<K extends keyof WriteModel>(key: K, value) {

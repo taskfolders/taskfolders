@@ -8,6 +8,7 @@ const MarkdownError = CustomError.defineGroup('MarkdownError', {
 
 export class MarkdownDocument<T = unknown> {
   _inputBody: string
+  path?: string
   data: T
   content: string
 

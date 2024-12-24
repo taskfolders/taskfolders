@@ -1,7 +1,9 @@
 import dedent from 'dedent'
 import { expect, describe, it } from 'vitest'
-import { TaskFoldersFrontmatterWriteModel } from './TaskFoldersFrontmatterWriteModel.js'
-import { TaskFoldersFrontmatterReadModel } from './TaskFoldersFrontmatterReadModel.js'
+import { TaskFoldersFrontmatterWriteModel } from './WriteModel.js'
+import { TaskFoldersFrontmatterReadModel } from './ReadModel.js'
+import { $dev } from '@taskfolders/utils/logger'
+import { CalendarEvent } from './CalendarEvent.js'
 
 function setup(doc: Partial<TaskFoldersFrontmatterWriteModel>) {
   let model = TaskFoldersFrontmatterWriteModel.fromJSON({
@@ -45,4 +47,30 @@ it('x #story', async () => {
   expect(setup({ exclude: true }).exclude).toEqual(['.'])
   expect(setup({ exclude: ['build'] }).exclude).toEqual(['build'])
   expect(setup({}).exclude).toEqual([])
+})
+
+it('x', async () => {
+  let sut = setup({
+    sid: 'learn-tf',
+    flags: 'workspace',
+    review: '2024-01-01',
+    calendar: [
+      {
+        date: '2024-01-01',
+        title: 'deliver fox',
+        tags: 'payment',
+      },
+      {
+        date: '2024-02-01',
+        title: 'tango',
+        recurrence: {
+          frequency: 'MONTHLY',
+          interval: 1,
+        },
+      },
+    ],
+  })
+
+  expect(sut.flags).toEqual(['workspace'])
+  let cal = CalendarEvent.fromJSON(sut.calendar[0])
 })

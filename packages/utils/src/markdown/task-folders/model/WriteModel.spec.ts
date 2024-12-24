@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { TaskFoldersFrontmatterWriteModel } from './TaskFoldersFrontmatterWriteModel.js'
+import { TaskFoldersFrontmatterWriteModel } from './WriteModel.js'
 
 let toJsonDoc = x => JSON.parse(JSON.stringify(x))
 

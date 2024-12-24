@@ -2,11 +2,12 @@ import { expect, describe, it } from 'vitest'
 import { TaskFoldersMarkdown } from './TaskFoldersMarkdown.js'
 import { dedent } from '../../native/string/dedent.js'
 import { MarkdownDocument } from '../MarkdownDocument.js'
-import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatterWriteModel.js'
+import { TaskFoldersFrontmatterWriteModel } from './model/WriteModel.js'
 import { isUUID } from '../../regex/UUID.js'
 import { DataModelError } from '../../models/DataModel.js'
 import { readFileSync } from 'node:fs'
 import { $dev } from '../../logger/index.js'
+
 const Model = TaskFoldersFrontmatterWriteModel
 
 const SUT = TaskFoldersMarkdown
@@ -35,6 +36,21 @@ it('x', async () => {
     ---
 
     more`)
+})
+
+it.only('x', async () => {
+  let res = await TaskFoldersMarkdown.fromBody(
+    dedent`
+    ---
+    uid: 2e7f80e2-89c5-4626-9e9d-cfc0082786ec 
+    flags: workspace
+    ---
+
+    more`,
+    { coerce: true },
+  )
+  res.data.flags
+  $dev(res)
 })
 
 it('x', async () => {

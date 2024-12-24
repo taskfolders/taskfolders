@@ -1,6 +1,6 @@
 import { MarkdownDocument } from '../MarkdownDocument.js'
-import { TaskFoldersFrontmatterWriteModel } from './model/TaskFoldersFrontmatterWriteModel.js'
-import { TaskFoldersFrontmatterReadModel } from './model/TaskFoldersFrontmatterReadModel.js'
+import { TaskFoldersFrontmatterWriteModel } from './model/WriteModel.js'
+import { TaskFoldersFrontmatterReadModel } from './model/ReadModel.js'
 
 export interface MarkdownParsed {
   plain: MarkdownDocument<any>
@@ -14,9 +14,9 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
     kv = {},
   ): Promise<InstanceType<T>> {
     let next = await super.fromBody(body)
-    let model = TaskFoldersFrontmatterWriteModel.fromJSON(next.data)
-    let view = TaskFoldersFrontmatterReadModel.fromWriteModel(model)
-    next.data = view
+    let writeModel = TaskFoldersFrontmatterWriteModel.fromJSON(next.data)
+    let readModel = TaskFoldersFrontmatterReadModel.fromWriteModel(writeModel)
+    next.data = readModel
     return next as any //TaskFoldersMarkdownDocument
   }
 

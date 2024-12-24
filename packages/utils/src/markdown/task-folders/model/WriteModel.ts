@@ -40,13 +40,25 @@ export class TaskFoldersFrontmatterWriteModel {
   static type = TYPE
   type = TYPE
   uid: string = undefined
+  sid?: string
   title: string
+  labels?: string | string[]
+  flags?: string | string[]
   scripts?: Record<string, string | ScriptDef>
   review?
   before?
   status?
   tags?: string[] | string
   exclude?: string[] | true
+  calendar?: {
+    date
+    title
+    tags?
+    recurrence?: {
+      frequency: 'MONTHLY' | 'WEEKLY' | 'YEARLY'
+      interval?: number
+    }
+  }[]
 
   static fromJSON(doc) {
     let md = DataModel.deserialize(this, doc)
@@ -83,7 +95,8 @@ DataModel.decorate(TaskFoldersFrontmatterWriteModel, {
     } else if (doc.type === Type_OLD) {
       //
     } else {
-      throw DataModelError.invalidType.create({ wanted: TYPE, given: doc.type })
+      // TODO
+      // throw DataModelError.invalidType.create({ wanted: TYPE, given: doc.type })
     }
     return doc
   },
