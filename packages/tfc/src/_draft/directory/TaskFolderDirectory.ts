@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as Path from 'path'
 import { fileURLToPath } from 'url'
-import { MarkdownDocument } from '../markdown/MarkdownDocument.js'
+import { MarkdownDocument } from '@taskfolders/utils/markdown'
 
 class Foo {}
 
