@@ -26,6 +26,7 @@ it('x main #story #todo', async () => {
   let res = await sut.lsRecurse('/app', {
     // glob: '**/*.(md|png)',
   })
+  console.log('in step')
   //$dev(res)
 })
 
@@ -94,5 +95,16 @@ it('x', async () => {
     '/app/node_modules/index.md': '',
   })
   let res = await sut.lsRecurse('/app', { exclude: ['**/node_modules'] })
+  console.log('on last test')
+  console.log(sut)
+
   //$dev(res)
 })
+
+it.skip('x some skipped test', () => {})
+it.skip('x some error test #manual', () => {
+  throw Error('Some error')
+})
+
+import * as CR from '@taskfolders/utils/vendors/vitest/custom-reporter'
+console.log({ CR })
