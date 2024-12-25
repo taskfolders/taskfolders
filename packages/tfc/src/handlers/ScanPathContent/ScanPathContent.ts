@@ -23,7 +23,7 @@ import { ScriptScanner } from './scan-engines/ScriptScanner.js'
 import { YamlScanner } from './scan-engines/YamlScanner.js'
 import { EncryptedMarkdownScanner } from './scan-engines/EncryptedMarkdownScanner.js'
 import { SourceCodeScanner } from './scan-engines/SourceCodeScanner.js'
-import { WorkspaceRepo } from '../../_draft/WorkspaceRepo'
+import { WorkspaceRepo } from '../../_draft/WorkspaceRepo.js'
 
 export class ScanPathContent {
   log = DC.inject(Logger)
@@ -102,7 +102,8 @@ export class ScanPathContent {
 
     // modified
     if (this.params.dryRun !== true) {
-      this.fs.write(file)
+      // TODO save
+      // this.fs.write(file)
     }
   }
 

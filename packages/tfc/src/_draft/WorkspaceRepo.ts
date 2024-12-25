@@ -2,7 +2,7 @@ import {
   TaskFoldersMarkdown,
   MarkdownDocument,
 } from '@taskfolders/utils/markdown'
-import * as fs from 'fs'
+import * as FS from 'fs'
 import * as Path from 'path'
 
 class UidIndex {
@@ -22,7 +22,7 @@ class WorkspaceIndexData {
 
 import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
 
-const findWorkspaceUp = async (dir: string) => {
+const findWorkspaceUp = async (dir: string, fs = FS) => {
   let all = findUpAll({ startFrom: dir, findName: 'index.md' })
 
   let found
@@ -46,7 +46,7 @@ export class WorkspaceRepo {
   pathBase: string
 
   static async findUp(dir: string) {
-    let found = await findWorkspaceUp(dir)
+    let found = await findWorkspaceUp(dir, FS)
     let obj = new this({ pathBase: found.dir })
     return obj
   }
@@ -71,10 +71,10 @@ export class WorkspaceRepo {
   async save() {
     let dir = Path.dirname(this.pathData)
 
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(Path.dirname(this.pathData))
+    if (!FS.existsSync(dir)) {
+      FS.mkdirSync(Path.dirname(this.pathData))
     }
     let json = JSON.stringify(this.index, null, 2)
-    fs.writeFileSync(this.pathData, json)
+    FS.writeFileSync(this.pathData, json)
   }
 }
