@@ -6,6 +6,7 @@
  * https://github.com/vitest-dev/vitest/blob/main/packages/vitest/src/node/reporters/base.ts
  */
 import type { Vitest } from 'vitest/node'
+import { shellHyperlink } from '@taskfolders/utils/screen'
 import {
   Reporter,
   BaseReporter,
@@ -14,7 +15,7 @@ import {
   DefaultReporter,
 } from 'vitest/reporters'
 import * as VR from 'vitest/reporters'
-import type { TaskResultPack, Task } from '@vitest/runner'
+import type { TaskResultPack, Task, Test } from '@vitest/runner'
 import { getCurrentTest } from '@vitest/runner'
 import chalk from 'chalk'
 import type { RunnerTestFile } from 'vitest'
@@ -30,16 +31,19 @@ export default class VerboseCustomReporter implements Reporter {
   // protected verbose = false
   // renderSucceed = true
 
+  start: number
   end: number
-  testCount
+
   passedCount
   failedCount
   skippedCount
   ctx: Vitest
 
+  // TODO dirty
+  printMode = []
+
   constructor() {
     // super()
-    this.testCount = 0
     this.passedCount = 0
     this.failedCount = 0
     this.skippedCount = 0
@@ -48,6 +52,7 @@ export default class VerboseCustomReporter implements Reporter {
   onInit(context: Vitest) {
     // console.log('\n=== Custom Verbose Reporter Initialized ===')
     this.ctx = context
+    this.start = performance.now()
   }
 
   // protected printTask(task: Task): void {
@@ -56,21 +61,128 @@ export default class VerboseCustomReporter implements Reporter {
   onTaskUpdate(packs: TaskResultPack[]) {
     for (const pack of packs) {
       const task = this.ctx.state.idMap.get(pack[0])
+      // console.log('--', task.name)
 
       if (task) {
-        this.printTask(task)
+        this.printTask_3(task)
       } else {
         console.log('Task not found:')
       }
     }
   }
 
+  onCollected(foo) {
+    // console.log('collected', foo[0].tasks.at(-1))
+    // let t1 = getTests(foo[0].tasks.at(-1))
+  }
+
+  printTask_3(task: Task) {
+    if (
+      !('filepath' in task) ||
+      !task.result?.state ||
+      task.result?.state === 'run' ||
+      task.result?.state === 'queued'
+    ) {
+      return
+    }
+
+    let all = getTests(task)
+
+    // let all = getSuites(task)
+    let indent = 0
+
+    const getTitles = (task: Task) => {
+      let acu = []
+
+      while (task.suite) {
+        acu.push(task.suite.name)
+        task = task.suite
+      }
+      return acu
+    }
+
+    let hasErrors = all.some(test => test.result?.state === 'fail')
+    let hasNow = all.some(test => /#now\b/.test(test.name))
+
+    if (hasErrors) this.printMode.push('focus-errors')
+    if (hasNow) this.printMode.push('focus-now')
+
+    all.map(test => {
+      if (test.suite) {
+        // console.log(' '.repeat(indent * 2), test.suite.name)
+        // console.log(' '.repeat(indent * 2), test.suite.suite?.name)
+      }
+
+      // STEP stats
+      if (test.mode === 'skip') {
+        this.skippedCount++
+      } else if (test.result?.state === 'pass') {
+        this.passedCount++
+      } else if (test.result?.state === 'fail') {
+        this.failedCount++
+      }
+
+      // STEP hide cases
+      let state = test.result?.state
+      if (hasErrors) {
+        if (state !== 'fail') return
+      } else if (hasNow) {
+        if (!test.name.includes('#now')) return
+      }
+
+      let status
+      if (test.mode === 'skip') {
+        if (!process.env.REPORTER_OPTIONS?.includes('hide-skip')) {
+          status = chalk.cyan('SKIP')
+        }
+      } else if (test.mode === 'run') {
+        if (test.result?.state === 'pass') {
+          status = chalk.green('OK')
+        } else if (test.result?.state === 'fail') {
+          status = chalk.red('FAIL')
+        } else {
+          console.error('UNKNOWN status', test.result?.state)
+        }
+      }
+
+      let testName = test.name.replace(/(#\S+)/g, match => chalk.yellow(match))
+      let titles = [...getTitles(test).map(x => chalk.dim(x)), testName]
+      console.log(chalk.dim('T'), titles.join(' / '), status)
+
+      if (status) {
+        test.logs?.forEach(log => {
+          let lines = log.content.split('\n')
+          lines.forEach(line => {
+            if (log.type === 'stdout') {
+              console.log(`  : ${chalk.dim(line)}`)
+            } else {
+              console.log(`  ${chalk.magenta('stderr')}: ${chalk.dim(line)}`)
+            }
+          })
+        })
+      }
+    })
+
+    // console.log('Prints', prints.join(' +'))
+    // console.log(all.map(x => x.name))
+    // console.log(all.at(-1))
+  }
+
+  printTask_2(task: Task) {
+    let all = getSuites(task)
+    all.forEach(suite => {
+      console.log(`${chalk.cyan('SUITE')}: ${task.name}`)
+      console.log(suite.tasks.map(x => x.name))
+    })
+  }
+
   printTask(task: Task) {
     if (task.type === 'suite') {
-      if (task.result?.state === 'run') {
-        // before
-        console.log(`${chalk.cyan('SUITE')}: ${task.name}`)
-      }
+      // if (task.result?.state === 'run') {
+      // before
+      console.log(`${chalk.cyan('SUITE')}: ${task.name}`)
+      // console.log(all[0].tasks.at(-1).mode)
+      // }
     }
 
     if (
@@ -92,6 +204,7 @@ export default class VerboseCustomReporter implements Reporter {
       if (test.logs) {
         parts.push(chalk.blue('+stdout'))
       }
+      // console.log('See..', test)
       // console.log('Test:', test.name, test.result?.state)
       if (test.type !== 'test') {
         throw Error(`Unknown type: ${test.type}`)
@@ -153,16 +266,6 @@ export default class VerboseCustomReporter implements Reporter {
     console.error('Found test skip')
     throw Error('Found test skip')
   }
-  onTestFinished(test) {
-    const status = test.result?.state || 'unknown'
-    this.testCount += 1
-
-    if (status === 'pass') this.passedCount += 1
-    else if (status === 'fail') this.failedCount += 1
-    else if (status === 'skip') this.skippedCount += 1
-
-    console.log(`  ${status.toUpperCase()}: ${test.name}`)
-  }
 
   onSuiteEnd(suite) {
     console.log(`\nFinished suite: ${suite.name}`)
@@ -186,18 +289,44 @@ export default class VerboseCustomReporter implements Reporter {
       countTestErrors(failedSuites) + countTestErrors(failedTests)
 
     // console.log('\n=== Test Run Summary ===')
-    console.log('\n\n')
+    // console.log('\n\n')
+    let total = this.passedCount + this.failedCount + this.skippedCount
+    console.log()
+
+    let failCount = this.failedCount > 0 ? chalk.red(this.failedCount) : '0'
+    let passCount = this.passedCount > 0 ? chalk.green(this.passedCount) : '0'
+    let skipCount =
+      this.skippedCount > 0 ? chalk.yellow(this.skippedCount) : '0'
+
+    let duration = this.end - this.start
+    let parts = [
+      `Pass:${passCount} Fail:${failCount} Skip:${skipCount}`,
+      ...this.printMode.map(x => `+${chalk.dim.green(x)}`),
+      `${(duration / 1_000).toFixed(3)}s`,
+    ]
+
     console.log(
-      `Total:${this.testCount} Passed:${this.passedCount} Failed:${this.failedCount} Skipped:${this.skippedCount}`,
+      // `Total:${total} Passed:${this.passedCount} Failed:${this.failedCount} Skipped:${this.skippedCount}`,
+      parts.join(' '),
     )
     // console.log({ failedSuites, failedTests, failedTotal })
 
     if (failedTotal > 0) {
       console.error(`\nERRORS:`)
       failedTests.forEach((test, index) => {
-        console.error(`${index + 1}: ${test.location}`)
-        console.log(' ', test.name)
-        console.log(' ', test.file.name)
+        let link = test.name
+
+        // TODO extract?
+        let location = test.result?.errors[0].stack
+          .split('\n')[1]
+          .split(' ')
+          .at(-1)
+
+        let [file, line, col] = location.split(':')
+
+        link = shellHyperlink({ text: link, path: file, lineNumber: line })
+        console.error(`${index + 1}: ${link}`)
+
         test.result?.errors?.forEach(err => {
           this.ctx.logger.printError(err)
         })
@@ -205,7 +334,7 @@ export default class VerboseCustomReporter implements Reporter {
         // console.log(test)
       })
     } else {
-      console.log('All tests passed successfully!')
+      // console.log('All tests passed successfully!')
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "type": "taskfolders.com/types/workspace-data/index",
-  "timestamp": "2024-12-25T11:43:09.078Z",
+  "timestamp": "2024-12-25T11:48:05.960Z",
   "uids": {
     "bc55f37b-f4ce-4979-9690-a4dbc188ae2a": {
       "path": "action/now/index.md"
@@ -14,7 +14,7 @@
     "2c8d5436-5ef6-47d6-88a5-5054d8109327": {
       "path": "index.md"
     },
-    "bd1f708b-85f9-44f2-85f3-bc4bc4eab557": {
+    "a496b946-cdfb-4ae1-8b3a-3062aedf92cc": {
       "path": "foo.md"
     }
   }
