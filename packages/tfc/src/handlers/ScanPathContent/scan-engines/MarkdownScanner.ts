@@ -1,6 +1,6 @@
 import * as Path from 'node:path'
 import { DiskIndexRepository } from '../disk-index/DiskIndexRepository.js'
-import { Logger } from '@taskfolders/utils/logger'
+import { Logger, $dev } from '@taskfolders/utils/logger'
 import {
   MarkdownSections,
   TaskFoldersMarkdown,
@@ -23,7 +23,9 @@ export class MarkdownScanner extends BaseFileScanner {
     if (isMarkdownFile(file.path)) {
       try {
         let md = await TaskFoldersMarkdown.parse(file.body, {
-          coerce: options.convert,
+          // TODO
+          // coerce: options.convert,
+          coerce: true,
         })
 
         // if (error) {
@@ -58,6 +60,12 @@ export class MarkdownScanner extends BaseFileScanner {
           if (data.sid) {
             disk.model.sids[data.sid] = uid
           }
+
+          // TODO
+          await this.workspace.indexMarkdown({
+            markdown: md.taskfolder,
+            path: file.path,
+          })
         }
 
         // sections
@@ -80,6 +88,7 @@ export class MarkdownScanner extends BaseFileScanner {
         })
       }
 
+      //$dev('Did scan', Object.keys(this))
       return { engine: 'tf-markdown' }
     }
   }

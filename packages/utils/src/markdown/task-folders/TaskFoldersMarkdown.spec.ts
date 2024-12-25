@@ -223,4 +223,11 @@ describe('x #draft', () => {
     let res = await SUT.parse(body, { coerce: true })
     $dev(res)
   })
+
+  it.skip('x', async () => {
+    let res = await TaskFoldersMarkdown.from({
+      // file: 'ws-1/action/now/index.md',
+      coerce: true,
+    })
+  })
 })

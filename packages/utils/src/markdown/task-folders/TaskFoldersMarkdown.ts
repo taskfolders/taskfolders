@@ -37,7 +37,7 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
       throw Error('invalid params')
     }
 
-    let parse = await TaskFoldersMarkdown.parse(body)
+    let parse = await TaskFoldersMarkdown.parse(body, { coerce: kv.coerce })
     return parse.taskfolder
   }
 
@@ -67,6 +67,7 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
       let hasMdType = md.data?.type && mdTypes.includes(md.data.type)
       let canCoerce = kv?.coerce && !md.data?.type
 
+      // console.log({ hasMdType, canCoerce, md: md.data, kv })
       if (hasMdType || canCoerce) {
         if (kv?.coerce) {
           copy.type ??= TaskFoldersFrontmatterWriteModel.type

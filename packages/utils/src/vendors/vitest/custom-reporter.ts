@@ -100,7 +100,9 @@ export default class VerboseCustomReporter implements Reporter {
       let status
       if (test.mode === 'skip') {
         this.skippedCount++
-        status = chalk.cyan('SKIP')
+        if (!process.env.REPORTER_OPTIONS?.includes('hide-skip')) {
+          status = chalk.cyan('SKIP')
+        }
       } else if (test.mode === 'run') {
         if (test.result?.state === 'pass') {
           this.passedCount++

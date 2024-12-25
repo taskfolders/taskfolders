@@ -88,6 +88,11 @@ export class PathWalker<T> {
             // TODO #review
             return acu
           }
+          if (md2.isWorkspace() && acu.length > 0) {
+            // TODO log/warn this skip
+            //   ?? do wew always start with acu = []
+            return acu
+          }
           let fm = md2.data
           // let raw = md.frontMatter._props.toDataValues()
           // TODO re-eval this error guard

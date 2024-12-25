@@ -48,12 +48,14 @@ it('x', async () => {
 
   let res = await findWorkspaceUp(dir)
   let ws = await TaskFolderDirectory.fromDir(res.dir)
-  let repo = new WorkspaceRepo({ pathBase: res.dir })
-  let md_1_body = fs.readFileSync(md_1_path).toString()
+  let repo = await WorkspaceRepo.findUp(dir)
+  // let repo = new WorkspaceRepo({ pathBase: res.dir })
 
-  let md_1 = await TaskFoldersMarkdown.fromBodyMaybe(md_1_body, {
+  let md_1 = await TaskFoldersMarkdown.from({
+    file: md_1_path,
     coerce: true,
   })
+
   await repo.indexMarkdown({ markdown: md_1, path: md_1_path })
 
   let md_2_path = wsJoin('action/now/learn-tf.md')

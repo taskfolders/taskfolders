@@ -22,11 +22,15 @@ it.only('x main #story #todo', async () => {
     '/app/one/index.md': '',
     '/app/two/index.md': '',
     '/app/two/audio.mp3': '',
+    '/app/nested/index.md': `
+      flags: workspace
+    `,
+    '/app/nested/deep/index.md': '',
   })
   let res = await sut.lsRecurse('/app', {
     // glob: '**/*.(md|png)',
   })
-  console.log('in step')
+  console.log('in step', res)
   //$dev(res)
 })
 
