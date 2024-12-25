@@ -184,7 +184,7 @@ export default class VerboseCustomReporter implements Reporter {
       countTestErrors(failedSuites) + countTestErrors(failedTests)
 
     // console.log('\n=== Test Run Summary ===')
-    console.log()
+    console.log('\n\n')
     console.log(
       `Total:${this.testCount} Passed:${this.passedCount} Failed:${this.failedCount} Skipped:${this.skippedCount}`,
     )

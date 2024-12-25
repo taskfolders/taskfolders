@@ -12,7 +12,7 @@ function setup(disk) {
   return sut
 }
 
-it('x main #story #todo', async () => {
+it.only('x main #story #todo', async () => {
   let sut = setup({
     '/app/index.md': `
         ---
@@ -102,9 +102,6 @@ it('x', async () => {
 })
 
 it.skip('x some skipped test', () => {})
-it.skip('x some error test #manual', () => {
+it('x some error test #manual', () => {
   throw Error('Some error')
 })
-
-import * as CR from '@taskfolders/utils/vendors/vitest/custom-reporter'
-console.log({ CR })
