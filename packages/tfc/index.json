@@ -1,0 +1,9 @@
+{
+  "config": [
+    {
+      "type": "taskfolders.com/types/devtower",
+      "test": "NODE_ENV=test npx vitest run --reporter '@taskfolders/utils/vendors/vitest/custom-reporter/index' {file}"
+    }
+  ]
+}
+ 
