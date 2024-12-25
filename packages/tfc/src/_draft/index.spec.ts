@@ -57,8 +57,8 @@ it('x', async () => {
   await repo.indexMarkdown({ markdown: md_1, path: md_1_path })
 
   let md_2_path = wsJoin('action/now/learn-tf.md')
-  let md_2_body = fs.readFileSync(md_2_path).toString()
-  let md_2 = await TaskFoldersMarkdown.fromBodyMaybe(md_2_body, {
+  let md_2 = await TaskFoldersMarkdown.from({
+    file: md_2_path,
     coerce: true,
   })
   await repo.indexMarkdown({ markdown: md_2, path: md_2_path })

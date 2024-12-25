@@ -19,9 +19,11 @@ const mdTypes = [
 ]
 
 export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatterReadModel> {
-  static from(
+  static async from(
     kv: ({ text?: string } | { file?: string }) & {
       coerce?: boolean
+      strict?: boolean
+      unsafe?: boolean
       fs?: typeof FS
     },
   ) {
@@ -35,7 +37,8 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
       throw Error('invalid params')
     }
 
-    return TaskFoldersMarkdown.parse(body)
+    let parse = await TaskFoldersMarkdown.parse(body)
+    return parse.taskfolder
   }
 
   static async fromBody<T extends typeof MarkdownDocument<any>>(
