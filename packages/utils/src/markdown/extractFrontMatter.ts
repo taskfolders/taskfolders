@@ -7,7 +7,7 @@ import { CustomError } from '../errors/CustomError.js'
 
 // import { parseAllDocuments, Document } from 'yaml'
 
-const dataKeyRx = /^[a-zA-Z_-]+:[^/\\]/
+const dataKeyRx = /^\s*[a-zA-Z_-]+:[^/\\]/
 let splitText = x => x.split('\n')
 
 export class FrontAndBodyParser {
@@ -147,6 +147,7 @@ export function extractFrontMatter_v1(
     let frontLines = []
     let body
     let broken = false
+
     while (idx < lines.length && !broken) {
       let line = lines[idx]
       if (dataKeyRx.test(line)) {
@@ -200,6 +201,8 @@ export async function extractFrontMatter(
 
   let front = parts.frontText
   let doc //: Document.Parsed
+
+  console.log(parts)
 
   if (front) {
     try {
@@ -376,10 +379,12 @@ export async function extractFrontMatter(
     error,
 
     async getData() {
+      console.log({ front })
       // TODO before:release dedup, dry this parse
       //  this should be the only way to get data
       //  this should be the only yaml parser???
       const { parseAllDocuments } = await import('yaml').then(x => x.default)
+
       let all = parseAllDocuments(front)
 
       let doc = all[0]

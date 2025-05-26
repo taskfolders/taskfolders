@@ -10,6 +10,9 @@
   "keywords": [],
   "author": "TaskFolders",
   "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^7.1.0",

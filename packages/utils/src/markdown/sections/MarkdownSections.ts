@@ -6,8 +6,6 @@ export class MarkdownSections {
   isModified
   all: { heading: string; body: string; data }[] = []
 
-  constructor(kv?) {}
-
   static async parse(body: string): Promise<MarkdownSections> {
     let obj = new this()
     let acuSections = []
@@ -27,6 +25,9 @@ export class MarkdownSections {
         error.cause = e
         throw error
       })
+      console.dir('..parts')
+      console.dir({ ...parts })
+
       let data = await parts.getData()
       acuSections.push({ heading, body: parts.body, data })
     }

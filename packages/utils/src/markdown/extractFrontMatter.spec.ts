@@ -74,7 +74,7 @@ function splitFront(txt: string) {
   return result
 }
 
-describe.skip('x', () => {
+describe('x', () => {
   describe('split parts', () => {
     it('all', async () => {
       let res = extractFrontMatter(dedent`
@@ -335,4 +335,13 @@ describe.skip('x', () => {
       }
     })
   }) // #draft
+})
+
+it('x #now', async () => {
+  let res = await setup(`
+    parent: 
+      child: 1
+    `)
+  let r1 = await res.getData()
+  expect(r1).toEqual({ parent: { child: 1 } })
 })

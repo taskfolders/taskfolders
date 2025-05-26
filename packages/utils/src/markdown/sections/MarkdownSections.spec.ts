@@ -18,6 +18,7 @@ const setup = async (x: string): Promise<any> => {
   let md = MarkdownDocument.fromBody(dedent(x)) as any
   // await md.parse()
   //return md.sections
+  return md
 }
 
 // TODO to sections
@@ -429,5 +430,21 @@ describe('x - NEW', () => {
       res = e
     })
     expect(res.code).toBe('md-section-unreadable-fm')
+  })
+
+  it('x #robust #now', async () => {
+    let res
+    //
+    let sut = await MarkdownSections.parse(dedent`
+      # one
+      fox: 1
+      delta: 2
+      parent:
+        child:
+          x: a
+          y: b 
+
+      the text`)
+    console.log(sut.all[1])
   })
 })
