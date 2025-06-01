@@ -22,7 +22,7 @@ class WorkspaceIndexData {
 
 import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
 
-const findWorkspaceUp = async (dir: string, fs = FS) => {
+export const findWorkspaceUp = async (dir: string, fs = FS) => {
   let all = findUpAll({ startFrom: dir, findName: 'index.md' })
 
   let found

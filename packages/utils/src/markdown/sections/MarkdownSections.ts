@@ -25,8 +25,8 @@ export class MarkdownSections {
         error.cause = e
         throw error
       })
-      console.dir('..parts')
-      console.dir({ ...parts })
+      //console.dir('..parts')
+      //console.dir({ ...parts })
 
       let data = await parts.getData()
       acuSections.push({ heading, body: parts.body, data })

@@ -94,6 +94,13 @@ export class TfcApp {
         },
       })
 
+      .command({
+        command: 'scan2',
+        handler: async argv => {
+          console.log('TODO scan2')
+        },
+      })
+
       .command(
         '$0',
         false, // describe:false to hide in help

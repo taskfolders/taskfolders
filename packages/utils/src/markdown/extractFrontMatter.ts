@@ -202,7 +202,7 @@ export async function extractFrontMatter(
   let front = parts.frontText
   let doc //: Document.Parsed
 
-  console.log(parts)
+  //console.log(parts)
 
   if (front) {
     try {
@@ -379,7 +379,7 @@ export async function extractFrontMatter(
     error,
 
     async getData() {
-      console.log({ front })
+      //console.log({ front })
       // TODO before:release dedup, dry this parse
       //  this should be the only way to get data
       //  this should be the only yaml parser???
