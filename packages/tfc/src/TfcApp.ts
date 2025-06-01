@@ -2,6 +2,7 @@ import Yargs from 'yargs'
 import { DC } from '@taskfolders/utils/dependencies'
 import { ScanV2Handler } from './_draft/next/ScanV2.handler.js'
 import { ShowHandler } from './_draft/next/Show.handler.js'
+import { SummaryHandler } from './_draft/next/Summary.handler.js'
 
 export class TfcApp {
   dc = new DC()
@@ -111,6 +112,15 @@ export class TfcApp {
         handler: async argv => {
           console.log('TODO scan2', __filename)
           let han = new ScanV2Handler({ dir: process.cwd() })
+          await han.execute()
+        },
+      })
+
+      .command({
+        command: 'sum',
+        describe: 'NEW summary of workspace',
+        handler: async argv => {
+          let han = new SummaryHandler({ cwd: process.cwd() })
           await han.execute()
         },
       })

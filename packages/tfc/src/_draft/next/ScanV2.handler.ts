@@ -7,7 +7,7 @@ import { Folder } from './Folder.js'
 import { Logger } from './Logger.js'
 import { WorkspaceIndex } from './WorkspaceIndex.js'
 import { StandardMetadata } from './StandardMetadata.js'
-import { parseDateHuman } from './parseDateHuman'
+import { parseDateHuman } from './parseDateHuman.js'
 
 export class ScanV2Handler {
   fs = fs
@@ -26,11 +26,19 @@ export class ScanV2Handler {
     let relPath = workspace.relative(fullPath)
 
     // log.info('scan file', relPath)
-    let scanMarkdown = async ({ body }) => {
+    let scanMarkdown = async ({ body, path }) => {
       stats.files++
       let md = await MarkdownDocument.fromBody(body, {
         implicitFrontmatter: true,
       })
+
+      // TODO #now
+      if (path.includes('now')) {
+        wsIndexData.updateFile(relPath, {})
+      } else if (path.includes('waiting')) {
+        wsIndexData.updateFile(relPath, {})
+      }
+
       if (md.data) {
         let _data = md.data as any
         let meta = new StandardMetadata(_data)
@@ -49,6 +57,7 @@ export class ScanV2Handler {
           // wsIndexData.data.paths[relPath] ??= {} calendar
         }
       }
+
       let sec = await MarkdownSections.parse(md.content)
       for (let s of sec.all) {
         if (!s.data) continue
@@ -69,7 +78,7 @@ export class ScanV2Handler {
       log.info('Scan file', relPath)
 
       let body = fs.readFileSync(fullPath, 'utf-8').toString()
-      await scanMarkdown({ body })
+      await scanMarkdown({ body, path: relPath })
     } else if (file.endsWith('index.json')) {
       log.info('Scan file', relPath)
       let body = fs.readFileSync(fullPath, 'utf-8').toString()
@@ -82,7 +91,7 @@ export class ScanV2Handler {
       let body = fs.readFileSync(fullPath, 'utf-8').toString()
       let out = await decryptGPGMessage(body)
 
-      scanMarkdown({ body: out.message })
+      scanMarkdown({ body: out.message, path: '' })
       //console.log('TODO md.asc', relPath, out)
     } else {
       let stat = fs.statSync(fullPath)

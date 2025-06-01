@@ -21,11 +21,7 @@ export class ShowHandler {
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     log.info('Reading workspace index from', path)
     let body = fs.readFileSync(path, 'utf-8').toString()
-    let index = new WorkspaceIndex()
-    index.data = JSON.parse(body)
-    Object.values(index.data.paths).forEach(x => {
-      x.sections ??= []
-    })
+    let index = WorkspaceIndex.fromJSON(body)
 
     let found = index.find({ uid: this.params.id })
     log.info('Found item:', found)

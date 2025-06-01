@@ -18,6 +18,10 @@ export class StandardMetadata {
     return [].concat(this.raw.calendar ?? [])
   }
 
+  get flags() {
+    return [].concat(this.raw.flags ?? this.raw.labels ?? [])
+  }
+
   isParsable() {
     if (!this.raw.type) return true
     return this.raw.type?.includes('taskfolders.com/')

@@ -2,7 +2,7 @@ import { join } from 'path/posix'
 import { Folder } from './Folder.js'
 
 export async function findUpWorkspace(dir) {
-  let workspace
+  let workspace: Folder
   let dir_now = dir
   while (dir_now !== '/') {
     let folder = new Folder(dir_now)

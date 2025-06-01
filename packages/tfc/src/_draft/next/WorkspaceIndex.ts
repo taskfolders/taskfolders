@@ -1,4 +1,14 @@
 export class WorkspaceIndex {
+  static fromJSON(body: string) {
+    let index = new WorkspaceIndex()
+    index.data = JSON.parse(body)
+    Object.values(index.data.paths).forEach(x => {
+      x.sections ??= []
+    })
+
+    return index
+  }
+
   _index = { uids: {} }
   path: string
   timestamp = new Date()
@@ -67,20 +77,21 @@ export class WorkspaceIndex {
     })
 
     // Remove keys with value {}
-    let obj = copy.paths
-    for (const key in obj) {
-      if (
-        typeof obj[key] === 'object' &&
-        obj[key] !== null &&
-        Object.keys(obj[key]).length === 0
-      ) {
-        delete obj[key]
-      }
-    }
-    //cleanObject(copy)
+    // let obj = copy.paths
+    // for (const key in obj) {
+    //   if (
+    //     typeof obj[key] === 'object' &&
+    //     obj[key] !== null &&
+    //     Object.keys(obj[key]).length === 0
+    //   ) {
+    //     delete obj[key]
+    //   }
+    // }
+
     return copy
   }
 }
+
 function deepCopy<T>(data: T): T {
   return JSON.parse(JSON.stringify(data))
 }
