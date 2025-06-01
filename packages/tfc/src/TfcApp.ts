@@ -1,5 +1,6 @@
 import Yargs from 'yargs'
 import { DC } from '@taskfolders/utils/dependencies'
+import { ScanV2Handler } from './_draft/next/ScanV2Handler'
 
 export class TfcApp {
   dc = new DC()
@@ -97,7 +98,9 @@ export class TfcApp {
       .command({
         command: 'scan2',
         handler: async argv => {
-          console.log('TODO scan2')
+          console.log('TODO scan2', __filename)
+          let han = new ScanV2Handler({ dir: process.cwd() })
+          await han.execute()
         },
       })
 
