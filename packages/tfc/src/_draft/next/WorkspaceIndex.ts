@@ -16,6 +16,7 @@ export class WorkspaceIndex {
         sid?: any
         uid?: any
         sections: { uid?; sid?; lineText? }[]
+        calendar?: any[]
       }
     >
   }

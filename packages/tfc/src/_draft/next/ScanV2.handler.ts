@@ -7,6 +7,7 @@ import { Folder } from './Folder.js'
 import { Logger } from './Logger.js'
 import { WorkspaceIndex } from './WorkspaceIndex.js'
 import { StandardMetadata } from './StandardMetadata.js'
+import { parseDateHuman } from './parseDateHuman'
 
 export class ScanV2Handler {
   fs = fs
@@ -17,6 +18,81 @@ export class ScanV2Handler {
   wsIndexData = new WorkspaceIndex()
 
   constructor(public params: { dir: string }) {}
+
+  async _scanOneFile(file: string, folder: Folder, folders: Folder[]) {
+    let { log, stats, workspace, wsIndexData } = this
+
+    let fullPath = join(folder.dir, file)
+    let relPath = workspace.relative(fullPath)
+
+    // log.info('scan file', relPath)
+    let scanMarkdown = async ({ body }) => {
+      stats.files++
+      let md = await MarkdownDocument.fromBody(body, {
+        implicitFrontmatter: true,
+      })
+      if (md.data) {
+        let _data = md.data as any
+        let meta = new StandardMetadata(_data)
+        wsIndexData.updateFile(relPath, { uid: meta.uid })
+        wsIndexData.updateFile(relPath, { sid: meta.sid })
+
+        if (meta.calendar.length > 0) {
+          let calendar = meta.calendar.map(x => {
+            let date = parseDateHuman(x.date)
+            log.info({ date: date.toISOString(), x: x.date })
+            x.date = date
+            return x
+          })
+          let target = (wsIndexData.data.paths[relPath] ??= { sections: [] })
+          target.calendar = calendar
+          // wsIndexData.data.paths[relPath] ??= {} calendar
+        }
+      }
+      let sec = await MarkdownSections.parse(md.content)
+      for (let s of sec.all) {
+        if (!s.data) continue
+        let data = new StandardMetadata(s.data)
+
+        if (data?.uid) {
+          let dat = cleanObject({
+            uid: data.uid,
+            sid: data.sid,
+            lineText: s.heading,
+          })
+          wsIndexData.addFileSection(relPath, dat)
+        }
+      }
+    }
+
+    if (file.endsWith('.md')) {
+      log.info('Scan file', relPath)
+
+      let body = fs.readFileSync(fullPath, 'utf-8').toString()
+      await scanMarkdown({ body })
+    } else if (file.endsWith('index.json')) {
+      log.info('Scan file', relPath)
+      let body = fs.readFileSync(fullPath, 'utf-8').toString()
+      let data = JSON.parse(body)
+      if (data?.uid) {
+        wsIndexData.updateFile(relPath, { uid: data.uid })
+      }
+    } else if (file.endsWith('.md.asc')) {
+      log.info('Scan file', relPath)
+      let body = fs.readFileSync(fullPath, 'utf-8').toString()
+      let out = await decryptGPGMessage(body)
+
+      scanMarkdown({ body: out.message })
+      //console.log('TODO md.asc', relPath, out)
+    } else {
+      let stat = fs.statSync(fullPath)
+      if (stat.isDirectory()) {
+        let folder = new Folder(fullPath)
+        await folder.parse()
+        folders.push(folder)
+      }
+    }
+  }
 
   async _scanFolder(folder: Folder) {
     let { log, stats, workspace, wsIndexData } = this
@@ -35,72 +111,7 @@ export class ScanV2Handler {
     }
 
     for (let file of files) {
-      const scanFile = async (file: string) => {
-        let fullPath = join(folder.dir, file)
-        let relPath = workspace.relative(fullPath)
-
-        // log.info('scan file', relPath)
-        let scanMarkdown = async ({ body }) => {
-          stats.files++
-          let md = await MarkdownDocument.fromBody(body, {
-            implicitFrontmatter: true,
-          })
-          if (md.data) {
-            let _data = md.data as any
-            let meta = new StandardMetadata(_data)
-            wsIndexData.updateFile(relPath, { uid: meta.uid })
-            wsIndexData.updateFile(relPath, { sid: meta.sid })
-
-            if (meta.calendar.length > 0) {
-              log.info('..ssss', meta.calendar)
-            }
-          }
-          let sec = await MarkdownSections.parse(md.content)
-          for (let s of sec.all) {
-            if (!s.data) continue
-            let data = new StandardMetadata(s.data)
-
-            if (data?.uid) {
-              let dat = cleanObject({
-                uid: data.uid,
-                sid: data.sid,
-                lineText: s.heading,
-              })
-              wsIndexData.addFileSection(relPath, dat)
-            }
-          }
-        }
-
-        if (file.endsWith('.md')) {
-          log.info('Scan file', relPath)
-
-          let body = fs.readFileSync(fullPath, 'utf-8').toString()
-          await scanMarkdown({ body })
-        } else if (file.endsWith('index.json')) {
-          log.info('Scan file', relPath)
-          let body = fs.readFileSync(fullPath, 'utf-8').toString()
-          let data = JSON.parse(body)
-          if (data?.uid) {
-            wsIndexData.updateFile(relPath, { uid: data.uid })
-          }
-        } else if (file.endsWith('.md.asc')) {
-          log.info('Scan file', relPath)
-          let body = fs.readFileSync(fullPath, 'utf-8').toString()
-          let out = await decryptGPGMessage(body)
-
-          scanMarkdown({ body: out.message })
-          //console.log('TODO md.asc', relPath, out)
-        } else {
-          let stat = fs.statSync(fullPath)
-          if (stat.isDirectory()) {
-            let folder = new Folder(fullPath)
-            await folder.parse()
-            folders.push(folder)
-          }
-        }
-      }
-
-      await scanFile(file).catch(err => {
+      await this._scanOneFile(file, folder, folders).catch(err => {
         stats.errors++
         log.info('Error scanning file', file)
         // TODO way to log error with print/error cause?

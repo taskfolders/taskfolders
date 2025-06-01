@@ -5,6 +5,7 @@ import { join, relative } from 'node:path'
 import { expect, describe, it } from 'vitest'
 import { ScanV2Handler } from './ScanV2.handler.js'
 import { StandardMetadata } from './StandardMetadata.js'
+import { WorkspaceIndex } from './WorkspaceIndex.js'
 
 it.skip('x', async () => {
   let data = {
@@ -18,15 +19,29 @@ it.skip('x', async () => {
   console.log(sut.tags)
 })
 
-import { isValid } from 'date-fns'
-import { parseDateHuman } from './parseDateHuman.js'
-it('x', async () => {
-  let res = parseDateHuman('Feb 26, 2024')
-  expect(isValid(res)).toBe(true)
-
-  res = parseDateHuman('2024-02-26')
-  expect(isValid(res)).toBe(true)
-})
+const parseWorkspaceIndex = (index: WorkspaceIndex) => {
+  let calendar = []
+  // for .before and next .calendar event
+  let events = []
+  let waiting = []
+  let now = []
+  let review = []
+  for (let [path, item] of Object.entries(index.data.paths)) {
+    if (item.calendar) {
+      item.calendar.forEach(x => {
+        calendar.push({ ...x, path })
+      })
+    }
+    if (path.includes('now')) {
+      now.push({ path })
+    }
+    if (path.includes('waiting')) {
+      waiting.push({ path })
+    }
+  }
+  let blob = { calendar, events, waiting, now, review }
+  return blob
+}
 
 it.only('x y #slow #scaffold', async () => {
   let dir = join(process.env.HOME, 'repos/tf-open/packages/tfc/samples/one')
@@ -46,6 +61,13 @@ it.only('x y #slow #scaffold', async () => {
     path: 'one/secret.md.asc',
     type: 'section',
   })
+
+  let two = index.data.paths['two/index.md']
+  expect(two.calendar[0].date.toISOString()).toBe('2024-02-26T00:00:00.000Z')
+
+  let blob = parseWorkspaceIndex(index)
+
+  console.log(blob)
 
   // s1.log.info({ index })
   //sut.parse()
