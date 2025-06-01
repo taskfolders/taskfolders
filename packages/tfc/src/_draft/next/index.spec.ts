@@ -28,7 +28,7 @@ it('x', async () => {
   expect(isValid(res)).toBe(true)
 })
 
-it.skip('x y #slow #scaffold', async () => {
+it.only('x y #slow #scaffold', async () => {
   let dir = join(process.env.HOME, 'repos/tf-open/packages/tfc/samples/one')
   dir = join(process.env.HOME, 'repos/play/demo/one')
 

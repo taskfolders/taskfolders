@@ -11,11 +11,115 @@ import { StandardMetadata } from './StandardMetadata.js'
 export class ScanV2Handler {
   fs = fs
   log = new Logger()
+
+  workspace: Folder
+  stats = { files: 0, errors: 0 }
+  wsIndexData = new WorkspaceIndex()
+
   constructor(public params: { dir: string }) {}
+
+  async _scanFolder(folder: Folder) {
+    let { log, stats, workspace, wsIndexData } = this
+
+    let files = folder.ls()
+    let folders: Folder[] = []
+
+    if (folder !== workspace) {
+      if (folder.isWorkspace()) {
+        log.info(
+          'Avoid going down other workspace',
+          workspace.relative(folder.dir),
+        )
+        return
+      }
+    }
+
+    for (let file of files) {
+      const scanFile = async (file: string) => {
+        let fullPath = join(folder.dir, file)
+        let relPath = workspace.relative(fullPath)
+
+        // log.info('scan file', relPath)
+        let scanMarkdown = async ({ body }) => {
+          stats.files++
+          let md = await MarkdownDocument.fromBody(body, {
+            implicitFrontmatter: true,
+          })
+          if (md.data) {
+            let _data = md.data as any
+            let meta = new StandardMetadata(_data)
+            wsIndexData.updateFile(relPath, { uid: meta.uid })
+            wsIndexData.updateFile(relPath, { sid: meta.sid })
+
+            if (meta.calendar.length > 0) {
+              log.info('..ssss', meta.calendar)
+            }
+          }
+          let sec = await MarkdownSections.parse(md.content)
+          for (let s of sec.all) {
+            if (!s.data) continue
+            let data = new StandardMetadata(s.data)
+
+            if (data?.uid) {
+              let dat = cleanObject({
+                uid: data.uid,
+                sid: data.sid,
+                lineText: s.heading,
+              })
+              wsIndexData.addFileSection(relPath, dat)
+            }
+          }
+        }
+
+        if (file.endsWith('.md')) {
+          log.info('Scan file', relPath)
+
+          let body = fs.readFileSync(fullPath, 'utf-8').toString()
+          await scanMarkdown({ body })
+        } else if (file.endsWith('index.json')) {
+          log.info('Scan file', relPath)
+          let body = fs.readFileSync(fullPath, 'utf-8').toString()
+          let data = JSON.parse(body)
+          if (data?.uid) {
+            wsIndexData.updateFile(relPath, { uid: data.uid })
+          }
+        } else if (file.endsWith('.md.asc')) {
+          log.info('Scan file', relPath)
+          let body = fs.readFileSync(fullPath, 'utf-8').toString()
+          let out = await decryptGPGMessage(body)
+
+          scanMarkdown({ body: out.message })
+          //console.log('TODO md.asc', relPath, out)
+        } else {
+          let stat = fs.statSync(fullPath)
+          if (stat.isDirectory()) {
+            let folder = new Folder(fullPath)
+            await folder.parse()
+            folders.push(folder)
+          }
+        }
+      }
+
+      await scanFile(file).catch(err => {
+        stats.errors++
+        log.info('Error scanning file', file)
+        // TODO way to log error with print/error cause?
+        // log.info('Error scanning file', file, {cause: error})
+      })
+    }
+
+    for (let folder of folders) {
+      let relPath = workspace.relative(folder.dir)
+      //log.info('folder -', relPath)
+      await this._scanFolder(folder).catch(err => {
+        log.info('Error scanning folder', relPath)
+      })
+    }
+  }
 
   async execute() {
     let { dir } = this.params
-    let { log } = this
+    let { log, stats } = this
     let start = new Date().getTime()
 
     let workspace: Folder
@@ -38,107 +142,11 @@ export class ScanV2Handler {
 
     log.info('workspace', workspace?.dir)
     let wsIndexData = new WorkspaceIndex()
-    let stats = { files: 0, errors: 0 }
 
-    // Update all references to wsIndexData to use wsIndexData.data
-    const scanFolder = async (folder: Folder) => {
-      let files = folder.ls()
-      let folders: Folder[] = []
-
-      if (folder !== workspace) {
-        if (folder.isWorkspace()) {
-          log.info(
-            'Avoid going down other workspace',
-            workspace.relative(folder.dir),
-          )
-          return
-        }
-      }
-
-      for (let file of files) {
-        const scanFile = async (file: string) => {
-          let fullPath = join(folder.dir, file)
-          let relPath = workspace.relative(fullPath)
-
-          // log.info('scan file', relPath)
-          let scanMarkdown = async ({ body }) => {
-            stats.files++
-            let md = await MarkdownDocument.fromBody(body, {
-              implicitFrontmatter: true,
-            })
-            if (md.data) {
-              let _data = md.data as any
-              let meta = new StandardMetadata(_data)
-              wsIndexData.updateFile(relPath, { uid: meta.uid })
-              wsIndexData.updateFile(relPath, { sid: meta.sid })
-
-              if (meta.calendar.length > 0) {
-                log.info('..ssss', meta.calendar)
-              }
-            }
-            let sec = await MarkdownSections.parse(md.content)
-            for (let s of sec.all) {
-              if (!s.data) continue
-              let data = new StandardMetadata(s.data)
-
-              if (data?.uid) {
-                let dat = cleanObject({
-                  uid: data.uid,
-                  sid: data.sid,
-                  lineText: s.heading,
-                })
-                wsIndexData.addFileSection(relPath, dat)
-              }
-            }
-          }
-
-          if (file.endsWith('.md')) {
-            log.info('Scan file', relPath)
-
-            let body = fs.readFileSync(fullPath, 'utf-8').toString()
-            await scanMarkdown({ body })
-          } else if (file.endsWith('index.json')) {
-            log.info('Scan file', relPath)
-            let body = fs.readFileSync(fullPath, 'utf-8').toString()
-            let data = JSON.parse(body)
-            if (data?.uid) {
-              wsIndexData.updateFile(relPath, { uid: data.uid })
-            }
-          } else if (file.endsWith('.md.asc')) {
-            log.info('Scan file', relPath)
-            let body = fs.readFileSync(fullPath, 'utf-8').toString()
-            let out = await decryptGPGMessage(body)
-
-            scanMarkdown({ body: out.message })
-            //console.log('TODO md.asc', relPath, out)
-          } else {
-            let stat = fs.statSync(fullPath)
-            if (stat.isDirectory()) {
-              let folder = new Folder(fullPath)
-              await folder.parse()
-              folders.push(folder)
-            }
-          }
-        }
-
-        await scanFile(file).catch(err => {
-          stats.errors++
-          log.info('Error scanning file', file)
-          // TODO way to log error with print/error cause?
-          // log.info('Error scanning file', file, {cause: error})
-        })
-      }
-
-      for (let folder of folders) {
-        let relPath = workspace.relative(folder.dir)
-        //log.info('folder -', relPath)
-        await scanFolder(folder).catch(err => {
-          log.info('Error scanning folder', relPath)
-        })
-      }
-    }
-
-    await scanFolder(workspace)
+    // TODO clean
+    this.workspace = workspace
+    this.wsIndexData = wsIndexData
+    await this._scanFolder(workspace)
 
     let wsIndexFile = workspace.dataDir({
       join: ['workspace-index.json'],
