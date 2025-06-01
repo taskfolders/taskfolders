@@ -7,7 +7,7 @@ import { join } from 'path/posix'
 import { decryptGPGMessage } from '../gpg/decryptGPGMessage.js'
 import { MarkdownDocument } from '@taskfolders/utils/markdown'
 
-export class ShowHandler {
+export class ReadReferenceHandler {
   log = new Logger()
 
   constructor(public params: { cwd: string; id: string }) {}

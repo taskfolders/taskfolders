@@ -1,7 +1,7 @@
 import Yargs from 'yargs'
 import { DC } from '@taskfolders/utils/dependencies'
 import { ScanV2Handler } from './_draft/next/ScanV2.handler.js'
-import { ShowHandler } from './_draft/next/Show.handler.js'
+import { ReadReferenceHandler } from './_draft/next/ReadReference.handler.js'
 import { SummaryHandler } from './_draft/next/Summary.handler.js'
 
 export class TfcApp {
@@ -80,7 +80,10 @@ export class TfcApp {
         command: 'show id',
         describe: 'NEW Show file by sid/uid',
         handler: async argv => {
-          let han = new ShowHandler({ cwd: process.cwd(), id: argv.id })
+          let han = new ReadReferenceHandler({
+            cwd: process.cwd(),
+            id: argv.id,
+          })
           await han.execute()
         },
       })
