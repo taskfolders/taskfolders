@@ -1,17 +1,67 @@
-import { join } from 'path'
-import * as Path from 'path'
-import { expect, describe, it } from 'vitest'
-import fs from 'node:fs'
-import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
 import { findWorkspaceUp } from '../WorkspaceRepo.js'
 import {
   MarkdownDocument,
   MarkdownSections,
   TaskFoldersMarkdown,
 } from '@taskfolders/utils/markdown'
-import { relative } from 'node:path'
-import { inspect } from 'node:util'
+import Path, { join, relative } from 'node:path'
 import { decryptGPGMessage } from '../gpg/decryptGPGMessage.js'
+import { Logger } from './Logger.js'
+import fs from 'node:fs'
+
+class WorkspaceIndex {
+  _index = { uids: {} }
+  path: string
+  data = {
+    type: 'draft/workspace-index/1',
+    version: 1,
+    paths: {},
+  } as {
+    type: string
+    version: number
+    paths: Record<
+      string,
+      {
+        sid?: any
+        uid?: any
+        sections: { uid?; sid?; lineText? }[]
+      }
+    >
+  }
+
+  find(kv: { uid: string }): { path; type } {
+    this._refreshIndex()
+    return this._index.uids[kv.uid]
+  }
+
+  _refreshIndex() {
+    for (let [key, val] of Object.entries(this.data.paths)) {
+      if (val.uid) {
+        this._index.uids[val.uid] = { path: key, type: 'path' }
+      }
+    }
+  }
+
+  addFileSection(
+    relPath: string,
+    kv: { uid?: any; sid?: any; lineText?: string },
+  ) {
+    this.data.paths[relPath] ??= { sections: [] }
+    let target = this.data.paths[relPath]
+    target.sections.push(kv)
+  }
+
+  updateFile(relPath: string, kv: { uid?: any; sid?: any }) {
+    this.data.paths[relPath] ??= { sections: [] }
+    let target = this.data.paths[relPath]
+    if (kv.uid) {
+      target.uid = kv.uid
+    }
+    if (kv.sid) {
+      target.sid = kv.sid
+    }
+  }
+}
 
 class Folder {
   fs = fs
@@ -20,7 +70,7 @@ class Folder {
   constructor(public dir: string) {}
 
   findBase() {
-    let all = findUpAll({ startFrom: this.dir, findName: 'index.md' })
+    //let all = findUpAll({ startFrom: this.dir, findName: 'index.md' })
   }
 
   async parse() {
@@ -77,30 +127,8 @@ class Folder {
   }
 }
 
-class Logger {
-  options = {
-    deep: false,
-  }
-
-  info(...args) {
-    if (args.length === 1) {
-      if (typeof args[0] === 'object') {
-        args = [inspect(args[0], { depth: null, colors: true })]
-      }
-    }
-    console.log('[INFO]', ...args)
-  }
-  deep() {
-    let next = new Logger()
-    return next
-  }
-  child() {
-    // return one shot parametrize logger
-    return this
-  }
-}
-
 export class ScanV2Handler {
+  fs = fs
   constructor(public params: { dir: string }) {}
 
   async execute() {
@@ -127,12 +155,9 @@ export class ScanV2Handler {
     }
 
     log.info('workspace', workspace?.dir)
-    let wsIndexData = {
-      type: 'draft/workspace-index/1',
-      version: 1,
-      uids: {},
-      paths: {},
-    }
+    let wsIndexData = new WorkspaceIndex()
+
+    // Update all references to wsIndexData to use wsIndexData.data
 
     const scanFolder = async (folder: Folder) => {
       let files = folder.ls()
@@ -147,27 +172,20 @@ export class ScanV2Handler {
           })
           let data = md.data as any
           if (data) {
-            if (data.uid) {
-              wsIndexData.uids[data.uid] = { path: relPath }
-              wsIndexData.paths[relPath] = { uids: [data.uid] }
-            }
-            if (data.sid) {
-              wsIndexData.paths[relPath] = { sids: [data.sid] }
-            }
+            wsIndexData.updateFile(relPath, { uid: data.uid })
+            wsIndexData.updateFile(relPath, { sid: data.sid })
           }
           let sec = await MarkdownSections.parse(md.content)
           for (let s of sec.all) {
             data = s.data
 
             if (data?.uid) {
-              wsIndexData.uids[data.uid] = {
-                path: relPath,
-                section: true,
-                line: s.heading,
-              }
-              wsIndexData.paths[relPath] ??= {}
-              wsIndexData.paths[relPath].uids ??= []
-              wsIndexData.paths[relPath].uids.push(data.uid)
+              let dat = cleanObject({
+                uid: data.uid,
+                sid: data.sid,
+                lineText: s.heading,
+              })
+              wsIndexData.addFileSection(relPath, dat)
             }
           }
         }
@@ -178,7 +196,7 @@ export class ScanV2Handler {
           let body = fs.readFileSync(fullPath, 'utf-8').toString()
           let data = JSON.parse(body)
           if (data?.uid) {
-            wsIndexData.uids[data.uid] = { path: relPath }
+            wsIndexData.updateFile(relPath, { uid: data.uid })
           }
         } else if (file.endsWith('.md.asc')) {
           let body = fs.readFileSync(fullPath, 'utf-8').toString()
@@ -204,22 +222,37 @@ export class ScanV2Handler {
     }
     await scanFolder(workspace)
 
-    let wsIndexFile = workspace.dataDir()
+    let wsIndexFile = workspace.dataDir({
+      join: ['workspace-index.json'],
+      ensure: true,
+    })
     log.info({ wsIndexData })
+    this.fs.writeFileSync(wsIndexFile, JSON.stringify(wsIndexData, null, 2))
+    log.info('Workspace index written to', wsIndexFile)
 
     let summary = {
       workspace: workspace?.dir,
     }
+
+    return { index: wsIndexData }
   }
 }
+
+import { expect, describe, it } from 'vitest'
+import { cleanObject } from './cleanObject.js'
 
 it.only('x y', async () => {
   let dir = join(process.env.HOME, 'repos/tf-open/packages/tfc/samples/one')
   dir = join(process.env.HOME, 'repos/play/demo/one')
 
   let s1 = new ScanV2Handler({ dir })
-  await s1.execute()
+  let result = await s1.execute()
 
+  expect(
+    result.index.find({
+      uid: 'aaf32c4f-a39a-420f-bff9-ba217f5825b9',
+    }),
+  ).toEqual({ path: 'panda/foo.md', type: 'path' })
   //sut.parse()
   //sut.findBase()
 })
