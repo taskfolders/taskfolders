@@ -6,6 +6,7 @@ import { cleanObject } from './cleanObject.js'
 import { Folder } from './Folder.js'
 import { Logger } from './Logger.js'
 import { WorkspaceIndex } from './WorkspaceIndex.js'
+import { StandardMetadata } from './StandardMetadata.js'
 
 export class ScanV2Handler {
   fs = fs
@@ -65,14 +66,20 @@ export class ScanV2Handler {
             let md = await MarkdownDocument.fromBody(body, {
               implicitFrontmatter: true,
             })
-            let data = md.data as any
-            if (data) {
-              wsIndexData.updateFile(relPath, { uid: data.uid })
-              wsIndexData.updateFile(relPath, { sid: data.sid })
+            if (md.data) {
+              let _data = md.data as any
+              let meta = new StandardMetadata(_data)
+              wsIndexData.updateFile(relPath, { uid: meta.uid })
+              wsIndexData.updateFile(relPath, { sid: meta.sid })
+
+              if (meta.calendar.length > 0) {
+                log.info('..ssss', meta.calendar)
+              }
             }
             let sec = await MarkdownSections.parse(md.content)
             for (let s of sec.all) {
-              data = s.data
+              if (!s.data) continue
+              let data = new StandardMetadata(s.data)
 
               if (data?.uid) {
                 let dat = cleanObject({
@@ -84,6 +91,7 @@ export class ScanV2Handler {
               }
             }
           }
+
           if (file.endsWith('.md')) {
             log.info('Scan file', relPath)
 
@@ -142,7 +150,7 @@ export class ScanV2Handler {
     log.info('Workspace index written to', wsIndexFile)
     let diff = new Date().getTime() - start
     log.info(`Scan completed in ${diff}ms`)
-    log.info(`Scanned ${stats.files} files`)
+    log.info(`Scanned files=${stats.files} errors=${stats.errors}`)
 
     let summary = {
       workspace: workspace?.dir,

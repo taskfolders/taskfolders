@@ -1,6 +1,7 @@
 import Yargs from 'yargs'
 import { DC } from '@taskfolders/utils/dependencies'
-import { ScanV2Handler } from './_draft/next/ScanV2Handler'
+import { ScanV2Handler } from './_draft/next/ScanV2.handler.js'
+import { ShowHandler } from './_draft/next/Show.handler.js'
 
 export class TfcApp {
   dc = new DC()
@@ -12,7 +13,7 @@ export class TfcApp {
       .strict(true)
 
       .command({
-        command: 'scan [path]',
+        command: 'scan-old-1 [path]',
         describe: 'scan folder content',
         builder: {
           convert: {
@@ -62,7 +63,7 @@ export class TfcApp {
       })
 
       .command({
-        command: 'show id',
+        command: 'show-old-1 id',
         describe: 'Show file by sid/uid',
         handler: async argv => {
           let { GetKeyValue } = await import(
@@ -71,6 +72,15 @@ export class TfcApp {
           let sut = dc.fetch(GetKeyValue)
           // sut.params = { id: argv.id, query: argv.query }
           // let res = await sut.execute()
+        },
+      })
+
+      .command({
+        command: 'show id',
+        describe: 'NEW Show file by sid/uid',
+        handler: async argv => {
+          let han = new ShowHandler({ cwd: process.cwd(), id: argv.id })
+          await han.execute()
         },
       })
 
@@ -96,7 +106,8 @@ export class TfcApp {
       })
 
       .command({
-        command: 'scan2',
+        command: 'scan',
+        describe: 'NEW next generation scan',
         handler: async argv => {
           console.log('TODO scan2', __filename)
           let han = new ScanV2Handler({ dir: process.cwd() })
