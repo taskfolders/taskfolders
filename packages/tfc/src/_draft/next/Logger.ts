@@ -1,11 +1,75 @@
 import { inspect } from 'util'
+import * as Color from 'colorette'
+import { padEnd } from '@taskfolders/utils/native/string/padEnd'
+
+const Col = Color.createColors({ useColor: true })
+
+const levelColors = {
+  info: 'cyan',
+  warn: 'yellow',
+  dev: 'yellow',
+  error: 'red',
+  debug: 'white',
+  trace: 'gray',
+}
+let colorizeLevel = level => {
+  level = Col[levelColors[level]](level.toUpperCase())
+  if (level === 'dev') {
+    level = Col.bold(level)
+  }
+  return level
+}
 
 export class Logger {
-  options = {
-    deep: false,
-  }
+  options: {
+    start?: Date
+    depth?: number
+    padding: number
+  } = { padding: 0 }
+  data = {}
 
   info(...args) {
+    this.raw({ args, level: 'info' })
+  }
+  debug(...args) {
+    this.raw({ args, level: 'debug' })
+  }
+  dev(...args) {
+    this.raw({ args, level: 'dev' })
+  }
+  error(...args) {
+    this.raw({ args, level: 'error' })
+  }
+
+  time(cb?: () => Promise<any>) {
+    if (cb) {
+      this.options.start = new Date()
+      return cb().then(() => {
+        this.timeEnd()
+      })
+    } else {
+      this.options.start = new Date()
+      return this
+    }
+  }
+  timeEnd() {
+    let diff = Date.now() - this.options.start.getTime()
+    console.log('[DEV:time]', diff, 'ms')
+    return this
+  }
+
+  group() {
+    this.options.padding += 2
+    return this
+  }
+  groupEnd() {
+    this.options.padding -= 2
+    return this
+  }
+
+  raw(kv: { level?; message?; args?; depth? }) {
+    let { args } = kv
+
     if (args.length === 1) {
       if (typeof args[0] === 'object') {
         args = [inspect(args[0], { depth: null, colors: true })]
@@ -15,14 +79,43 @@ export class Logger {
         args = [args[0], inspect(args[1], { depth: null, colors: true })]
       }
     }
-    console.log('[INFO]', ...args)
+
+    let level = colorizeLevel(kv.level)
+    if (this.options.padding) {
+      args = [' '.repeat(this.options.padding), ...args]
+    }
+
+    let t1 = padEnd(`[${level}]`, 7)
+    console.log(t1, ...args)
+    if (!isEmpty(this.data)) {
+      let data = inspect(this.data, { depth: null, colors: false })
+      data = Col.dim(data)
+      console.log(' '.repeat(this.options.padding), '  |', data)
+    }
+    return this
   }
+
+  put(...args) {
+    if (this.options.padding) {
+      console.log('...')
+
+      args = [' '.repeat(this.options.padding), ...args]
+    }
+    console.log(...args)
+  }
+
   deep() {
     let next = new Logger()
     return next
   }
   child() {
+    let copy = new Logger()
+    copy.options = { ...this.options }
     // return one shot parametrize logger
     return this
   }
+}
+
+function isEmpty(data: {}) {
+  return Object.keys(data).length === 0
 }

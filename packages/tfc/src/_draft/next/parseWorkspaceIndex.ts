@@ -14,6 +14,13 @@ export const parseWorkspaceIndex = (index: WorkspaceIndex) => {
       })
     }
     if (path.includes('now')) {
+      // let ma = path.match(/action\/now\/(.*)/)
+      // let next
+      // if (ma) {
+      //   let t1 = ma[1]
+      //   next = t1
+      // }
+
       now.push({ path })
     }
     if (path.includes('waiting')) {
