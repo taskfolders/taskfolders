@@ -22,6 +22,10 @@
   "references": [
     {
       "path": "./packages/utils/tsconfig.ref.json"
+    },
+    {
+      "path": "./packages/tfc/tsconfig.ref.json"
     }
+
   ]
 }
