@@ -2,7 +2,7 @@ import Yargs from 'yargs'
 import { DC } from '@taskfolders/utils/dependencies'
 import { ScanV2Handler } from './_draft/next/ScanV2.handler.js'
 import { ReadReferenceHandler } from './_draft/next/ReadReference.handler.js'
-import { SummaryHandler } from './_draft/next/Summary.handler.js'
+import { SummaryHandler } from './_draft/next/summary/Summary.handler.js'
 
 export class TfcApp {
   dc = new DC()
@@ -113,7 +113,6 @@ export class TfcApp {
         command: 'scan',
         describe: 'NEW next generation scan',
         handler: async argv => {
-          console.log('TODO scan2', __filename)
           let han = new ScanV2Handler({ dir: process.cwd() })
           await han.execute()
         },

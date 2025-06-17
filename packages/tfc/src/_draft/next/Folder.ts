@@ -37,7 +37,7 @@ export class Folder {
   }
 
   dataDir(kv: { ensure?; join?: string[] } = {}) {
-    let path = join(this.dir, '_data')
+    let path = join(this.dir, '_data/tf')
     if (kv.ensure) {
       this.fs.mkdirSync(path, { recursive: true })
     }

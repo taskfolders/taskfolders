@@ -142,6 +142,10 @@ export class ScanV2Handler {
     let { log, stats } = this
     let start = new Date().getTime()
 
+    log.put()
+    log.print(th => ['TODO scan2', th.link({ path: __filename })])
+    log.put()
+
     let workspace: Folder
     let dir_now = dir
     while (dir_now !== '/') {
@@ -162,20 +166,23 @@ export class ScanV2Handler {
 
     log.info('workspace', workspace?.dir)
     let wsIndexData = new WorkspaceIndex()
+    wsIndexData.path = workspace.dataDir({
+      join: ['workspace-index.json'],
+      ensure: true,
+    })
+    log.info('Using index file', wsIndexData.path)
+    log.put()
 
     // TODO clean
     this.workspace = workspace
     this.wsIndexData = wsIndexData
     await this._scanFolder(workspace)
 
-    let wsIndexFile = workspace.dataDir({
-      join: ['workspace-index.json'],
-      ensure: true,
-    })
-    console.log()
-
-    this.fs.writeFileSync(wsIndexFile, JSON.stringify(wsIndexData, null, 2))
-    log.info('Workspace index written to', wsIndexFile)
+    this.fs.writeFileSync(
+      wsIndexData.path,
+      JSON.stringify(wsIndexData, null, 2),
+    )
+    log.info('Workspace index written to', wsIndexData.path)
     let diff = new Date().getTime() - start
     log.info(`Scan completed in ${diff}ms`)
     log.info(`Scanned files=${stats.files} errors=${stats.errors}`)

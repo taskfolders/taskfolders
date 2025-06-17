@@ -1,6 +1,9 @@
 export class WorkspaceIndex {
-  static fromJSON(body: string) {
-    let index = new WorkspaceIndex()
+  constructor(kv: { path }) {
+    this.path = kv.path
+  }
+  static fromJSON(body: string, kv: { path }) {
+    let index = new WorkspaceIndex({ path: kv.path })
     index.data = JSON.parse(body)
     Object.values(index.data.paths).forEach(x => {
       x.sections ??= []

@@ -2,6 +2,8 @@ import { inspect } from 'util'
 import * as Color from 'colorette'
 import { padEnd } from '@taskfolders/utils/native/string/padEnd'
 
+import { shellHyperlink } from '@taskfolders/utils/screen'
+
 const Col = Color.createColors({ useColor: true })
 
 const levelColors = {
@@ -27,6 +29,8 @@ export class Logger {
     padding: number
   } = { padding: 0 }
   data = {}
+
+  link = shellHyperlink
 
   info(...args) {
     this.raw({ args, level: 'info' })
@@ -58,6 +62,14 @@ export class Logger {
     return this
   }
 
+  indent() {
+    this.options.padding += 2
+    return this
+  }
+  dedent() {
+    this.options.padding -= 2
+    return this
+  }
   group() {
     this.options.padding += 2
     return this
@@ -95,10 +107,13 @@ export class Logger {
     return this
   }
 
+  print(cb: (ctx: { link: typeof shellHyperlink }) => any) {
+    let ctx = { link: shellHyperlink }
+    console.log(...[].concat(cb(ctx)))
+  }
+
   put(...args) {
     if (this.options.padding) {
-      console.log('...')
-
       args = [' '.repeat(this.options.padding), ...args]
     }
     console.log(...args)
