@@ -16,9 +16,6 @@ export const prettyNow = (all: { path }[], kv: { basePath }) => {
         return null
       }
 
-      // TODO wtf? out?
-      next.mtime = fs.statSync(next.pathFull).mtime
-
       let parts = next.path.split('/')
       let idx = parts.findIndex(x => x.match(/now/)) + 1
       let afterNow = parts[idx] ?? parts[0]
@@ -46,7 +43,8 @@ export const prettyNow = (all: { path }[], kv: { basePath }) => {
   let group = Object.groupBy(r1, x => x.dir)
   for (let [key, val] of Object.entries(group)) {
     if (key === 'null') continue
-    let next = val.sort((lhs, rhs) => lhs.length - rhs.length).at(0)
+
+    let next = val.sort((lhs, rhs) => lhs.path.length - rhs.path.length).at(0)
 
     group[key] = next
   }
@@ -67,7 +65,7 @@ export const parseWorkspaceIndex = (index: WorkspaceIndex, { basePath }) => {
   for (let [path, item] of Object.entries(index.data.paths)) {
     if (item.calendar) {
       item.calendar.forEach(x => {
-        calendar.push({ ...x, path })
+        calendar.push({ ...x, path, date: new Date(x.date) })
       })
     }
     if (path.includes('now')) {
@@ -76,7 +74,9 @@ export const parseWorkspaceIndex = (index: WorkspaceIndex, { basePath }) => {
         let parts = path.split('/')
       }
 
-      now.push({ path })
+      let next = new PathItem()
+      next.path = path
+      now.push(next)
     }
     if (path.includes('waiting')) {
       waiting.push({ path })

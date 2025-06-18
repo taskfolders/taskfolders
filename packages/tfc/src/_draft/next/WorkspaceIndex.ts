@@ -1,20 +1,13 @@
+import * as fs from 'node:fs'
+import { PathItem } from './summary/PathItem.js'
+import { join } from 'path/posix'
+
 export class WorkspaceIndex {
-  constructor(kv: { path }) {
-    this.path = kv.path
-  }
-  static fromJSON(body: string, kv: { path }) {
-    let index = new WorkspaceIndex({ path: kv.path })
-    index.data = JSON.parse(body)
-    Object.values(index.data.paths).forEach(x => {
-      x.sections ??= []
-    })
-
-    return index
-  }
-
   _index = { uids: {} }
-  path: string
+  pathIndexFile: string
+  pathBaseDir: string
   timestamp = new Date()
+  fs = fs
 
   data = {
     type: 'draft/workspace-index/1',
@@ -28,10 +21,39 @@ export class WorkspaceIndex {
       {
         sid?: any
         uid?: any
+        scanTime?
         sections: { uid?; sid?; lineText? }[]
         calendar?: any[]
       }
     >
+  }
+
+  get(path: string) {
+    let file = new PathItem()
+    file.path = path
+    file.base = this.pathBaseDir
+    let found = this.data.paths[path] ?? {}
+    Object.assign(file, found)
+    return file
+    console.log(found)
+  }
+
+  constructor(kv: { path }) {
+    this.pathIndexFile = kv.path
+  }
+
+  static fromJSON(body: string, kv: { path }) {
+    let index = new WorkspaceIndex({ path: kv.path })
+    index.loadJSON(body)
+
+    return index
+  }
+
+  loadJSON(doc: string) {
+    this.data = JSON.parse(doc)
+    Object.values(this.data.paths).forEach(x => {
+      x.sections ??= []
+    })
   }
 
   find(kv: { uid: string }): { path; type } {
@@ -62,7 +84,7 @@ export class WorkspaceIndex {
   }
 
   updateFile(relPath: string, kv: { uid?: any; sid?: any }) {
-    this.data.paths[relPath] ??= { sections: [] }
+    this.data.paths[relPath] ??= { sections: [], scanTime: new Date() }
     let target = this.data.paths[relPath]
     if (kv.uid) {
       target.uid = kv.uid
@@ -71,6 +93,7 @@ export class WorkspaceIndex {
       target.sid = kv.sid
     }
   }
+
   toJSON() {
     let copy = deepCopy(this.data)
     Object.values(copy.paths).forEach(path => {
@@ -92,6 +115,24 @@ export class WorkspaceIndex {
     // }
 
     return copy
+  }
+
+  write() {
+    this.fs.writeFileSync(
+      this.pathIndexFile,
+      JSON.stringify(this.data, null, 2),
+    )
+  }
+
+  static async fromDir(kv: { indexDir: string; baseDir: string }) {
+    let path = join(kv.indexDir, 'workspace-index.json')
+    let obj = new this({ path })
+    obj.pathBaseDir = kv.baseDir
+    if (fs.existsSync(path)) {
+      let json = fs.readFileSync(path).toString()
+      obj.loadJSON(json)
+    }
+    return obj
   }
 }
 

@@ -1,13 +1,13 @@
 import { MarkdownDocument, MarkdownSections } from '@taskfolders/utils/markdown'
 import fs from 'node:fs'
 import { join } from 'path/posix'
-import { decryptGPGMessage } from '../gpg/decryptGPGMessage.js'
-import { cleanObject } from './cleanObject.js'
-import { Folder } from './Folder.js'
-import { Logger } from './Logger.js'
-import { WorkspaceIndex } from './WorkspaceIndex.js'
-import { StandardMetadata } from './StandardMetadata.js'
-import { parseDateHuman } from './parseDateHuman.js'
+import { decryptGPGMessage } from '../../gpg/decryptGPGMessage.js'
+import { cleanObject } from '../cleanObject.js'
+import { Folder } from '../Folder.js'
+import { Logger } from '../Logger.js'
+import { WorkspaceIndex } from '../WorkspaceIndex.js'
+import { StandardMetadata } from '../StandardMetadata.js'
+import { parseDateHuman } from '../parseDateHuman.js'
 
 export class ScanV2Handler {
   fs = fs
@@ -15,7 +15,7 @@ export class ScanV2Handler {
 
   workspace: Folder
   stats = { files: 0, errors: 0 }
-  wsIndexData = new WorkspaceIndex()
+  wsIndexData: WorkspaceIndex
 
   constructor(public params: { dir: string }) {}
 
@@ -24,6 +24,11 @@ export class ScanV2Handler {
 
     let fullPath = join(folder.dir, file)
     let relPath = workspace.relative(fullPath)
+
+    if (file.endsWith('.md.asc')) {
+      log.info('Skip', file)
+      return
+    }
 
     // log.info('scan file', relPath)
     let scanMarkdown = async ({ body, path }) => {
@@ -52,6 +57,7 @@ export class ScanV2Handler {
             x.date = date
             return x
           })
+          // TODO drop default?
           let target = (wsIndexData.data.paths[relPath] ??= { sections: [] })
           target.calendar = calendar
           // wsIndexData.data.paths[relPath] ??= {} calendar
@@ -92,6 +98,7 @@ export class ScanV2Handler {
       let out = await decryptGPGMessage(body)
 
       scanMarkdown({ body: out.message, path: '' })
+      wsIndexData.updateFile(relPath, { uid: null })
       //console.log('TODO md.asc', relPath, out)
     } else {
       let stat = fs.statSync(fullPath)
@@ -165,12 +172,19 @@ export class ScanV2Handler {
     }
 
     log.info('workspace', workspace?.dir)
-    let wsIndexData = new WorkspaceIndex()
-    wsIndexData.path = workspace.dataDir({
+    let wsIndexData = new WorkspaceIndex({ path: null })
+    wsIndexData.pathIndexFile = workspace.dataDir({
       join: ['workspace-index.json'],
       ensure: true,
     })
-    log.info('Using index file', wsIndexData.path)
+
+    let before = new WorkspaceIndex({ path: wsIndexData.pathIndexFile })
+    if (fs.existsSync(before.pathIndexFile)) {
+      let doc = fs.readFileSync(before.pathIndexFile).toString()
+      before.loadJSON(doc)
+    }
+
+    log.info('Using index file', wsIndexData.pathIndexFile)
     log.put()
 
     // TODO clean
@@ -179,10 +193,10 @@ export class ScanV2Handler {
     await this._scanFolder(workspace)
 
     this.fs.writeFileSync(
-      wsIndexData.path,
+      wsIndexData.pathIndexFile,
       JSON.stringify(wsIndexData, null, 2),
     )
-    log.info('Workspace index written to', wsIndexData.path)
+    log.info('Workspace index written to', wsIndexData.pathIndexFile)
     let diff = new Date().getTime() - start
     log.info(`Scan completed in ${diff}ms`)
     log.info(`Scanned files=${stats.files} errors=${stats.errors}`)

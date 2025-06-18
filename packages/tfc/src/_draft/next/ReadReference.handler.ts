@@ -21,7 +21,7 @@ export class ReadReferenceHandler {
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     log.info('Reading workspace index from', path)
     let body = fs.readFileSync(path, 'utf-8').toString()
-    let index = WorkspaceIndex.fromJSON(body)
+    let index = WorkspaceIndex.fromJSON(body, { path })
 
     let found = index.find({ uid: this.params.id })
     log.info('Found item:', found)

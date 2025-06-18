@@ -1,6 +1,6 @@
 import Yargs from 'yargs'
 import { DC } from '@taskfolders/utils/dependencies'
-import { ScanV2Handler } from './_draft/next/ScanV2.handler.js'
+import { ScanV2Handler } from './_draft/next/scan/ScanV2.handler.js'
 import { ReadReferenceHandler } from './_draft/next/ReadReference.handler.js'
 import { SummaryHandler } from './_draft/next/summary/Summary.handler.js'
 

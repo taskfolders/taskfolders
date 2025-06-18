@@ -6,7 +6,7 @@ import { Logger } from '../Logger.js'
 
 it.only('pretty now', async () => {
   let idx = new WorkspaceIndex({ path: '/app' })
-  idx.path = '/app'
+  idx.pathIndexFile = '/app'
   idx.updateFile('action/now/ikea.md', {})
   idx.updateFile('action/now/second.md', {})
   idx.updateFile('action/now/doctor/index.md', {})

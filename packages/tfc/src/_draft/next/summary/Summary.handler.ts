@@ -29,18 +29,43 @@ export class SummaryHandler {
   async execute() {
     let res = await this.fetchSummaryData()
     let { log } = this
+    console.log(res)
 
     for (let [key, val] of Object.entries(res)) {
       switch (key) {
+        case 'waiting': {
+          log.put('WAITING')
+          log.indent()
+          for (let item of val) {
+            log.put(item.path)
+          }
+          log.dedent()
+          break
+        }
+        case 'calendar': {
+          log.put('CALENDAR', new Date().toISOString().slice(0, 10))
+          let all = val.sort(
+            (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
+          )
+          log.indent()
+          for (let item of all) {
+            let date = item.date.toISOString().slice(0, 10)
+            log.put(date, item.title)
+          }
+          log.dedent()
+          break
+        }
         case 'now': {
-          log.put('NOW items')
+          log.put('NOW')
           log.indent()
           let a1 = Object.groupBy(val, x => x.dir)
           // LOG group by inner dir
           // console.log(a1)
           let all = val as PathItem[]
 
-          all = all.sort((lhs, rhs) => rhs.mtime - lhs.mtime)
+          all = all.sort(
+            (lhs, rhs) => rhs.mtime.getTime() - lhs.mtime.getTime(),
+          )
           all.forEach(x => {
             if (x.show.startsWith('_')) return
             let time = x.mtime.toISOString().slice(0, 10)
@@ -49,6 +74,7 @@ export class SummaryHandler {
               time,
             )
           })
+          log.dedent()
           break
         }
         default:

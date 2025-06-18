@@ -3,9 +3,9 @@ import { TaskFoldersMarkdown } from '@taskfolders/utils/markdown'
 import { join, relative } from 'node:path'
 
 import { expect, describe, it } from 'vitest'
-import { ScanV2Handler } from './ScanV2.handler.js'
+import { ScanV2Handler } from './scan/ScanV2.handler.js'
 import { StandardMetadata } from './StandardMetadata.js'
-import { parseWorkspaceIndex } from './parseWorkspaceIndex.js'
+import { parseWorkspaceIndex } from './summary/parseWorkspaceIndex.js'
 
 it.skip('x', async () => {
   let data = {
@@ -41,7 +41,7 @@ it.only('x y #slow #scaffold', async () => {
   let two = index.data.paths['two/index.md']
   expect(two.calendar[0].date.toISOString()).toBe('2024-02-26T00:00:00.000Z')
 
-  let blob = parseWorkspaceIndex(index)
+  let blob = parseWorkspaceIndex(index, { basePath: null })
 
   console.log(blob)
 
