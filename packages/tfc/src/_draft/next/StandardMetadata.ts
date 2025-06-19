@@ -22,6 +22,10 @@ export class StandardMetadata {
     return [].concat(this.raw.flags ?? this.raw.labels ?? [])
   }
 
+  get review() {
+    return this.raw.review
+  }
+
   isParsable() {
     if (!this.raw.type) return true
     return this.raw.type?.includes('taskfolders.com/')

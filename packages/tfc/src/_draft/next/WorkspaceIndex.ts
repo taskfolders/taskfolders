@@ -1,6 +1,7 @@
 import * as fs from 'node:fs'
 import { PathItem } from './summary/PathItem.js'
 import { join } from 'path/posix'
+import { cleanObjectCopy } from './cleanObject.js'
 
 export class WorkspaceIndex {
   _index = { uids: {} }
@@ -13,14 +14,17 @@ export class WorkspaceIndex {
     type: 'draft/workspace-index/1',
     version: 1,
     paths: {},
+    paths_v2: {},
   } as {
     type: string
     version: number
+    paths_v2: Record<string, PathItem>
     paths: Record<
       string,
       {
         sid?: any
         uid?: any
+        review?: { next; latest? }
         scanTime?
         sections: { uid?; sid?; lineText? }[]
         calendar?: any[]
@@ -38,8 +42,21 @@ export class WorkspaceIndex {
     console.log(found)
   }
 
+  _createItem(path: string) {
+    let file = new PathItem()
+    file.path = path
+    file.base = this.pathBaseDir
+    let found = this.data.paths[path] ?? {}
+    Object.assign(file, found)
+    return file
+    console.log(found)
+  }
+
   constructor(kv: { path }) {
     this.pathIndexFile = kv.path
+
+    // TODO
+    Object.defineProperty(this.data, 'paths_v2', { enumerable: false })
   }
 
   static fromJSON(body: string, kv: { path }) {
@@ -83,8 +100,14 @@ export class WorkspaceIndex {
     target.sections.push(kv)
   }
 
-  updateFile(relPath: string, kv: { uid?: any; sid?: any }) {
+  updateFile(relPath: string, kv: { uid?: any; sid?: any; review? }) {
+    // TODO ..
+    let item = this._createItem(relPath)
+    item.base = this.pathBaseDir
+    this.data.paths_v2[relPath] = item
+
     this.data.paths[relPath] ??= { sections: [], scanTime: new Date() }
+
     let target = this.data.paths[relPath]
     if (kv.uid) {
       target.uid = kv.uid
@@ -92,13 +115,33 @@ export class WorkspaceIndex {
     if (kv.sid) {
       target.sid = kv.sid
     }
+    if (kv.review) {
+      target.review = kv.review
+    }
+    console.log(this.pathBaseDir)
+
+    target.mtime = item.mtime
+    target.inode = item.inode
   }
 
   toJSON() {
     let copy = deepCopy(this.data)
+    delete copy.paths_v2
+
     Object.values(copy.paths).forEach(path => {
       if (path.sections.length === 0) {
         delete path.sections
+      }
+    })
+
+    // TODO drop ?? {}
+    // TODO dedup up
+    Object.values(copy.paths_v2 ?? {}).forEach(item => {
+      console.log('see!')
+
+      let target = copy.paths[item.path]
+      if (item.review) {
+        target.review = item.review
       }
     })
 

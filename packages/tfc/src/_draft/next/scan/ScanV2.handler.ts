@@ -2,7 +2,7 @@ import { MarkdownDocument, MarkdownSections } from '@taskfolders/utils/markdown'
 import fs from 'node:fs'
 import { join } from 'path/posix'
 import { decryptGPGMessage } from '../../gpg/decryptGPGMessage.js'
-import { cleanObject } from '../cleanObject.js'
+import { cleanObjectCopy } from '../cleanObject.js'
 import { Folder } from '../Folder.js'
 import { Logger } from '../Logger.js'
 import { WorkspaceIndex } from '../WorkspaceIndex.js'
@@ -47,8 +47,13 @@ export class ScanV2Handler {
       if (md.data) {
         let _data = md.data as any
         let meta = new StandardMetadata(_data)
-        wsIndexData.updateFile(relPath, { uid: meta.uid })
-        wsIndexData.updateFile(relPath, { sid: meta.sid })
+        let item = wsIndexData.get(relPath)
+
+        wsIndexData.updateFile(relPath, {
+          uid: meta.uid,
+          sid: meta.sid,
+          review: meta.review,
+        })
 
         if (meta.calendar.length > 0) {
           let calendar = meta.calendar.map(x => {
@@ -70,7 +75,7 @@ export class ScanV2Handler {
         let data = new StandardMetadata(s.data)
 
         if (data?.uid) {
-          let dat = cleanObject({
+          let dat = cleanObjectCopy({
             uid: data.uid,
             sid: data.sid,
             lineText: s.heading,
@@ -177,12 +182,13 @@ export class ScanV2Handler {
       join: ['workspace-index.json'],
       ensure: true,
     })
+    wsIndexData.pathBaseDir = workspace.dir
 
-    let before = new WorkspaceIndex({ path: wsIndexData.pathIndexFile })
-    if (fs.existsSync(before.pathIndexFile)) {
-      let doc = fs.readFileSync(before.pathIndexFile).toString()
-      before.loadJSON(doc)
-    }
+    // let before = new WorkspaceIndex({ path: wsIndexData.pathIndexFile })
+    // if (fs.existsSync(before.pathIndexFile)) {
+    //   let doc = fs.readFileSync(before.pathIndexFile).toString()
+    //   before.loadJSON(doc)
+    // }
 
     log.info('Using index file', wsIndexData.pathIndexFile)
     log.put()

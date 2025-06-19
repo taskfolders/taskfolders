@@ -1,5 +1,6 @@
 import { join } from 'path/posix'
 import * as fs from 'fs'
+import { StandardMetadata } from '../StandardMetadata.js'
 
 function cacheResult(...args) {
   let [fn, ctx] = args
@@ -30,6 +31,7 @@ export class PathItem {
   dir
   show
   base
+  review: StandardMetadata['review']
 
   @cacheResult
   get mtime(): Date {

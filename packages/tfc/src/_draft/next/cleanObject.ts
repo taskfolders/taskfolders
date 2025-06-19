@@ -1,4 +1,4 @@
-export function cleanObject<T extends object>(
+export function cleanObjectCopy<T extends object>(
   obj: T,
   filter = (kv: { key: string; value }) => {
     return kv.value === null || kv.value === undefined
