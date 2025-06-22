@@ -46,14 +46,16 @@ export const prettyNow = (all: { path }[], kv: { basePath }) => {
 
     let next = val.sort((lhs, rhs) => lhs.path.length - rhs.path.length).at(0)
 
+    // @ts-expect-error TODO
     group[key] = next
   }
 
-  const ungroup = x => Object.values(x).flat()
   r1 = ungroup(group)
 
   return r1
 }
+
+const ungroup = x => Object.values<any>(x).flat()
 
 export const parseWorkspaceIndex = (index: WorkspaceIndex, { basePath }) => {
   let calendar = []

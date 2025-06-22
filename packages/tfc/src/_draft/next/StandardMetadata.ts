@@ -1,33 +1,33 @@
 export class StandardMetadata {
-  constructor(public raw) {}
+  constructor(public _raw) {}
 
   get type() {
-    return this.raw.type
+    return this._raw.type
   }
 
   get uid() {
-    return this.raw.uid
+    return this._raw.uid
   }
   get sid() {
-    return this.raw.sid
+    return this._raw.sid
   }
   get tags() {
-    return [].concat(this.raw.tags ?? [])
+    return [].concat(this._raw.tags ?? [])
   }
   get calendar() {
-    return [].concat(this.raw.calendar ?? [])
+    return [].concat(this._raw.calendar ?? [])
   }
 
   get flags() {
-    return [].concat(this.raw.flags ?? this.raw.labels ?? [])
+    return [].concat(this._raw.flags ?? this._raw.labels ?? [])
   }
 
   get review() {
-    return this.raw.review
+    return this._raw.review
   }
 
   isParsable() {
-    if (!this.raw.type) return true
-    return this.raw.type?.includes('taskfolders.com/')
+    if (!this._raw.type) return true
+    return this._raw.type?.includes('taskfolders.com/')
   }
 }

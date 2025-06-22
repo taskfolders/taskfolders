@@ -14,7 +14,7 @@ it.only('pretty now', async () => {
   idx.updateFile('action/now/hike/nested/index.md', {})
   idx.updateFile('projects/india/action/now/plan.md', {})
   idx.updateFile('action/alien/index.md', {})
-  let res = parseWorkspaceIndex(idx)
+  let res = parseWorkspaceIndex(idx, { basePath: '/app' })
   let log = new Logger()
 
   let r1 = prettyNow(res.now, { basePath: '/app' })
