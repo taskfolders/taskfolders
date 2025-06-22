@@ -30,6 +30,8 @@ export class Logger {
   } = { padding: 0 }
   data = {}
 
+  style = Col
+
   link = shellHyperlink
 
   info(...args) {
@@ -117,6 +119,7 @@ export class Logger {
       args = [' '.repeat(this.options.padding), ...args]
     }
     console.log(...args)
+    return this
   }
 
   deep() {

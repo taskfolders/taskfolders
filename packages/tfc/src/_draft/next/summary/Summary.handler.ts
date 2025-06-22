@@ -1,4 +1,12 @@
 import { Logger } from '../Logger.js'
+import {
+  addDays,
+  getWeek,
+  isThisMonth,
+  isThisWeek,
+  isThisYear,
+  isWithinInterval,
+} from 'date-fns'
 import { WorkspaceIndex } from '../WorkspaceIndex.js'
 import { findUpWorkspace } from '../findUpWorkspace.js'
 import * as fs from 'fs'
@@ -11,7 +19,7 @@ export class SummaryHandler {
 
   constructor(public params: { cwd: string }) {}
 
-  async fetchSummaryData() {
+  async _getData() {
     let { log } = this
     log.info('ShowHandler.execute called', log.link({ path: __filename }))
     let ws = await findUpWorkspace(this.params.cwd)
@@ -26,15 +34,43 @@ export class SummaryHandler {
     return res
   }
 
-  async execute() {
-    let res = await this.fetchSummaryData()
+  async _printData(data: ReturnType<typeof parseWorkspaceIndex>) {
     let { log } = this
-    console.log(res)
+    let today_str = new Date().toISOString().slice(0, 10)
+    let weekNumber = getWeek(new Date())
 
-    for (let [key, val] of Object.entries(res)) {
-      switch (key) {
+    let printSection = x => log.put().put(log.style.blue(x))
+
+    log.put().put(`${today_str} : Week ${weekNumber} {theme name?}`).put()
+
+    let today = new Date()
+    let byNearTimeGroups = Object.groupBy(data.calendar, item => {
+      if (isThisWeek(item.date)) return 'week'
+      if (
+        isWithinInterval(item.date, {
+          start: addDays(today, 7),
+          end: addDays(today, 30),
+        })
+      )
+        return 'month'
+      if (
+        isWithinInterval(item.date, {
+          start: addDays(today, 30),
+          end: addDays(today, 360),
+        })
+      )
+        return 'year'
+
+      return 'rest'
+    })
+    console.log(byNearTimeGroups)
+
+    for (let [key, val] of Object.entries(data)) {
+      // TODO wtf? clean #type
+      type foo = keyof typeof data
+      switch (key as foo) {
         case 'waiting': {
-          log.put('WAITING')
+          printSection('Waiting')
           log.indent()
           for (let item of val) {
             log.put(item.path)
@@ -43,20 +79,54 @@ export class SummaryHandler {
           break
         }
         case 'calendar': {
-          log.put('CALENDAR', new Date().toISOString().slice(0, 10))
-          let all = val.sort(
-            (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
-          )
+          printSection('Calendar')
           log.indent()
-          for (let item of all) {
-            let date = item.date.toISOString().slice(0, 10)
-            log.put(date, item.title)
+          let printAll = (val: { date; title }[]) => {
+            let all = val.sort(
+              (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
+            )
+            for (let item of all) {
+              let date = item.date.toISOString().slice(0, 10)
+              log.put(date, item.title)
+            }
           }
+
+          log.put('In a week').indent()
+          if (byNearTimeGroups.week) {
+            log.put('..todo')
+          } else {
+            log.put(log.style.dim('none'))
+          }
+          log.dedent()
+
+          log.put('In a month').indent()
+          if (byNearTimeGroups.month) {
+            let val = byNearTimeGroups.month
+            let all = val.sort(
+              (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
+            )
+            for (let item of all) {
+              let date = item.date.toISOString().slice(0, 10)
+              log.put(date, item.title)
+            }
+          } else {
+            log.put('..none')
+          }
+          log.dedent()
+
+          log.put('In a year').indent()
+          if (byNearTimeGroups.year) {
+            printAll(byNearTimeGroups.year)
+          } else {
+            log.put('..none')
+          }
+          log.dedent()
+
           log.dedent()
           break
         }
         case 'now': {
-          log.put('NOW')
+          printSection('NOW')
           log.indent()
           let a1 = Object.groupBy(val, x => x.dir)
           // LOG group by inner dir
@@ -77,9 +147,19 @@ export class SummaryHandler {
           log.dedent()
           break
         }
+        case 'review':
+          printSection('Review')
+          log.indent().dev('Todo review', key)
+          break
+
         default:
-          log.dev('Todo key', key)
+          throw Error(`unknown key ${key}`)
       }
     }
+  }
+
+  async execute() {
+    let res = await this._getData()
+    await this._printData(res)
   }
 }

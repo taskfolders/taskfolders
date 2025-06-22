@@ -1,5 +1,7 @@
 import { expect, describe, it } from 'vitest'
 import { StandardMetadata } from './StandardMetadata.js'
+import { parse, parseISO } from 'date-fns'
+import { toDate } from './toDate.js'
 
 it('x', async () => {
   let sut = new StandardMetadata({ tags: 'one' })
@@ -9,5 +11,10 @@ it('x', async () => {
   expect(sut.flags).toContain('workspace')
 
   sut = new StandardMetadata({ review: { next: '2025-01-01' } })
-  expect(sut.review.next).toBeCloseTo(new Date('2025-01-01'))
+  expect(sut.review.next).toBeCloseTo(new Date('2025-01-01').getTime())
+})
+
+it.only('x', async () => {
+  let sut = new StandardMetadata({ review: { next: '2025-01-01' } })
+  console.log(sut)
 })

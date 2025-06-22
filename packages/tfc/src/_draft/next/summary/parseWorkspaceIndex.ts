@@ -58,9 +58,8 @@ export const prettyNow = (all: { path }[], kv: { basePath }) => {
 const ungroup = x => Object.values<any>(x).flat()
 
 export const parseWorkspaceIndex = (index: WorkspaceIndex, { basePath }) => {
-  let calendar = []
+  let calendar: { title; date: Date }[] = []
   // for .before and next .calendar event
-  let events = []
   let waiting = []
   let now: PathItem[] = []
   let review = []
@@ -86,6 +85,7 @@ export const parseWorkspaceIndex = (index: WorkspaceIndex, { basePath }) => {
   }
 
   now = prettyNow(now, { basePath })
-  let blob = { calendar, events, waiting, now, review }
+  let blob = { calendar, waiting, now, review }
+
   return blob
 }

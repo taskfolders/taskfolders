@@ -6,7 +6,7 @@ import { join } from 'node:path'
 
 it('x', async () => {
   let sut = new SummaryHandler({ cwd: '/app' })
-  sut.fetchSummaryData = async () => {
+  sut._getData = async () => {
     let idx = new WorkspaceIndex({ path: '/app' })
     idx.pathIndexFile = '/app'
     idx.updateFile('action/now/ikea.md', {})
