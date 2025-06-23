@@ -1,5 +1,31 @@
+import { toDate } from './toDate.js'
+
 export class StandardMetadata {
-  constructor(public _raw) {}
+  constructor(
+    public _raw: Partial<{
+      uid
+      type
+      sid
+      tags
+      before
+      after
+      calendar
+      review
+      flags
+      labels
+    }>,
+  ) {
+    if (_raw.after) this.after = toDate(_raw.after)
+    if (_raw.before) this.before = toDate(_raw.before)
+    if (_raw.review) {
+      this.review = _raw.review
+      this.review.next = toDate(_raw.review.next)
+    }
+  }
+
+  static fromJSON(doc) {
+    return new this(doc)
+  }
 
   get type() {
     return this._raw.type
@@ -22,9 +48,10 @@ export class StandardMetadata {
     return [].concat(this._raw.flags ?? this._raw.labels ?? [])
   }
 
-  get review() {
-    return this._raw.review
-  }
+  review: { next: Date; last: Date }
+
+  after?: Date
+  before?: Date
 
   isParsable() {
     if (!this._raw.type) return true

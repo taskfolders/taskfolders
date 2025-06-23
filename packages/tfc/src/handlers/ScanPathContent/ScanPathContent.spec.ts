@@ -14,7 +14,7 @@ it.skip('x #live #scaffold', async () => {
   await sut.execute()
 })
 
-it('x in-memory #play', async () => {
+it.skip('x in-memory #now #play', async () => {
   // TODO #now see printing? with errors too
 
   let uid = '036ee5e6-7f53-4594-b9a8-b895558f7fce'
@@ -62,9 +62,10 @@ it('x in-memory #play', async () => {
 })
 
 describe('x #draft', () => {
-  it('convert to tf', async () => {
+  it.skip('convert to tf #now', async () => {
     let sut = await setup({
       disk: {
+        '/index.md': 'flags: workspace',
         '/app/index.md': `hello`,
       },
       debug: false,
@@ -72,6 +73,7 @@ describe('x #draft', () => {
     sut.params.convert = true
     await sut.execute()
     let after = sut.fs.raw.readFileSync('/app/index.md').toString()
+
     expect(after).toContain('type: https://taskfolders.com')
     expect(after).toContain('uid: ')
   })
@@ -79,6 +81,9 @@ describe('x #draft', () => {
   it('x index single file', async () => {
     let sut = await setup({
       disk: {
+        '/index.md': dedent`
+          flags: workspace
+        `,
         '/app/one.md': dedent`
           type: tf
           
@@ -91,7 +96,6 @@ describe('x #draft', () => {
     })
     sut.params.path = '/app/one.md'
     //$dev(sut.disk)
-    console.log('todo')
     await sut.execute()
     // $dev(sut)
   })

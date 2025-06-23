@@ -26,9 +26,12 @@ export function findUpAll(kv: FindUpOptions): string[] {
   let acu = []
   while (parts.length > 0) {
     let current = parts.join(Path.sep)
+
     if (current === '') current = Path.sep
     let found = test(current)
     if (found) {
+      console.log({ found, current })
+
       if (options.many === false) return [found]
       acu.push(found)
     }

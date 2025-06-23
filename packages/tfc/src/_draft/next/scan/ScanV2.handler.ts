@@ -8,6 +8,7 @@ import { Logger } from '../Logger.js'
 import { WorkspaceIndex } from '../WorkspaceIndex.js'
 import { StandardMetadata } from '../StandardMetadata.js'
 import { parseDateHuman } from '../parseDateHuman.js'
+import { WorkspaceCollections } from './WorkspaceCollections.js'
 
 export class ScanV2Handler {
   fs = fs
@@ -210,6 +211,11 @@ export class ScanV2Handler {
     let summary = {
       workspace: workspace?.dir,
     }
+
+    let t1 = new WorkspaceCollections()
+    t1.upsert({ uid: 'some-uid', sid: 'some-sid', dir })
+    await t1.write()
+    log.info('Wrote ws location', { dir: workspace.dir })
 
     return { index: wsIndexData }
   }

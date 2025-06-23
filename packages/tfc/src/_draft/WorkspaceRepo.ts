@@ -1,3 +1,4 @@
+import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
 import {
   TaskFoldersMarkdown,
   MarkdownDocument,
@@ -20,17 +21,19 @@ class WorkspaceIndexData {
   uids: Record<string, UidIndex> = {}
 }
 
-import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
-
 export const findWorkspaceUp = async (dir: string, fs = FS) => {
-  let all = findUpAll({ startFrom: dir, findName: 'index.md' })
+  let all = findUpAll({ startFrom: dir, findName: 'index.md', fs })
 
   let found
+
   for (let x of all) {
     let body = fs.readFileSync(x).toString()
-    let md = await MarkdownDocument.fromBody<any>(body)
+    let md = await MarkdownDocument.fromBody<any>(body, {
+      implicitFrontmatter: true,
+    })
     //let md = await TaskFoldersMarkdown.fromBody(body)
     let thing = md.data?.flags
+
     if (!thing) continue
     let flags = [].concat(thing)
     if (flags.includes('workspace')) {
@@ -44,10 +47,13 @@ export const findWorkspaceUp = async (dir: string, fs = FS) => {
 export class WorkspaceRepo {
   pathData: string
   pathBase: string
+  fs = FS
 
-  static async findUp(dir: string) {
-    let found = await findWorkspaceUp(dir, FS)
+  static async findUp(dir: string, fs = FS) {
+    let found = await findWorkspaceUp(dir, fs)
+
     let obj = new this({ pathBase: found.dir })
+    obj.fs = fs
     return obj
   }
 
@@ -69,12 +75,13 @@ export class WorkspaceRepo {
   }
 
   async save() {
+    let { fs } = this
     let dir = Path.dirname(this.pathData)
 
-    if (!FS.existsSync(dir)) {
-      FS.mkdirSync(Path.dirname(this.pathData))
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(Path.dirname(this.pathData), { recursive: true })
     }
     let json = JSON.stringify(this.index, null, 2)
-    FS.writeFileSync(this.pathData, json)
+    fs.writeFileSync(this.pathData, json)
   }
 }

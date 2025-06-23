@@ -14,7 +14,15 @@ it('x', async () => {
   expect(sut.review.next).toBeCloseTo(new Date('2025-01-01').getTime())
 })
 
-it.only('x', async () => {
+it('x', async () => {
   let sut = new StandardMetadata({ review: { next: '2025-01-01' } })
-  console.log(sut)
+  expect(sut.review.next).toBeCloseTo(new Date('2025-01').getTime())
+})
+
+it('x', async () => {
+  let sut = new StandardMetadata({ before: '2025-01-07' })
+  expect(sut.before).toBeCloseTo(new Date('2025-01-07').getTime())
+
+  sut = new StandardMetadata({ after: '2025-01-04' })
+  expect(sut.after).toBeCloseTo(new Date('2025-01-04').getTime())
 })

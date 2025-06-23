@@ -24,6 +24,7 @@ import { YamlScanner } from './scan-engines/YamlScanner.js'
 import { EncryptedMarkdownScanner } from './scan-engines/EncryptedMarkdownScanner.js'
 import { SourceCodeScanner } from './scan-engines/SourceCodeScanner.js'
 import { WorkspaceRepo } from '../../_draft/WorkspaceRepo.js'
+import { readFileSync } from 'fs'
 
 export class ScanPathContent {
   log = DC.inject(Logger)
@@ -129,7 +130,7 @@ export class ScanPathContent {
 
     log.put(`Found ${allFiles.length} files to scan`)
 
-    let workspace = await WorkspaceRepo.findUp(cwd)
+    let workspace = await WorkspaceRepo.findUp(cwd, fs.raw)
 
     let ctx = {
       disk,

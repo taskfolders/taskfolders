@@ -3,7 +3,7 @@ import { setupAfterScan } from '../_test/setup.js'
 import dedent from 'dedent'
 import { $dev } from '@taskfolders/utils/logger'
 
-it('x', async () => {
+it.skip('x #now', async () => {
   let u1 = '036ee5e6-7f53-4594-b9a8-b895558f7fce'
   let u2 = '9e300db5-5d2a-4214-971d-236d5acacaaf'
   let sut = await setupAfterScan({

@@ -18,6 +18,6 @@ it('x', async () => {
 it('x #live #scaffold', async () => {
   let dc = new DC()
   let sut = dc.fetch(ListWorkspaces)
-  sut.log.screen.debug = true
+  // sut.log.screen.debug = true
   await sut.execute()
 })
