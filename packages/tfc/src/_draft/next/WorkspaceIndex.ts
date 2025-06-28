@@ -134,8 +134,6 @@ export class WorkspaceIndex {
     })
     const pathItemToIndexItem = () => {}
 
-    console.log(this.pathBaseDir)
-
     target.mtime = item.mtime
     target.inode = item.inode
     return item

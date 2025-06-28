@@ -26,7 +26,9 @@ export class Folder {
     } else if (files.includes('index.md')) {
       let file = join(dir, 'index.md')
       let body = fs.readFileSync(file, 'utf-8').toString()
-      let md = await MarkdownDocument.fromBody(body)
+      let md = await MarkdownDocument.fromBody(body, {
+        implicitFrontmatter: true,
+      })
 
       this.data = md.data
     } else if (files.includes('index.md.asc')) {
@@ -48,6 +50,7 @@ export class Folder {
   }
 
   isWorkspace() {
+    if (this.data?.flags?.includes('workspace')) return true
     return this.data?.labels === 'workspace'
   }
   relative(path) {

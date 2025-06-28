@@ -48,7 +48,7 @@ export class ScanV2Handler {
       if (md.data) {
         let _data = md.data as any
         let meta = new StandardMetadata(_data)
-        let item = wsIndexData.get(relPath)
+        // let item = wsIndexData.get(relPath)
 
         wsIndexData.updateFile(relPath, {
           uid: meta.uid,
@@ -166,6 +166,7 @@ export class ScanV2Handler {
     let dir_now = dir
     while (dir_now !== '/') {
       let folder = new Folder(dir_now)
+
       await folder.parse()
       // console.log(dir_now, folder.isWorkspace(), folder.data)
       if (folder.isWorkspace()) {
