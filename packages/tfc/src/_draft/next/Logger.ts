@@ -132,6 +132,10 @@ export class Logger {
     // return one shot parametrize logger
     return this
   }
+
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    return `<${this.constructor.name} >`
+  }
 }
 
 function isEmpty(data: {}) {

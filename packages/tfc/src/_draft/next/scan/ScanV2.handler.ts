@@ -54,6 +54,9 @@ export class ScanV2Handler {
           uid: meta.uid,
           sid: meta.sid,
           review: meta.review,
+          after: meta.after,
+          before: meta.before,
+          tags: meta.tags,
         })
 
         if (meta.calendar.length > 0) {

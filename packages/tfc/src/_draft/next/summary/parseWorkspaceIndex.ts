@@ -57,12 +57,16 @@ export const prettyNow = (all: { path }[], kv: { basePath }) => {
 
 const ungroup = x => Object.values<any>(x).flat()
 
-export const parseWorkspaceIndex = (index: WorkspaceIndex, { basePath }) => {
+export const parseWorkspaceIndex = async (
+  index: WorkspaceIndex,
+  { basePath },
+) => {
   let calendar: { title; date: Date }[] = []
   // for .before and next .calendar event
   let waiting = []
   let now: PathItem[] = []
-  let review = []
+  let active: PathItem[] = []
+
   for (let [path, item] of Object.entries(index.data.paths)) {
     if (item.calendar) {
       item.calendar.forEach(x => {
@@ -79,13 +83,37 @@ export const parseWorkspaceIndex = (index: WorkspaceIndex, { basePath }) => {
       next.path = path
       now.push(next)
     }
+
+    if (path.endsWith('.md')) {
+      if (item.after) {
+        const pathItemFromIndex = (item: PathItem) => {
+          let next = new PathItem()
+          next.base = basePath
+          next.path = path
+          next.after = item.after
+          next.before = item.before
+          next.tags = item.tags
+          next.uid = item.uid
+          next.sid = item.sid
+          return next
+        }
+        active.push(pathItemFromIndex(item))
+      }
+    }
+
     if (path.includes('waiting')) {
       waiting.push({ path })
     }
   }
 
+  //
   now = prettyNow(now, { basePath })
-  let blob = { calendar, waiting, now, review }
+  active.sort((lhs, rhs) => {
+    return lhs.after.getTime() - rhs.after.getTime()
+  })
+
+  //
+  let blob = { calendar, waiting, now, active }
 
   return blob
 }

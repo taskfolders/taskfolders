@@ -13,35 +13,41 @@ import * as fs from 'fs'
 import { parseWorkspaceIndex } from './parseWorkspaceIndex.js'
 import { PathItem } from './PathItem.js'
 import { padEnd } from '@taskfolders/utils/native/string/padEnd'
+import { Folder } from '../Folder.js'
 
 export class SummaryHandler {
   log = new Logger()
+  index: WorkspaceIndex
+  ws: Folder
 
   constructor(public params: { cwd: string }) {}
 
-  async _getData() {
-    let { log } = this
-    log.info('ShowHandler.execute called', log.link({ path: __filename }))
+  async setup() {
     let ws = await findUpWorkspace(this.params.cwd)
+    this.ws = ws
 
     let path = ws.dataDir({ join: ['workspace-index.json'] })
-    log.info('Reading workspace index from', log.link({ path }))
     let body = fs.readFileSync(path, 'utf-8').toString()
-
     let index = WorkspaceIndex.fromJSON(body, { path: ws.dir })
+    this.index = index
+  }
 
-    let res = await parseWorkspaceIndex(index, { basePath: ws.dir })
+  async _getData() {
+    let { ws } = this
+    await this.setup()
+
+    let res = await parseWorkspaceIndex(this.index, { basePath: ws.dir })
     return res
   }
 
-  async _printData(data: ReturnType<typeof parseWorkspaceIndex>) {
+  async _printData(data: Awaited<ReturnType<typeof parseWorkspaceIndex>>) {
     let { log } = this
     let today_str = new Date().toISOString().slice(0, 10)
-    let weekNumber = getWeek(new Date())
+    let weekNumberNow = getWeek(new Date())
 
     let printSection = x => log.put().put(log.style.blue(x))
 
-    log.put().put(`${today_str} : Week ${weekNumber} {theme name?}`).put()
+    log.put().put(`${today_str} : Week ${weekNumberNow} {theme name?}`).put()
 
     let today = new Date()
     let byNearTimeGroups = Object.groupBy(data.calendar, item => {
@@ -147,10 +153,65 @@ export class SummaryHandler {
           log.dedent()
           break
         }
-        case 'review':
-          printSection('Review')
-          log.indent().dev('Todo review', key)
+        // case 'review':
+        //   // TODO
+        //   printSection('Review')
+        //   log.indent().dev('Todo review', key)
+        //   log.dedent()
+        //   break
+
+        case 'active': {
+          printSection('Active')
+
+          let all = val as PathItem[]
+          let now = new Date()
+          let t1 = Object.groupBy(all, x => {
+            if (now.getTime() < x.after.getTime()) {
+              return 'postponed'
+            }
+            return 'started'
+          })
+
+          log.indent()
+          log.put(
+            `total=${val.length} active=${t1.started.length} postponed=${t1.postponed.length}`,
+          )
+          log.put(''.padEnd(40), 'Started *'.padEnd(16), 'Due')
+          all.forEach(x => {
+            // let mtime = x.mtime.toISOString().slice(0, 10)
+            let started = ''
+            if (x.after) {
+              started = x.after.toISOString().slice(0, 10)
+              let weekStarted = getWeek(x.after)
+              started = `W${getWeek(x.after)} ${(weekStarted - weekNumberNow)
+                .toString()
+                .padStart(2)}w`
+            }
+            let isActive = now.getTime() > x.after.getTime()
+
+            let due = ''
+            if (x.before) {
+              let weekDue = getWeek(x.before)
+              let symbol = weekDue > weekNumberNow ? '+' : '-'
+              due = `W${getWeek(x.before)} ${symbol}${(weekDue - weekNumberNow)
+                .toString()
+                .padStart(2)}w`
+            }
+
+            let line = [
+              log.link({ text: padEnd(x.path, 40), path: x.pathFull }),
+              started.padEnd(16),
+              due,
+            ].join(' ')
+            if (!isActive) {
+              line = log.style.dim(line)
+            }
+            log.put(line)
+          })
+          log.dedent()
+
           break
+        }
 
         default:
           throw Error(`unknown key ${key}`)
@@ -159,6 +220,8 @@ export class SummaryHandler {
   }
 
   async execute() {
+    let { log } = this
+    log.info('ShowHandler.execute called', log.link({ path: __filename }))
     let res = await this._getData()
     await this._printData(res)
   }

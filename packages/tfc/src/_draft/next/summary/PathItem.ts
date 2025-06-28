@@ -27,10 +27,15 @@ export class PathItem {
   get pathFull() {
     return join(this.base, this.path)
   }
+  uid?: string
+  sid?: string
   path
   dir
   show
   base
+  before: Date
+  after: Date
+  tags: string[]
   review: StandardMetadata['review']
 
   @cacheResult
@@ -48,5 +53,8 @@ export class PathItem {
     return this._stat.ino
   }
 
-  sections = []
+  sections = [];
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    return `<${this.constructor.name} ${this.path}>`
+  }
 }

@@ -123,6 +123,7 @@ export class TfcApp {
         describe: 'NEW summary of workspace',
         handler: async argv => {
           let han = new SummaryHandler({ cwd: process.cwd() })
+          await han.setup()
           await han.execute()
         },
       })

@@ -4,7 +4,7 @@ import { join } from 'path'
 import { Folder } from '../Folder.js'
 import { WorkspaceIndex } from '../WorkspaceIndex.js'
 
-it('x #scaffold', async () => {
+it('scan a single file #scaffold', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
   let sut = new ScanV2Handler({ dir: cwd })
   let folder = new Folder(join(cwd, 'scripts/git-sync'))

@@ -3,6 +3,17 @@ import { PathItem } from './summary/PathItem.js'
 import { join } from 'path/posix'
 import { cleanObjectCopy } from './cleanObject.js'
 
+export type PathIndex = {
+  sid?: any
+  uid?: any
+  after?: Date
+  before?: Date
+  tags?: string[]
+  review?: { next; latest? }
+  scanTime?
+  sections: { uid?; sid?; lineText? }[]
+  calendar?: any[]
+}
 export class WorkspaceIndex {
   _index = { uids: {} }
   pathIndexFile: string
@@ -19,17 +30,7 @@ export class WorkspaceIndex {
     type: string
     version: number
     paths_v2: Record<string, PathItem>
-    paths: Record<
-      string,
-      {
-        sid?: any
-        uid?: any
-        review?: { next; latest? }
-        scanTime?
-        sections: { uid?; sid?; lineText? }[]
-        calendar?: any[]
-      }
-    >
+    paths: Record<string, PathIndex>
   }
 
   get(path: string) {
@@ -70,6 +71,12 @@ export class WorkspaceIndex {
     this.data = JSON.parse(doc)
     Object.values(this.data.paths).forEach(x => {
       x.sections ??= []
+      if (x.after) {
+        x.after = new Date(x.after)
+      }
+      if (x.before) {
+        x.before = new Date(x.before)
+      }
     })
   }
 
@@ -100,28 +107,38 @@ export class WorkspaceIndex {
     target.sections.push(kv)
   }
 
-  updateFile(relPath: string, kv: { uid?: any; sid?: any; review? }) {
+  updateFile(
+    relPath: string,
+    kv: { uid?: any; sid?: any; review?; after?; before?; tags? },
+  ) {
     // TODO ..
     let item = this._createItem(relPath)
     item.base = this.pathBaseDir
+
+    item.before = kv.before
+    item.after = kv.after
+    item.tags = kv.tags
     this.data.paths_v2[relPath] = item
 
     this.data.paths[relPath] ??= { sections: [], scanTime: new Date() }
 
     let target = this.data.paths[relPath]
-    if (kv.uid) {
-      target.uid = kv.uid
-    }
-    if (kv.sid) {
-      target.sid = kv.sid
-    }
-    if (kv.review) {
-      target.review = kv.review
-    }
+
+    let keys: Array<keyof PathItem> = ['uid', 'sid', 'after', 'before', 'tags']
+    //
+
+    keys.forEach(key => {
+      if (!isBlank(kv[key])) {
+        target[key] = kv[key]
+      }
+    })
+    const pathItemToIndexItem = () => {}
+
     console.log(this.pathBaseDir)
 
     target.mtime = item.mtime
     target.inode = item.inode
+    return item
   }
 
   toJSON() {
@@ -181,4 +198,21 @@ export class WorkspaceIndex {
 
 function deepCopy<T>(data: T): T {
   return JSON.parse(JSON.stringify(data))
+}
+
+// TODO #review #utils #refactor
+function isBlank(value: any): boolean {
+  if (value === undefined) return true
+  if (value === null) return true
+  if (typeof value === 'string' && value.trim() === '') return true
+  if (Array.isArray(value) && value.length === 0) return true
+
+  function isPlainObjectEmpty(obj) {
+    return obj && obj.constructor === Object && Object.keys(obj).length === 0
+  }
+
+  if (isPlainObjectEmpty(value)) {
+    return true
+  }
+  return false
 }
