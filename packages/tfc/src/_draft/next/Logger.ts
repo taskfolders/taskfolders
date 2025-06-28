@@ -37,6 +37,10 @@ export class Logger {
   info(...args) {
     this.raw({ args, level: 'info' })
   }
+  warn(...args) {
+    this.raw({ args, level: 'warn' })
+  }
+
   debug(...args) {
     this.raw({ args, level: 'debug' })
   }
@@ -95,6 +99,14 @@ export class Logger {
     }
 
     let level = colorizeLevel(kv.level)
+    let caller = getCallingFile(__filename)
+    if (caller) {
+      level = shellHyperlink({
+        text: level,
+        path: caller.path,
+        lineNumber: caller.lineNumber,
+      })
+    }
     if (this.options.padding) {
       args = [' '.repeat(this.options.padding), ...args]
     }
@@ -140,4 +152,21 @@ export class Logger {
 
 function isEmpty(data: {}) {
   return Object.keys(data).length === 0
+}
+
+function getCallingFile(__filename: string) {
+  const origPrepareStackTrace = Error.prepareStackTrace
+  Error.prepareStackTrace = (_, stack) => stack
+  const err = new Error()
+  const stack = err.stack as unknown as NodeJS.CallSite[]
+  Error.prepareStackTrace = origPrepareStackTrace
+
+  // Find the first callsite outside this file
+  for (let i = 0; i < stack.length; i++) {
+    const fileName = stack[i].getFileName()
+    if (fileName && fileName !== __filename) {
+      return { path: fileName, lineNumber: stack[i].getLineNumber() }
+    }
+  }
+  return undefined
 }

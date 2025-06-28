@@ -69,7 +69,6 @@ export class SummaryHandler {
 
       return 'rest'
     })
-    console.log(byNearTimeGroups)
 
     for (let [key, val] of Object.entries(data)) {
       // TODO wtf? clean #type
@@ -174,7 +173,9 @@ export class SummaryHandler {
 
           log.indent()
           log.put(
-            `total=${val.length} active=${t1.started.length} postponed=${t1.postponed.length}`,
+            `total=${val.length} active=${t1.started?.length ?? 0} postponed=${
+              t1.postponed?.length ?? 0
+            }`,
           )
           log.put(''.padEnd(40), 'Started *'.padEnd(16), 'Due')
           all.forEach(x => {
@@ -193,13 +194,14 @@ export class SummaryHandler {
             if (x.before) {
               let weekDue = getWeek(x.before)
               let symbol = weekDue > weekNumberNow ? '+' : '-'
-              due = `W${getWeek(x.before)} ${symbol}${(weekDue - weekNumberNow)
-                .toString()
-                .padStart(2)}w`
+              let diff = Math.abs(weekDue - weekNumberNow).toString()
+              // .padStart(2)
+              due = `W${getWeek(x.before)} ${symbol}${diff}w`
             }
 
+            let pathShow = x.path.replace('/index.md', '')
             let line = [
-              log.link({ text: padEnd(x.path, 40), path: x.pathFull }),
+              log.link({ text: padEnd(pathShow, 40), path: x.pathFull }),
               started.padEnd(16),
               due,
             ].join(' ')

@@ -48,7 +48,10 @@ export class WorkspaceIndex {
     file.path = path
     file.base = this.pathBaseDir
     let found = this.data.paths[path] ?? {}
-    Object.assign(file, found)
+    //Object.assign(file, found)
+    for (let key in Object.keys(found)) {
+      file[key] = found[key]
+    }
     return file
     console.log(found)
   }

@@ -24,6 +24,10 @@ export class ScanV2Handler {
     let { log, stats, workspace, wsIndexData } = this
 
     let fullPath = join(folder.dir, file)
+    if (!fs.existsSync(fullPath)) {
+      log.warn('File does not exist', fullPath)
+      return
+    }
     let relPath = workspace.relative(fullPath)
 
     if (file.endsWith('.md.asc')) {
@@ -123,6 +127,20 @@ export class ScanV2Handler {
     let { log, stats, workspace, wsIndexData } = this
 
     let files = folder.ls()
+    if (folder.data_std) {
+      if (folder.data_std.exclude.includes('.')) {
+        log.info('excluding self dir', folder.dir)
+        return
+      }
+      files = files.filter(name => {
+        let exclude = folder.data_std.exclude.includes(name)
+        if (exclude) {
+          log.info('Excluding path', folder.dir, name)
+        }
+        return !exclude
+      })
+    }
+
     let folders: Folder[] = []
 
     if (folder !== workspace) {
@@ -139,6 +157,7 @@ export class ScanV2Handler {
       await this._scanOneFile(file, folder, folders).catch(err => {
         stats.errors++
         log.info('Error scanning file', file)
+        log.info(err)
         // TODO way to log error with print/error cause?
         // log.info('Error scanning file', file, {cause: error})
       })

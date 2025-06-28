@@ -22,8 +22,15 @@ it('scan a single file #scaffold', async () => {
   console.log(sut.wsIndexData.data)
 })
 
-it.only('exclude #sample', async () => {
+it('exclude #sample', async () => {
   let cwd = join(__dirname, '_test/exclude-1')
   let sut = new ScanV2Handler({ dir: cwd })
   await sut.execute()
+})
+
+it.only('exclude #sample', async () => {
+  let cwd = join(__dirname, '_test/exclude-2')
+  let sut = new ScanV2Handler({ dir: cwd })
+  await sut.execute()
+  console.log(sut.wsIndexData.data)
 })

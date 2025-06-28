@@ -13,13 +13,19 @@ export class StandardMetadata {
       review
       flags
       labels
+      exclude
     }>,
   ) {
+    _raw ??= {}
     if (_raw.after) this.after = toDate(_raw.after)
     if (_raw.before) this.before = toDate(_raw.before)
     if (_raw.review) {
       this.review = _raw.review
       this.review.next = toDate(_raw.review.next)
+    }
+
+    if (_raw.exclude) {
+      this.exclude = [].concat(_raw.exclude)
     }
   }
 
@@ -52,6 +58,7 @@ export class StandardMetadata {
 
   after?: Date
   before?: Date
+  exclude: string[] = []
 
   isParsable() {
     if (!this._raw.type) return true

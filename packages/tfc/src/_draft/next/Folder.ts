@@ -2,10 +2,12 @@ import { MarkdownDocument } from '@taskfolders/utils/markdown'
 import fs from 'node:fs'
 import Path from 'path'
 import { join } from 'path/posix'
+import { StandardMetadata } from './StandardMetadata.js'
 
 export class Folder {
   fs = fs
   data
+  data_std: StandardMetadata
 
   constructor(public dir: string) {}
 
@@ -31,6 +33,7 @@ export class Folder {
       })
 
       this.data = md.data
+      this.data_std = new StandardMetadata(md.data)
     } else if (files.includes('index.md.asc')) {
       console.log('TODO gpg asc')
     } else if (files.includes('index.md.gpg')) {
