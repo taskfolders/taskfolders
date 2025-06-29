@@ -1,0 +1,62 @@
+{
+  "type": "draft/workspace-index/1",
+  "version": 1,
+  "paths": {
+    "index.md": {
+      "scanTime": "2025-06-29T09:42:01.090Z",
+      "mtime": "2025-06-29T09:41:02.425Z",
+      "inode": 16287727,
+      "flags": [
+        "workspace"
+      ]
+    },
+    "now/one.md": {
+      "scanTime": "2025-06-29T09:42:01.091Z",
+      "mtime": "2025-06-29T09:41:34.385Z",
+      "inode": 16287772
+    },
+    "now/two/index.md": {
+      "scanTime": "2025-06-29T09:42:01.092Z",
+      "mtime": "2025-06-29T09:41:48.682Z",
+      "inode": 16287776
+    },
+    "now/two/alternate.md": {
+      "scanTime": "2025-06-29T09:42:01.092Z",
+      "mtime": "2025-06-29T09:41:59.034Z",
+      "inode": 16287783
+    }
+  },
+  "items": [
+    {
+      "pathRelative": "index.md",
+      "type": "path",
+      "scanTime": "2025-06-29T09:42:01.090Z",
+      "mtime": "2025-06-29T09:41:02.425Z",
+      "inode": 16287727,
+      "flags": [
+        "workspace"
+      ]
+    },
+    {
+      "pathRelative": "now/one.md",
+      "type": "path",
+      "scanTime": "2025-06-29T09:42:01.091Z",
+      "mtime": "2025-06-29T09:41:34.385Z",
+      "inode": 16287772
+    },
+    {
+      "pathRelative": "now/two/index.md",
+      "type": "path",
+      "scanTime": "2025-06-29T09:42:01.092Z",
+      "mtime": "2025-06-29T09:41:48.682Z",
+      "inode": 16287776
+    },
+    {
+      "pathRelative": "now/two/alternate.md",
+      "type": "path",
+      "scanTime": "2025-06-29T09:42:01.092Z",
+      "mtime": "2025-06-29T09:41:59.034Z",
+      "inode": 16287783
+    }
+  ]
+}
