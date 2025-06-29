@@ -1,5 +1,5 @@
 import * as fs from 'node:fs'
-import { PathItem } from './summary/PathItem.js'
+import { FlagKeys, PathItem } from './summary/PathItem.js'
 import { join } from 'path/posix'
 import { cleanObjectCopy } from './cleanObject.js'
 
@@ -9,7 +9,7 @@ export type PathIndex = {
   after?: Date
   before?: Date
   tags?: string[]
-  flags?: string[]
+  flags?: FlagKeys[]
   review?: { next; latest? }
   scanTime?
   sections: { uid?; sid?; lineText? }[]
@@ -137,7 +137,7 @@ export class WorkspaceIndex {
       after?
       before?
       tags?
-      flags?: string[]
+      flags?: FlagKeys[]
     },
   ) {
     // TODO ..

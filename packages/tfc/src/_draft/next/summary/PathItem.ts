@@ -23,6 +23,7 @@ function cacheResult(...args) {
   }
 }
 
+export type FlagKeys = 'skip'
 export class PathItem {
   wsName: any
   // pathRelative
@@ -50,7 +51,7 @@ export class PathItem {
   before: Date
   after: Date
   tags: string[] = []
-  flags: string[] = []
+  flags: FlagKeys[] = []
   review: StandardMetadata['review']
 
   @cacheResult
@@ -66,6 +67,12 @@ export class PathItem {
   @cacheResult
   get inode() {
     return this._stat.ino
+  }
+
+  constructor(kv: { pathRelative: string; after?: Date }) {
+    // TODO no guess .?
+    this.path = kv?.pathRelative
+    this.after = kv?.after
   }
 
   sections = [];

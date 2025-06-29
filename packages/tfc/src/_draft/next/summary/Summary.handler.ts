@@ -6,7 +6,6 @@ import {
   isThisMonth,
   isThisWeek,
   isThisYear,
-  isToday,
   isWithinInterval,
 } from 'date-fns'
 import { WorkspaceIndex } from '../WorkspaceIndex.js'
@@ -17,6 +16,7 @@ import { PathItem } from './PathItem.js'
 import { padEnd } from '@taskfolders/utils/native/string/padEnd'
 import { Folder } from '../Folder.js'
 import { WorkspaceCollections } from '../scan/WorkspaceCollections.js'
+import { timeDiff } from './timeDiff.js'
 type Fox = { path; started; due }
 
 const dimKeysApply = item => {
@@ -39,7 +39,7 @@ const toPathPrint = (x: PathItem) => {
 const PathPadding = 50
 
 const printOptions = {
-  hideAfterDays: 7,
+  hideAfterDays: 700,
 }
 
 const printTable = <T = Fox>(kv: {
@@ -269,7 +269,7 @@ export class SummaryHandler {
           // console.log(a1)
           let all = val as PathItem[]
 
-          type Row = { path; modified; due }
+          type Row = { path; modified; due; after }
           let rows: Row[] = []
           all = all.sort(
             (lhs, rhs) => rhs.mtime.getTime() - lhs.mtime.getTime(),
@@ -280,11 +280,20 @@ export class SummaryHandler {
             // let time = ''
 
             let path = toPathPrint(x)
-            rows.push({
+            let next = {
               path,
               modified: timeDiff({ date: x.mtime, color: false }),
               due: '',
-            })
+              after: x.after ? x.after.toISOString().slice(0, 10) : '',
+            }
+
+            if (x.after) {
+              if (x.after < now) {
+                rows.push(next)
+              }
+            } else {
+              rows.push(next)
+            }
           })
 
           printTable({
@@ -334,7 +343,7 @@ export class SummaryHandler {
             }
             let isActive = now.getTime() > x.after.getTime()
 
-            let due = timeDiff({ date: x.before })
+            let due = x.before ? timeDiff({ date: x.before }) : ''
 
             let item = { path: toPathPrint(x), started, due }
 
@@ -384,31 +393,4 @@ function zip(arr1, arr2) {
     zipped.push([arr1[i], arr2[i]])
   }
   return zipped
-}
-
-const timeDiff = (kv: { date: Date; color?: Boolean }) => {
-  let weekNumberNow = getWeek(new Date())
-  let { date } = kv
-  let due = ''
-  if (date) {
-    let weekNum = getWeek(date)
-    if (isToday(date)) {
-      due = 'Today'
-      return due
-    }
-    let weekDue = getWeek(date)
-    let symbol = weekDue > weekNumberNow ? '+' : '-'
-    let weekCount = weekDue - weekNumberNow
-    let diff = Math.abs(weekDue - weekNumberNow).toString()
-    // .padStart(2)
-    due = `W${weekNum} ${symbol}${diff}w`
-    if (kv.color !== false) {
-      if (weekCount < 0) {
-        due = Logger.style.red(due)
-      } else if (weekCount < 6) {
-        due = Logger.style.yellow(due)
-      }
-    }
-  }
-  return due
 }

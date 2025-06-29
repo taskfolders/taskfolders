@@ -70,6 +70,7 @@ export const parseWorkspaceIndex = async (
 
   for (let pathIndex of index.data.items) {
     let pItem = pathItemFromIndex(pathIndex)
+    if (pItem.flags.includes('skip')) continue
     if (pathIndex.calendar) {
       pathIndex.calendar.forEach(x => {
         calendar.push({
@@ -89,23 +90,66 @@ export const parseWorkspaceIndex = async (
       now.push(pItem)
       continue
     }
-    const runInclude = (all: string[], acu: PathItem[]) => {
-      if (all.find(x => pathIndex.pathRelative.startsWith(x))) {
+
+    const tryIncludeSpecialDir = (baseDirs: string[], items: PathItem[]) => {
+      let foundBaseDir = baseDirs.find(x =>
+        pathIndex.pathRelative.startsWith(x),
+      )
+      if (foundBaseDir) {
         if (pathIndex.pathRelative.endsWith('index.md')) {
-          if (!all.includes(Path.dirname(pathIndex.pathRelative))) {
-            acu.push(pItem)
+          if (!baseDirs.includes(Path.dirname(pathIndex.pathRelative))) {
+            let dirname = Path.dirname(pItem.pathRelative)
+
+            let isDirectChild = Path.dirname(dirname) === foundBaseDir
+            if (isDirectChild) {
+              items.push(pItem)
+            }
           }
         } else {
-          if (all.includes(Path.dirname(pathIndex.pathRelative))) {
-            acu.push(pItem)
+          if (baseDirs.includes(Path.dirname(pathIndex.pathRelative))) {
+            items.push(pItem)
           }
         }
       }
     }
 
-    runInclude(nowDirs, now)
-    runInclude(waitingDirs, waiting)
+    tryIncludeSpecialDir(nowDirs, now)
+    tryIncludeSpecialDir(waitingDirs, waiting)
   }
+
+  // {
+  //   // index.data.items.sort((lhs, rhs) => {
+  //   //   return lhs.pathRelative.length - rhs.pathRelative.length
+  //   // })
+  //   let r1 = index.data.items.filter(x => x.pathRelative.startsWith(nowDirs[0]))
+  //   let r2 = Object.groupBy(r1, x => {
+  //     let rel = x.pathRelative.replace(nowDirs[0] + '/', '')
+  //     let base = Path.dirname(rel).split('/')[0]
+  //     return base
+  //   })
+
+  //   // sort groups
+  //   Object.keys(r2).forEach(key => {
+  //     r2[key].sort((lhs, rhs) => {
+  //       return lhs.pathRelative.length - rhs.pathRelative.length
+  //     })
+  //   })
+  //   // console.log(Object.keys(r2))
+
+  //   Object.keys(r2).forEach(key => {
+  //     let all = r2[key]
+  //     if (all.length > 1) {
+  //       let first = all[0]
+  //       let next = all.slice(1).filter(x => x.after)
+
+  //       r2[key] = [first, ...next]
+  //     }
+  //   })
+  //   let r3 = ungroup(r2)
+  //   console.log(r3.map(x => x.pathRelative))
+  //   console.log(now.map(x => x.pathRelative))
+  //   console.log({ before: now.length, after: r3.length })
+  // }
 
   //
   now = prettyNow(now)
