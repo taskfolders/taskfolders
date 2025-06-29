@@ -150,7 +150,7 @@ export class SummaryHandler {
       )
 
       // console.dir(res.active, { breakLength: 1 })
-      res.active.map(x => console.log(x))
+      // res.active.map(x => console.log(x))
     }
 
     return res
@@ -199,7 +199,7 @@ export class SummaryHandler {
           let rows = all
             .map(x => {
               //let started = x.after ? x.after.toISOString().slice(0, 10) : ''
-              let started = timeDiff({ date: x.after })
+              let started = x.after ? timeDiff({ date: x.after }) : ''
               let item = {
                 // path: log.link({ text: x.path, path: x.pathFull }),
                 path: toPathPrint(x),

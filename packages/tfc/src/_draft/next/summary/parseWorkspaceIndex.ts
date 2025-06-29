@@ -47,7 +47,7 @@ export const parseWorkspaceIndex = async (
     /** @deprecated */
     path?,
   ) => {
-    let next = new PathItem()
+    let next = new PathItem({ pathRelative: path ?? item.pathRelative })
     next.wsName = wsName
     next.base = basePath
     next.path = path ?? item.pathRelative
