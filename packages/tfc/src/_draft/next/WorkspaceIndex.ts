@@ -17,6 +17,9 @@ export type PathIndex = {
 
   // TODO future , not used in data.paths
   pathRelative?
+  type: 'path' | 'section'
+  inode?
+  mtime?
 }
 export class WorkspaceIndex {
   _index = { uids: {} }
@@ -41,7 +44,7 @@ export class WorkspaceIndex {
   }
 
   get(path: string) {
-    let file = new PathItem()
+    let file = new PathItem({ pathRelative: path })
     file.path = path
     file.base = this.pathBaseDir
     let found = this.data.paths[path] ?? {}
@@ -52,8 +55,7 @@ export class WorkspaceIndex {
   }
 
   _createItem(path: string) {
-    let file = new PathItem()
-    file.path = path
+    let file = new PathItem({ pathRelative: path })
     file.base = this.pathBaseDir
     let found = this.data.paths[path] ?? {}
     //Object.assign(file, found)
@@ -123,7 +125,8 @@ export class WorkspaceIndex {
     relPath: string,
     kv: { uid?: any; sid?: any; lineText?: string },
   ) {
-    this.data.paths[relPath] ??= { sections: [] }
+    // TODO def-path-index
+    this.data.paths[relPath] ??= { sections: [] } as PathIndex
     let target = this.data.paths[relPath]
     target.sections.push(kv)
   }
@@ -150,6 +153,8 @@ export class WorkspaceIndex {
     item.flags = kv.flags
     this.data.paths_v2[relPath] = item
 
+    // TODO def-path-index
+    // @ts-expect-error TODO
     this.data.paths[relPath] ??= { sections: [], scanTime: new Date() }
 
     let target = this.data.paths[relPath]

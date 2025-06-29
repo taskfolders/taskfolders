@@ -5,7 +5,7 @@ import { decryptGPGMessage } from '../../gpg/decryptGPGMessage.js'
 import { cleanObjectCopy } from '../cleanObject.js'
 import { Folder } from '../Folder.js'
 import { Logger } from '../Logger.js'
-import { WorkspaceIndex } from '../WorkspaceIndex.js'
+import { WorkspaceIndex, PathIndex } from '../WorkspaceIndex.js'
 import { StandardMetadata } from '../StandardMetadata.js'
 import { parseDateHuman } from '../parseDateHuman.js'
 import { WorkspaceCollections } from './WorkspaceCollections.js'
@@ -72,8 +72,12 @@ export class ScanV2Handler {
             x.date = date
             return x
           })
+
           // TODO drop default?
-          let target = (wsIndexData.data.paths[relPath] ??= { sections: [] })
+          // TODO def-path-index
+          let target = (wsIndexData.data.paths[relPath] ??= {
+            sections: [],
+          } as PathIndex)
           target.calendar = calendar
           // wsIndexData.data.paths[relPath] ??= {} calendar
         }

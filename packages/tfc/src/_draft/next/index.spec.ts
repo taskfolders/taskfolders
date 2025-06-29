@@ -41,7 +41,10 @@ it.skip('x y #todo #slow #scaffold', async () => {
   let two = index.data.paths['two/index.md']
   expect(two.calendar[0].date.toISOString()).toBe('2024-02-26T00:00:00.000Z')
 
-  let blob = await parseWorkspaceIndex(index, { basePath: null })
+  let blob = await parseWorkspaceIndex(index, {
+    basePath: null,
+    wsName: 'demo',
+  })
 
   console.log(blob)
 

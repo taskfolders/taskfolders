@@ -197,6 +197,8 @@ export class SummaryHandler {
           log.indent()
 
           let all = val as PathItem[]
+          console.dir({ val })
+
           let rows = all
             .map(x => {
               //let started = x.after ? x.after.toISOString().slice(0, 10) : ''
