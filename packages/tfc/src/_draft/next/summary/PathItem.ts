@@ -23,7 +23,7 @@ function cacheResult(...args) {
   }
 }
 
-export type FlagKeys =
+export type FlagKey =
   | 'skip'
   | 'waiting'
   | 'now'
@@ -59,7 +59,7 @@ export class PathItem {
   before: Date
   after: Date
   tags: string[] = []
-  flags: FlagKeys[] = []
+  flags: FlagKey[] = []
   review: StandardMetadata['review']
 
   @cacheResult

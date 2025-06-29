@@ -42,7 +42,7 @@ const printOptions = {
   hideAfterDays: 24,
 }
 
-const printTable = <T = Fox>(kv: {
+const printTable = <T>(kv: {
   rows: T[]
   log: Logger
   keys?: Array<keyof T>
@@ -51,10 +51,10 @@ const printTable = <T = Fox>(kv: {
   let { rows, log, keys, config } = kv
   if (rows.length === 0) return
   config ??= {}
-  let heads = ['', 'Started *', 'Due']
-  let paddings = [config?.path?.padding ?? 40, 16]
+  // let heads = ['', 'Started *', 'Due']
 
   // keys = ['path', 'started', 'due']
+  // @ts-expect-error TODO
   keys ??= Object.keys(kv.rows[0])
   Object.keys(kv.rows[0]).forEach(key => {
     config[key] ??= {}
@@ -75,7 +75,8 @@ const printTable = <T = Fox>(kv: {
   for (let row of Object.values(kv.rows)) {
     let pathLine = keys
       .map((key, idx) => {
-        return padEnd(row[key].toString(), paddings[idx])
+        let padding = config[key].padding
+        return padEnd(row[key].toString(), padding)
         //return row[key] ? row[key].toString().padEnd(paddings[i]) : ''
       })
       .join(' ')

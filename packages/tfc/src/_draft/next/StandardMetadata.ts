@@ -1,4 +1,5 @@
 import { toDate } from './toDate.js'
+import { FlagKey } from './summary/PathItem.js'
 
 export class StandardMetadata {
   constructor(
@@ -52,7 +53,7 @@ export class StandardMetadata {
     return [].concat(this._raw.calendar ?? [])
   }
 
-  flags: string[]
+  flags: FlagKey[]
 
   review: { next: Date; last: Date }
 

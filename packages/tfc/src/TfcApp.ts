@@ -3,6 +3,7 @@ import { DC } from '@taskfolders/utils/dependencies'
 import { ScanV2Handler } from './_draft/next/scan/ScanV2.handler.js'
 import { ReadReferenceHandler } from './_draft/next/ReadReference.handler.js'
 import { SummaryHandler } from './_draft/next/summary/Summary.handler.js'
+import * as fs from 'fs'
 
 export class TfcApp {
   dc = new DC()
@@ -133,6 +134,28 @@ export class TfcApp {
           })
           await han.setup()
           await han.execute()
+        },
+      })
+
+      .command({
+        command: 'fold path',
+        describe: 'NEW ',
+        handler: async argv => {
+          let pathFrom = argv.path
+          if (!fs.existsSync(pathFrom)) {
+            throw Error('Path does not exist')
+          }
+          let pathToDir = argv.path.replace('.md', '')
+          if (fs.existsSync(pathToDir)) {
+            // throw Error('Target dir already exists')
+          }
+          let pathTo = pathToDir + '/index.md'
+          if (fs.existsSync(pathTo)) {
+            throw Error('Target already exists')
+          }
+          console.log({ pathToDir, pathTo, pathFrom })
+          fs.mkdirSync(pathToDir)
+          await fs.promises.rename(pathFrom, pathTo)
         },
       })
 

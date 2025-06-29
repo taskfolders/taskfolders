@@ -4,7 +4,7 @@ import { join } from 'path/posix'
 export class WorkspaceCollections {
   fs = fs
   file: string
-  data: { type; workspaces: { dir; sid; uid } }
+  data: { type; workspaces: Record<string, { dir; sid; uid }> }
 
   static request() {
     let obj = new this()
