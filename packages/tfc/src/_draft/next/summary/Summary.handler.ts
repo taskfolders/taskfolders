@@ -39,7 +39,7 @@ const toPathPrint = (x: PathItem) => {
 const PathPadding = 50
 
 const printOptions = {
-  hideAfterDays: 700,
+  hideAfterDays: 24,
 }
 
 const printTable = <T = Fox>(kv: {
@@ -142,6 +142,17 @@ export class SummaryHandler {
       })
     }
 
+    {
+      // SORT by path
+
+      res.active.sort((lhs, rhs) =>
+        lhs.pathRelative.localeCompare(rhs.pathRelative),
+      )
+
+      // console.dir(res.active, { breakLength: 1 })
+      res.active.map(x => console.log(x))
+    }
+
     return res
   }
 
@@ -187,12 +198,13 @@ export class SummaryHandler {
           let all = val as PathItem[]
           let rows = all
             .map(x => {
-              let started = x.after ? x.after.toISOString().slice(0, 10) : ''
+              //let started = x.after ? x.after.toISOString().slice(0, 10) : ''
+              let started = timeDiff({ date: x.after })
               let item = {
                 // path: log.link({ text: x.path, path: x.pathFull }),
                 path: toPathPrint(x),
                 started,
-                due: '',
+                // due: '',
               }
 
               if (now < x.after) {
@@ -207,7 +219,7 @@ export class SummaryHandler {
             })
             .filter(Boolean)
 
-          printTable<Fox>({
+          printTable({
             rows,
             log,
             config: { path: { padding: PathPadding, head: '' } },

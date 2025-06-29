@@ -23,7 +23,15 @@ function cacheResult(...args) {
   }
 }
 
-export type FlagKeys = 'skip'
+export type FlagKeys =
+  | 'skip'
+  | 'waiting'
+  | 'now'
+  | 'now-dir'
+  | 'waiting-dir'
+  | 'workspace'
+  | 'workspace-global'
+
 export class PathItem {
   wsName: any
   // pathRelative
@@ -39,8 +47,8 @@ export class PathItem {
   sid?: string
 
   /** @deprecated */
-  path
-  get pathRelative() {
+  path: string
+  get pathRelative(): string {
     return this.path
   }
 

@@ -117,42 +117,8 @@ export const parseWorkspaceIndex = async (
     tryIncludeSpecialDir(waitingDirs, waiting)
   }
 
-  // {
-  //   // index.data.items.sort((lhs, rhs) => {
-  //   //   return lhs.pathRelative.length - rhs.pathRelative.length
-  //   // })
-  //   let r1 = index.data.items.filter(x => x.pathRelative.startsWith(nowDirs[0]))
-  //   let r2 = Object.groupBy(r1, x => {
-  //     let rel = x.pathRelative.replace(nowDirs[0] + '/', '')
-  //     let base = Path.dirname(rel).split('/')[0]
-  //     return base
-  //   })
-
-  //   // sort groups
-  //   Object.keys(r2).forEach(key => {
-  //     r2[key].sort((lhs, rhs) => {
-  //       return lhs.pathRelative.length - rhs.pathRelative.length
-  //     })
-  //   })
-  //   // console.log(Object.keys(r2))
-
-  //   Object.keys(r2).forEach(key => {
-  //     let all = r2[key]
-  //     if (all.length > 1) {
-  //       let first = all[0]
-  //       let next = all.slice(1).filter(x => x.after)
-
-  //       r2[key] = [first, ...next]
-  //     }
-  //   })
-  //   let r3 = ungroup(r2)
-  //   console.log(r3.map(x => x.pathRelative))
-  //   console.log(now.map(x => x.pathRelative))
-  //   console.log({ before: now.length, after: r3.length })
-  // }
-
-  //
   now = prettyNow(now)
+
   active.sort((lhs, rhs) => {
     return lhs.after.getTime() - rhs.after.getTime()
   })

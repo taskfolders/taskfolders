@@ -8,7 +8,7 @@ import {
   Output,
 } from './tree.js'
 
-it.only('x nested', async () => {
+it('x ', async () => {
   let now = new Date('2025-02')
   let a1 = [
     new PathItem({ pathRelative: 'one/foo/three/deeper/one/two' }),
