@@ -7,10 +7,13 @@ import { SummaryHandler } from './Summary.handler.js'
 
 it('x', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
-  let sut = new SummaryHandler({ cwd })
+  let sut = new SummaryHandler({ cwd, allWorkspaces: true })
   await sut.setup()
-  console.log(sut)
-  let res = await parseWorkspaceIndex(sut.index, { basePath: sut.ws.dir })
+  let res = await parseWorkspaceIndex(sut.index, {
+    basePath: sut.ws.dir,
+    wsName: 'demo',
+  })
+  console.log(res)
 })
 
 it.skip('pretty now', async () => {
@@ -23,9 +26,9 @@ it.skip('pretty now', async () => {
   idx.updateFile('action/now/hike/nested/index.md', {})
   idx.updateFile('projects/india/action/now/plan.md', {})
   idx.updateFile('action/alien/index.md', {})
-  let res = await parseWorkspaceIndex(idx, { basePath: '/app' })
+  let res = await parseWorkspaceIndex(idx, { basePath: '/app', wsName: 'demo' })
   let log = new Logger()
 
-  let r1 = prettyNow(res.now, { basePath: '/app' })
+  let r1 = prettyNow(res.now)
   console.log(r1)
 })

@@ -4,7 +4,12 @@ import { join } from 'path/posix'
 export class WorkspaceCollections {
   fs = fs
   file: string
-  data: { type; workspaces: {} }
+  data: { type; workspaces: { dir; sid; uid } }
+
+  static request() {
+    let obj = new this()
+    return obj
+  }
 
   constructor() {
     let dir = join(process.env.HOME, '.config/TaskFolders.com')

@@ -16,7 +16,10 @@ it('x', async () => {
     idx.updateFile('action/now/hike/nested/index.md', {})
     idx.updateFile('projects/india/action/now/plan.md', {})
     idx.updateFile('action/alien/index.md', {})
-    let res = await parseWorkspaceIndex(idx, { basePath: '/app' })
+    let res = await parseWorkspaceIndex(idx, {
+      basePath: '/app',
+      wsName: 'demo',
+    })
     return res
   }
   let res = sut.execute()
@@ -26,10 +29,11 @@ it('x', async () => {
 
 it.only('x', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
-  let sut = await SummaryHandler.create({ cwd })
+  let sut = await SummaryHandler.create({ cwd, allWorkspaces: true })
+  let res = await sut._getData()
 
   // let res = await parseWorkspaceIndex(sut.index, { basePath: sut.ws.dir })
-  let res = await sut.execute()
+  // let res = await sut.execute()
   //console.log(sut.index.data)
 
   console.log(res)

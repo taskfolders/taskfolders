@@ -35,6 +35,7 @@ export class WorkspaceIndex {
     type: string
     version: number
     paths_v2: Record<string, PathItem>
+    /** @deprecated */
     paths: Record<string, PathIndex>
     items: PathIndex[]
   }

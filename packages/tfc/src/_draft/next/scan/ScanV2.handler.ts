@@ -240,7 +240,7 @@ export class ScanV2Handler {
     let dat = workspace.data_std
     if (dat.flags.includes('workspace-global')) {
       let t1 = new WorkspaceCollections()
-      t1.upsert({ uid: dat.uid, sid: dat.sid, dir })
+      t1.upsert({ uid: dat.uid, sid: dat.sid, dir: workspace.dir })
 
       await t1.write()
       log.info('Wrote ws location', { dir: workspace.dir, conf: t1.file })

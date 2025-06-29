@@ -121,8 +121,16 @@ export class TfcApp {
       .command({
         command: 'sum',
         describe: 'NEW summary of workspace',
+        builder: {
+          all: {
+            boolean: false,
+          },
+        },
         handler: async argv => {
-          let han = new SummaryHandler({ cwd: process.cwd() })
+          let han = new SummaryHandler({
+            cwd: process.cwd(),
+            allWorkspaces: argv.all,
+          })
           await han.setup()
           await han.execute()
         },

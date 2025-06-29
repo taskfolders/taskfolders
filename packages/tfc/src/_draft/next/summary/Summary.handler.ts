@@ -1,6 +1,7 @@
 import { Logger } from '../Logger.js'
 import {
   addDays,
+  differenceInCalendarDays,
   getWeek,
   isThisMonth,
   isThisWeek,
@@ -11,12 +12,18 @@ import {
 import { WorkspaceIndex } from '../WorkspaceIndex.js'
 import { findUpWorkspace } from '../findUpWorkspace.js'
 import * as fs from 'fs'
-import { parseWorkspaceIndex } from './parseWorkspaceIndex.js'
+import { parseWorkspaceIndex, IndexResult } from './parseWorkspaceIndex.js'
 import { PathItem } from './PathItem.js'
 import { padEnd } from '@taskfolders/utils/native/string/padEnd'
 import { Folder } from '../Folder.js'
-import { join } from 'path'
+import { WorkspaceCollections } from '../scan/WorkspaceCollections.js'
 type Fox = { path; started; due }
+
+const dimKeysApply = item => {
+  for (let key in item) {
+    item[key] = Logger.style.dim(item[key])
+  }
+}
 
 const toPathPrint = (x: PathItem) => {
   let cap = PathPadding - 5
@@ -24,11 +31,16 @@ const toPathPrint = (x: PathItem) => {
   if (pathStr.length > cap) {
     pathStr = '…' + pathStr.slice(pathStr.length - cap + 1)
   }
+  pathStr = `{${x.wsName ?? 'x'}}:` + pathStr
   let pathShow = Logger.link({ text: pathStr, path: x.pathFull })
   return pathShow
 }
 
 const PathPadding = 50
+
+const printOptions = {
+  hideAfterDays: 7,
+}
 
 const printTable = <T = Fox>(kv: {
   rows: T[]
@@ -74,19 +86,17 @@ const printTable = <T = Fox>(kv: {
 export class SummaryHandler {
   log = new Logger()
   index: WorkspaceIndex
-  ws: Folder
 
-  static async create(kv: { cwd: string }) {
-    let sut = new SummaryHandler({ cwd: kv.cwd })
+  static async create(params: SummaryHandler['params']) {
+    let sut = new SummaryHandler(params)
     await sut.setup()
     return sut
   }
 
-  constructor(public params: { cwd: string }) {}
+  constructor(public params: { cwd: string; allWorkspaces?: boolean }) {}
 
   async setup() {
     let ws = await findUpWorkspace(this.params.cwd)
-    this.ws = ws
 
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     let body = fs.readFileSync(path, 'utf-8').toString()
@@ -95,10 +105,43 @@ export class SummaryHandler {
   }
 
   async _getData() {
-    let { ws } = this
     await this.setup()
 
-    let res = await parseWorkspaceIndex(this.index, { basePath: ws.dir })
+    let res: IndexResult = {
+      calendar: [],
+      waiting: [],
+      now: [],
+      active: [],
+    }
+
+    if (this.params.allWorkspaces) {
+      let loc = WorkspaceCollections.request()
+      for (let val of Object.values(loc.data.workspaces)) {
+        // TODO clean
+        let folder = new Folder(val.dir)
+        let path = folder.dataDir({ join: ['workspace-index.json'] })
+
+        let body = fs.readFileSync(path, 'utf-8').toString()
+
+        let index = WorkspaceIndex.fromJSON(body, { path: val.dir })
+
+        let one = await parseWorkspaceIndex(index, {
+          basePath: val.dir,
+          wsName: val.sid,
+        })
+        Object.keys(one).forEach(key => {
+          res[key] = res[key].concat(one[key])
+        })
+      }
+    } else {
+      let ws = await findUpWorkspace(this.params.cwd)
+      // TODO #refactor #workspace
+      res = await parseWorkspaceIndex(this.index, {
+        basePath: ws.dir,
+        wsName: ws.data_std.sid,
+      })
+    }
+
     return res
   }
 
@@ -132,12 +175,6 @@ export class SummaryHandler {
       return 'rest'
     })
 
-    const dimKeysApply = item => {
-      for (let key in item) {
-        item[key] = log.style.dim(item[key])
-      }
-    }
-
     let now = new Date()
     for (let [key, val] of Object.entries(data)) {
       // TODO wtf? clean #type
@@ -148,19 +185,27 @@ export class SummaryHandler {
           log.indent()
 
           let all = val as PathItem[]
-          let rows = all.map(x => {
-            let started = x.after ? x.after.toISOString().slice(0, 10) : ''
-            let item = {
-              path: log.link({ text: x.path, path: x.pathFull }),
-              started,
-              due: '',
-            }
+          let rows = all
+            .map(x => {
+              let started = x.after ? x.after.toISOString().slice(0, 10) : ''
+              let item = {
+                // path: log.link({ text: x.path, path: x.pathFull }),
+                path: toPathPrint(x),
+                started,
+                due: '',
+              }
 
-            if (now < x.after) {
-              dimKeysApply(item)
-            }
-            return item
-          })
+              if (now < x.after) {
+                let days = differenceInCalendarDays(x.after, now)
+                if (days > printOptions.hideAfterDays) {
+                  return null
+                }
+
+                dimKeysApply(item)
+              }
+              return item
+            })
+            .filter(Boolean)
 
           printTable<Fox>({
             rows,
@@ -292,11 +337,16 @@ export class SummaryHandler {
             let due = timeDiff({ date: x.before })
 
             let item = { path: toPathPrint(x), started, due }
+
+            if (!isActive) {
+              let days = differenceInCalendarDays(x.after, now)
+              if (days > printOptions.hideAfterDays) {
+                return null
+              }
+
+              dimKeysApply(item)
+            }
             rows.push(item)
-
-            if (!isActive) dimKeysApply(item)
-
-            // log.put(pathLine)
           })
 
           printTable({

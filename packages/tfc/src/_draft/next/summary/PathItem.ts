@@ -22,15 +22,30 @@ function cacheResult(...args) {
     return this[cacheKey]
   }
 }
+
 export class PathItem {
+  wsName: any
   // pathRelative
   get pathFull() {
     return join(this.base, this.path)
   }
+  workspace: {
+    name: string
+    dir: string
+  }
+
   uid?: string
   sid?: string
+
+  /** @deprecated */
   path
+  get pathRelative() {
+    return this.path
+  }
+
   dir
+
+  /** @deprecated */
   base
   before: Date
   after: Date
@@ -55,6 +70,6 @@ export class PathItem {
 
   sections = [];
   [Symbol.for('nodejs.util.inspect.custom')]() {
-    return `<${this.constructor.name} ${this.path}>`
+    return `<${this.constructor.name} {${this.wsName}}:${this.path}>`
   }
 }

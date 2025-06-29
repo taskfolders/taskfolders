@@ -4,14 +4,9 @@ import { PathItem } from './PathItem.js'
 import { ensureWords } from '../StandardMetadata.js'
 import * as Path from 'path'
 
-export const prettyNow = (all: { path }[], kv: { basePath }) => {
-  let { basePath } = kv
+export const prettyNow = (all: PathItem[]) => {
   let r1 = all
-    .map(item => {
-      let next = new PathItem()
-      next.path = item.path
-      next.base = basePath
-
+    .map(next => {
       if (!fs.existsSync(next.pathFull)) {
         console.error('File does not exist', next.pathFull)
 
@@ -34,9 +29,11 @@ export const prettyNow = (all: { path }[], kv: { basePath }) => {
 
 const ungroup = x => Object.values<any>(x).flat()
 
+export type IndexResult = Awaited<ReturnType<typeof parseWorkspaceIndex>>
+
 export const parseWorkspaceIndex = async (
   index: WorkspaceIndex,
-  { basePath },
+  { basePath, wsName },
 ) => {
   let calendar: { title; date: Date }[] = []
   // for .before and next .calendar event
@@ -51,6 +48,7 @@ export const parseWorkspaceIndex = async (
     path?,
   ) => {
     let next = new PathItem()
+    next.wsName = wsName
     next.base = basePath
     next.path = path ?? item.pathRelative
     next.after = item.after
@@ -62,27 +60,6 @@ export const parseWorkspaceIndex = async (
     return next
   }
 
-  for (let [path, item] of Object.entries(index.data.paths)) {
-    if (item.calendar) {
-      item.calendar.forEach(x => {
-        calendar.push({ ...x, path, date: new Date(x.date) })
-      })
-    }
-    let pItem = pathItemFromIndex(item, path)
-    if (path.endsWith('.md')) {
-      if (item.after) {
-        active.push(pItem)
-      }
-    }
-
-    if (pItem.flags.includes('now')) {
-      now.push(pItem)
-    }
-    if (pItem.flags.includes('waiting')) {
-      now.push(pItem)
-    }
-  }
-
   let nowDirs = index.data.items
     .filter(x => x.flags?.includes('now-dir'))
     .map(x => Path.dirname(x.pathRelative))
@@ -91,17 +68,35 @@ export const parseWorkspaceIndex = async (
     .filter(x => x.flags?.includes('waiting-dir'))
     .map(x => Path.dirname(x.pathRelative))
 
-  for (let item of index.data.items) {
-    let pItem = pathItemFromIndex(item)
-
+  for (let pathIndex of index.data.items) {
+    let pItem = pathItemFromIndex(pathIndex)
+    if (pathIndex.calendar) {
+      pathIndex.calendar.forEach(x => {
+        calendar.push({
+          ...x,
+          path: pItem.pathRelative,
+          date: new Date(x.date),
+        })
+      })
+    }
+    if (pItem.flags.includes('waiting')) {
+      now.push(pItem)
+    }
+    if (pItem.after) {
+      active.push(pItem)
+    }
+    if (pItem.flags.includes('now')) {
+      now.push(pItem)
+      continue
+    }
     const runInclude = (all: string[], acu: PathItem[]) => {
-      if (all.find(x => item.pathRelative.startsWith(x))) {
-        if (item.pathRelative.endsWith('index.md')) {
-          if (!all.includes(Path.dirname(item.pathRelative))) {
+      if (all.find(x => pathIndex.pathRelative.startsWith(x))) {
+        if (pathIndex.pathRelative.endsWith('index.md')) {
+          if (!all.includes(Path.dirname(pathIndex.pathRelative))) {
             acu.push(pItem)
           }
         } else {
-          if (all.includes(Path.dirname(item.pathRelative))) {
+          if (all.includes(Path.dirname(pathIndex.pathRelative))) {
             acu.push(pItem)
           }
         }
@@ -113,7 +108,7 @@ export const parseWorkspaceIndex = async (
   }
 
   //
-  now = prettyNow(now, { basePath })
+  now = prettyNow(now)
   active.sort((lhs, rhs) => {
     return lhs.after.getTime() - rhs.after.getTime()
   })
