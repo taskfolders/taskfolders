@@ -1,6 +1,7 @@
-import { WorkspaceIndex } from '../WorkspaceIndex.js'
+import { PathIndex, WorkspaceIndex } from '../WorkspaceIndex.js'
 import * as fs from 'node:fs'
 import { PathItem } from './PathItem.js'
+import { ensureWords } from '../StandardMetadata.js'
 
 export const prettyNow = (all: { path }[], kv: { basePath }) => {
   let { basePath } = kv
@@ -63,7 +64,7 @@ export const parseWorkspaceIndex = async (
 ) => {
   let calendar: { title; date: Date }[] = []
   // for .before and next .calendar event
-  let waiting = []
+  let waiting: PathItem[] = []
   let now: PathItem[] = []
   let active: PathItem[] = []
 
@@ -73,36 +74,36 @@ export const parseWorkspaceIndex = async (
         calendar.push({ ...x, path, date: new Date(x.date) })
       })
     }
-    if (path.includes('now')) {
-      let ma = path.match(/action\/now.*\/(.*)/)
-      if (ma) {
-        let parts = path.split('/')
-      }
 
+    const pathItemFromIndex = (item: PathIndex) => {
       let next = new PathItem()
+      next.base = basePath
       next.path = path
-      now.push(next)
+      next.after = item.after
+      next.before = item.before
+      next.tags = ensureWords(item.tags)
+      next.uid = item.uid
+      next.sid = item.sid
+      next.flags = ensureWords(item.flags)
+      return next
     }
 
+    let pItem = pathItemFromIndex(item)
     if (path.endsWith('.md')) {
       if (item.after) {
-        const pathItemFromIndex = (item: PathItem) => {
-          let next = new PathItem()
-          next.base = basePath
-          next.path = path
-          next.after = item.after
-          next.before = item.before
-          next.tags = item.tags
-          next.uid = item.uid
-          next.sid = item.sid
-          return next
-        }
-        active.push(pathItemFromIndex(item))
+        active.push(pItem)
       }
     }
 
     if (path.includes('waiting')) {
-      waiting.push({ path })
+      waiting.push(pathItemFromIndex(item))
+    }
+
+    if (pItem.flags.includes('now')) {
+      now.push(pItem)
+    }
+    if (pItem.flags.includes('waiting')) {
+      now.push(pItem)
     }
   }
 

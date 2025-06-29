@@ -14,11 +14,71 @@ import { parseWorkspaceIndex } from './parseWorkspaceIndex.js'
 import { PathItem } from './PathItem.js'
 import { padEnd } from '@taskfolders/utils/native/string/padEnd'
 import { Folder } from '../Folder.js'
+import { join } from 'path'
+type Fox = { path; started; due }
+
+const toPathPrint = (x: PathItem) => {
+  let cap = PathPadding - 5
+  let pathStr = x.path.replace('/index.md', '')
+  if (pathStr.length > cap) {
+    pathStr = '…' + pathStr.slice(pathStr.length - cap + 1)
+  }
+  let pathShow = Logger.link({ text: pathStr, path: x.pathFull })
+  return pathShow
+}
+
+const PathPadding = 50
+
+const printTable = <T = Fox>(kv: {
+  rows: T[]
+  log: Logger
+  keys?: Array<keyof T>
+  config?: Partial<Record<keyof T, { padding: number; head?: string }>>
+}) => {
+  let { log, keys, config } = kv
+  config ??= {}
+  let heads = ['', 'Started *', 'Due']
+  let paddings = [config?.path?.padding ?? 40, 16]
+
+  // keys = ['path', 'started', 'due']
+  keys ??= Object.keys(kv.rows[0])
+  Object.keys(kv.rows[0]).forEach(key => {
+    config[key] ??= {}
+    config[key].head ??= key
+  })
+
+  // let headLine = zip(heads, paddings).map(([head, padding]) => {
+  //   return head.padEnd(padding)
+  // })
+
+  let headLine = keys.map(key => {
+    let conf = config[key]
+    return padEnd(conf.head, conf.padding)
+  })
+
+  log.put(...headLine)
+
+  for (let row of Object.values(kv.rows)) {
+    let pathLine = keys
+      .map((key, idx) => {
+        return padEnd(row[key].toString(), paddings[idx])
+        //return row[key] ? row[key].toString().padEnd(paddings[i]) : ''
+      })
+      .join(' ')
+    log.put(pathLine)
+  }
+}
 
 export class SummaryHandler {
   log = new Logger()
   index: WorkspaceIndex
   ws: Folder
+
+  static async create(kv: { cwd: string }) {
+    let sut = new SummaryHandler({ cwd: kv.cwd })
+    await sut.setup()
+    return sut
+  }
 
   constructor(public params: { cwd: string }) {}
 
@@ -70,6 +130,13 @@ export class SummaryHandler {
       return 'rest'
     })
 
+    const dimKeysApply = item => {
+      for (let key in item) {
+        item[key] = log.style.dim(item[key])
+      }
+    }
+
+    let now = new Date()
     for (let [key, val] of Object.entries(data)) {
       // TODO wtf? clean #type
       type foo = keyof typeof data
@@ -77,9 +144,27 @@ export class SummaryHandler {
         case 'waiting': {
           printSection('Waiting')
           log.indent()
-          for (let item of val) {
-            log.put(item.path)
-          }
+
+          let all = val as PathItem[]
+          let rows = all.map(x => {
+            let started = x.after ? x.after.toISOString().slice(0, 10) : ''
+            let item = {
+              path: log.link({ text: x.path, path: x.pathFull }),
+              started,
+              due: '',
+            }
+
+            if (now < x.after) {
+              dimKeysApply(item)
+            }
+            return item
+          })
+
+          printTable<Fox>({
+            rows,
+            log,
+            config: { path: { padding: PathPadding } },
+          })
           log.dedent()
           break
         }
@@ -133,22 +218,37 @@ export class SummaryHandler {
         case 'now': {
           printSection('NOW')
           log.indent()
-          let a1 = Object.groupBy(val, x => x.dir)
           // LOG group by inner dir
           // console.log(a1)
           let all = val as PathItem[]
 
+          type Row = { path; modified; due }
+          let rows: Row[] = []
           all = all.sort(
             (lhs, rhs) => rhs.mtime.getTime() - lhs.mtime.getTime(),
           )
           all.forEach(x => {
-            if (x.show.startsWith('_')) return
+            // if (x.show.startsWith('_')) return
             let time = x.mtime.toISOString().slice(0, 10)
-            log.put(
-              log.link({ text: padEnd(x.show, 30), path: x.pathFull }),
-              time,
-            )
+            // let time = ''
+
+            let path = toPathPrint(x)
+            rows.push({
+              path,
+              modified: timeDiff({ date: x.mtime, color: false }),
+              due: '',
+            })
           })
+
+          printTable({
+            rows,
+            log,
+            config: {
+              path: { padding: PathPadding, head: '' },
+              modified: { padding: 12, head: 'Modified *' },
+            },
+          })
+
           log.dedent()
           break
         }
@@ -163,7 +263,6 @@ export class SummaryHandler {
           printSection('Active')
 
           let all = val as PathItem[]
-          let now = new Date()
           let t1 = Object.groupBy(all, x => {
             if (now.getTime() < x.after.getTime()) {
               return 'postponed'
@@ -177,39 +276,36 @@ export class SummaryHandler {
               t1.postponed?.length ?? 0
             }`,
           )
-          log.put(''.padEnd(40), 'Started *'.padEnd(16), 'Due')
+
+          let rows: Fox[] = []
+
           all.forEach(x => {
             // let mtime = x.mtime.toISOString().slice(0, 10)
             let started = ''
             if (x.after) {
-              started = x.after.toISOString().slice(0, 10)
-              let weekStarted = getWeek(x.after)
-              started = `W${getWeek(x.after)} ${(weekStarted - weekNumberNow)
-                .toString()
-                .padStart(2)}w`
+              started = timeDiff({ date: x.after, color: false })
             }
             let isActive = now.getTime() > x.after.getTime()
 
-            let due = ''
-            if (x.before) {
-              let weekDue = getWeek(x.before)
-              let symbol = weekDue > weekNumberNow ? '+' : '-'
-              let diff = Math.abs(weekDue - weekNumberNow).toString()
-              // .padStart(2)
-              due = `W${getWeek(x.before)} ${symbol}${diff}w`
-            }
+            let due = timeDiff({ date: x.before })
 
-            let pathShow = x.path.replace('/index.md', '')
-            let line = [
-              log.link({ text: padEnd(pathShow, 40), path: x.pathFull }),
-              started.padEnd(16),
-              due,
-            ].join(' ')
-            if (!isActive) {
-              line = log.style.dim(line)
-            }
-            log.put(line)
+            let item = { path: toPathPrint(x), started, due }
+            rows.push(item)
+
+            if (!isActive) dimKeysApply(item)
+
+            // log.put(pathLine)
           })
+
+          printTable({
+            rows,
+            log,
+            config: {
+              path: { padding: PathPadding, head: '' },
+              started: { padding: 12 },
+            },
+          })
+          //
           log.dedent()
 
           break
@@ -227,4 +323,35 @@ export class SummaryHandler {
     let res = await this._getData()
     await this._printData(res)
   }
+}
+
+function zip(arr1, arr2) {
+  const length = Math.max(arr1.length, arr2.length)
+  const zipped = []
+  for (let i = 0; i < length; i++) {
+    zipped.push([arr1[i], arr2[i]])
+  }
+  return zipped
+}
+
+const timeDiff = (kv: { date: Date; color?: Boolean }) => {
+  let weekNumberNow = getWeek(new Date())
+  let { date } = kv
+  let due = ''
+  if (date) {
+    let weekDue = getWeek(date)
+    let symbol = weekDue > weekNumberNow ? '+' : '-'
+    let weekCount = weekDue - weekNumberNow
+    let diff = Math.abs(weekDue - weekNumberNow).toString()
+    // .padStart(2)
+    due = `W${getWeek(date)} ${symbol}${diff}w`
+    if (kv.color !== false) {
+      if (weekCount < 0) {
+        due = Logger.style.red(due)
+      } else if (weekCount < 6) {
+        due = Logger.style.yellow(due)
+      }
+    }
+  }
+  return due
 }

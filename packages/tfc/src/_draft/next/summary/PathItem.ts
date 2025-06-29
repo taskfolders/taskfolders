@@ -35,7 +35,8 @@ export class PathItem {
   base
   before: Date
   after: Date
-  tags: string[]
+  tags: string[] = []
+  flags: string[] = []
   review: StandardMetadata['review']
 
   @cacheResult

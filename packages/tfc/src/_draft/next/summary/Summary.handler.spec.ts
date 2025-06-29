@@ -26,9 +26,10 @@ it('x', async () => {
 
 it.only('x', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
-  let sut = new SummaryHandler({ cwd })
-  await sut.setup()
-  let res = await parseWorkspaceIndex(sut.index, { basePath: sut.ws.dir })
+  let sut = await SummaryHandler.create({ cwd })
+
+  // let res = await parseWorkspaceIndex(sut.index, { basePath: sut.ws.dir })
+  let res = await sut.execute()
   //console.log(sut.index.data)
 
   console.log(res)

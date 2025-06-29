@@ -23,6 +23,9 @@ let colorizeLevel = level => {
 }
 
 export class Logger {
+  static link = shellHyperlink
+  static style = Col
+
   options: {
     start?: Date
     depth?: number

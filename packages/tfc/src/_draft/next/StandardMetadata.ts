@@ -27,6 +27,8 @@ export class StandardMetadata {
     if (_raw.exclude) {
       this.exclude = [].concat(_raw.exclude)
     }
+
+    this.flags = ensureWords(_raw.flags)
   }
 
   static fromJSON(doc) {
@@ -50,9 +52,7 @@ export class StandardMetadata {
     return [].concat(this._raw.calendar ?? [])
   }
 
-  get flags() {
-    return [].concat(this._raw.flags ?? this._raw.labels ?? [])
-  }
+  flags: string[]
 
   review: { next: Date; last: Date }
 
@@ -64,4 +64,12 @@ export class StandardMetadata {
     if (!this._raw.type) return true
     return this._raw.type?.includes('taskfolders.com/')
   }
+}
+
+export function ensureWords(thing) {
+  let val = thing ?? []
+  if (typeof val === 'string') {
+    val = val.split(',').map(x => x.trim())
+  }
+  return val
 }

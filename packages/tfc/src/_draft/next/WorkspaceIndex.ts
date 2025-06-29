@@ -9,6 +9,7 @@ export type PathIndex = {
   after?: Date
   before?: Date
   tags?: string[]
+  flags?: string[]
   review?: { next; latest? }
   scanTime?
   sections: { uid?; sid?; lineText? }[]
@@ -38,7 +39,8 @@ export class WorkspaceIndex {
     file.path = path
     file.base = this.pathBaseDir
     let found = this.data.paths[path] ?? {}
-    Object.assign(file, found)
+    // TODO
+    // Object.assign(file, found)
     return file
     console.log(found)
   }
@@ -112,7 +114,15 @@ export class WorkspaceIndex {
 
   updateFile(
     relPath: string,
-    kv: { uid?: any; sid?: any; review?; after?; before?; tags? },
+    kv: {
+      uid?: any
+      sid?: any
+      review?
+      after?
+      before?
+      tags?
+      flags?: string[]
+    },
   ) {
     // TODO ..
     let item = this._createItem(relPath)
@@ -121,6 +131,7 @@ export class WorkspaceIndex {
     item.before = kv.before
     item.after = kv.after
     item.tags = kv.tags
+    item.flags = kv.flags
     this.data.paths_v2[relPath] = item
 
     this.data.paths[relPath] ??= { sections: [], scanTime: new Date() }
@@ -139,6 +150,9 @@ export class WorkspaceIndex {
 
     target.mtime = item.mtime
     target.inode = item.inode
+    if (!isBlank(kv.flags)) {
+      target.flags = kv.flags
+    }
     return item
   }
 
@@ -161,6 +175,11 @@ export class WorkspaceIndex {
       if (item.review) {
         target.review = item.review
       }
+    })
+
+    copy['items'] = []
+    Object.entries(copy.paths).forEach(([key, item]) => {
+      copy['items'].push({ pathRelative: key, type: 'path', ...item })
     })
 
     // Remove keys with value {}

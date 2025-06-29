@@ -49,6 +49,7 @@ export class ScanV2Handler {
         wsIndexData.updateFile(relPath, {})
       }
 
+      // TODO #now use data_std and decide what/when index? or index all .md?
       if (md.data) {
         let _data = md.data as any
         let meta = new StandardMetadata(_data)
@@ -61,6 +62,7 @@ export class ScanV2Handler {
           after: meta.after,
           before: meta.before,
           tags: meta.tags,
+          flags: meta.flags,
         })
 
         if (meta.calendar.length > 0) {

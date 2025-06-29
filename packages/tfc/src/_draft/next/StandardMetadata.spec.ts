@@ -26,3 +26,14 @@ it('x', async () => {
   sut = new StandardMetadata({ after: '2025-01-04' })
   expect(sut.after).toBeCloseTo(new Date('2025-01-04').getTime())
 })
+
+it.only('flags', async () => {
+  let sut = new StandardMetadata({ flags: 'workspace' })
+  expect(sut.flags).toContain('workspace')
+
+  sut = new StandardMetadata({ flags: 'workspace, now' })
+  expect(sut.flags).toContain('workspace')
+
+  sut = new StandardMetadata({})
+  expect(sut.flags).toEqual([])
+})

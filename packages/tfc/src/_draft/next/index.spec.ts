@@ -19,7 +19,7 @@ it.skip('x', async () => {
   console.log(sut.tags)
 })
 
-it.only('x y #slow #scaffold', async () => {
+it.skip('x y #todo #slow #scaffold', async () => {
   let dir = join(process.env.HOME, 'repos/tf-open/packages/tfc/samples/one')
   dir = join(process.env.HOME, 'repos/play/demo/one')
 
