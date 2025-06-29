@@ -3,36 +3,70 @@
   "version": 1,
   "paths": {
     "index.md": {
-      "scanTime": "2025-06-29T09:42:01.090Z",
-      "mtime": "2025-06-29T09:41:02.425Z",
-      "inode": 16287727,
+      "scanTime": "2025-06-29T10:57:15.209Z",
+      "mtime": "2025-06-29T09:43:26.187Z",
+      "inode": 16287818,
       "flags": [
         "workspace"
       ]
     },
     "now/one.md": {
-      "scanTime": "2025-06-29T09:42:01.091Z",
+      "scanTime": "2025-06-29T10:57:15.211Z",
       "mtime": "2025-06-29T09:41:34.385Z",
       "inode": 16287772
     },
+    "now/index.md": {
+      "scanTime": "2025-06-29T10:57:15.212Z",
+      "mtime": "2025-06-29T09:43:04.738Z",
+      "inode": 16287802,
+      "flags": [
+        "now-dir"
+      ]
+    },
     "now/two/index.md": {
-      "scanTime": "2025-06-29T09:42:01.092Z",
+      "scanTime": "2025-06-29T10:57:15.212Z",
       "mtime": "2025-06-29T09:41:48.682Z",
       "inode": 16287776
     },
     "now/two/alternate.md": {
-      "scanTime": "2025-06-29T09:42:01.092Z",
+      "scanTime": "2025-06-29T10:57:15.212Z",
       "mtime": "2025-06-29T09:41:59.034Z",
       "inode": 16287783
+    },
+    "now/two/nested/index.md": {
+      "scanTime": "2025-06-29T10:57:15.212Z",
+      "mtime": "2025-06-29T10:05:28.353Z",
+      "inode": 16288281
+    },
+    "waiting/index.md": {
+      "scanTime": "2025-06-29T10:57:15.213Z",
+      "mtime": "2025-06-29T10:05:03.927Z",
+      "inode": 16288265,
+      "flags": [
+        "waiting-dir"
+      ]
+    },
+    "waiting/foo.md": {
+      "scanTime": "2025-06-29T10:57:15.214Z",
+      "mtime": "2025-06-29T10:05:12.728Z",
+      "inode": 16288271
+    },
+    "random/extra.md": {
+      "scanTime": "2025-06-29T10:57:15.214Z",
+      "mtime": "2025-06-29T10:11:09.802Z",
+      "inode": 16288408,
+      "flags": [
+        "now"
+      ]
     }
   },
   "items": [
     {
       "pathRelative": "index.md",
       "type": "path",
-      "scanTime": "2025-06-29T09:42:01.090Z",
-      "mtime": "2025-06-29T09:41:02.425Z",
-      "inode": 16287727,
+      "scanTime": "2025-06-29T10:57:15.209Z",
+      "mtime": "2025-06-29T09:43:26.187Z",
+      "inode": 16287818,
       "flags": [
         "workspace"
       ]
@@ -40,23 +74,67 @@
     {
       "pathRelative": "now/one.md",
       "type": "path",
-      "scanTime": "2025-06-29T09:42:01.091Z",
+      "scanTime": "2025-06-29T10:57:15.211Z",
       "mtime": "2025-06-29T09:41:34.385Z",
       "inode": 16287772
     },
     {
+      "pathRelative": "now/index.md",
+      "type": "path",
+      "scanTime": "2025-06-29T10:57:15.212Z",
+      "mtime": "2025-06-29T09:43:04.738Z",
+      "inode": 16287802,
+      "flags": [
+        "now-dir"
+      ]
+    },
+    {
       "pathRelative": "now/two/index.md",
       "type": "path",
-      "scanTime": "2025-06-29T09:42:01.092Z",
+      "scanTime": "2025-06-29T10:57:15.212Z",
       "mtime": "2025-06-29T09:41:48.682Z",
       "inode": 16287776
     },
     {
       "pathRelative": "now/two/alternate.md",
       "type": "path",
-      "scanTime": "2025-06-29T09:42:01.092Z",
+      "scanTime": "2025-06-29T10:57:15.212Z",
       "mtime": "2025-06-29T09:41:59.034Z",
       "inode": 16287783
+    },
+    {
+      "pathRelative": "now/two/nested/index.md",
+      "type": "path",
+      "scanTime": "2025-06-29T10:57:15.212Z",
+      "mtime": "2025-06-29T10:05:28.353Z",
+      "inode": 16288281
+    },
+    {
+      "pathRelative": "waiting/index.md",
+      "type": "path",
+      "scanTime": "2025-06-29T10:57:15.213Z",
+      "mtime": "2025-06-29T10:05:03.927Z",
+      "inode": 16288265,
+      "flags": [
+        "waiting-dir"
+      ]
+    },
+    {
+      "pathRelative": "waiting/foo.md",
+      "type": "path",
+      "scanTime": "2025-06-29T10:57:15.214Z",
+      "mtime": "2025-06-29T10:05:12.728Z",
+      "inode": 16288271
+    },
+    {
+      "pathRelative": "random/extra.md",
+      "type": "path",
+      "scanTime": "2025-06-29T10:57:15.214Z",
+      "mtime": "2025-06-29T10:11:09.802Z",
+      "inode": 16288408,
+      "flags": [
+        "now"
+      ]
     }
   ]
 }

@@ -14,6 +14,9 @@ export type PathIndex = {
   scanTime?
   sections: { uid?; sid?; lineText? }[]
   calendar?: any[]
+
+  // TODO future , not used in data.paths
+  pathRelative?
 }
 export class WorkspaceIndex {
   _index = { uids: {} }
@@ -27,11 +30,13 @@ export class WorkspaceIndex {
     version: 1,
     paths: {},
     paths_v2: {},
+    items: [],
   } as {
     type: string
     version: number
     paths_v2: Record<string, PathItem>
     paths: Record<string, PathIndex>
+    items: PathIndex[]
   }
 
   get(path: string) {
@@ -75,6 +80,16 @@ export class WorkspaceIndex {
   loadJSON(doc: string) {
     this.data = JSON.parse(doc)
     Object.values(this.data.paths).forEach(x => {
+      x.sections ??= []
+      if (x.after) {
+        x.after = new Date(x.after)
+      }
+      if (x.before) {
+        x.before = new Date(x.before)
+      }
+    })
+
+    Object.values(this.data.items).forEach(x => {
       x.sections ??= []
       if (x.after) {
         x.after = new Date(x.after)

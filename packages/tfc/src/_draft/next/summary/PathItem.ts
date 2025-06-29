@@ -31,7 +31,6 @@ export class PathItem {
   sid?: string
   path
   dir
-  show
   base
   before: Date
   after: Date

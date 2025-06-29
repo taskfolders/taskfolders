@@ -2,6 +2,7 @@ import { PathIndex, WorkspaceIndex } from '../WorkspaceIndex.js'
 import * as fs from 'node:fs'
 import { PathItem } from './PathItem.js'
 import { ensureWords } from '../StandardMetadata.js'
+import * as Path from 'path'
 
 export const prettyNow = (all: { path }[], kv: { basePath }) => {
   let { basePath } = kv
@@ -18,40 +19,15 @@ export const prettyNow = (all: { path }[], kv: { basePath }) => {
       }
 
       let parts = next.path.split('/')
-      let idx = parts.findIndex(x => x.match(/now/)) + 1
-      let afterNow = parts[idx] ?? parts[0]
-      // next.path = join(basePath, ...parts)
-
-      parts = parts.slice(idx)
-      // next.dir = parts.slice(0, idx - 1).join('/')
       next.dir = parts.slice(0, 1).join('/')
       if (next.dir.endsWith('.md')) {
         next.dir = null
-      }
-
-      if (!afterNow.endsWith('.md')) {
-        parts = parts.slice(0, 1)
-        next.show = parts.join('/')
-      } else {
-        next.show = parts.join('/')
       }
 
       // x.show = log.link({ path: x.path })
       return next
     })
     .filter(Boolean)
-
-  let group = Object.groupBy(r1, x => x.dir)
-  for (let [key, val] of Object.entries(group)) {
-    if (key === 'null') continue
-
-    let next = val.sort((lhs, rhs) => lhs.path.length - rhs.path.length).at(0)
-
-    // @ts-expect-error TODO
-    group[key] = next
-  }
-
-  r1 = ungroup(group)
 
   return r1
 }
@@ -68,35 +44,35 @@ export const parseWorkspaceIndex = async (
   let now: PathItem[] = []
   let active: PathItem[] = []
 
+  const pathItemFromIndex = (
+    item: PathIndex,
+    // TODO drop
+    /** @deprecated */
+    path?,
+  ) => {
+    let next = new PathItem()
+    next.base = basePath
+    next.path = path ?? item.pathRelative
+    next.after = item.after
+    next.before = item.before
+    next.tags = ensureWords(item.tags)
+    next.uid = item.uid
+    next.sid = item.sid
+    next.flags = ensureWords(item.flags)
+    return next
+  }
+
   for (let [path, item] of Object.entries(index.data.paths)) {
     if (item.calendar) {
       item.calendar.forEach(x => {
         calendar.push({ ...x, path, date: new Date(x.date) })
       })
     }
-
-    const pathItemFromIndex = (item: PathIndex) => {
-      let next = new PathItem()
-      next.base = basePath
-      next.path = path
-      next.after = item.after
-      next.before = item.before
-      next.tags = ensureWords(item.tags)
-      next.uid = item.uid
-      next.sid = item.sid
-      next.flags = ensureWords(item.flags)
-      return next
-    }
-
-    let pItem = pathItemFromIndex(item)
+    let pItem = pathItemFromIndex(item, path)
     if (path.endsWith('.md')) {
       if (item.after) {
         active.push(pItem)
       }
-    }
-
-    if (path.includes('waiting')) {
-      waiting.push(pathItemFromIndex(item))
     }
 
     if (pItem.flags.includes('now')) {
@@ -105,6 +81,35 @@ export const parseWorkspaceIndex = async (
     if (pItem.flags.includes('waiting')) {
       now.push(pItem)
     }
+  }
+
+  let nowDirs = index.data.items
+    .filter(x => x.flags?.includes('now-dir'))
+    .map(x => Path.dirname(x.pathRelative))
+
+  let waitingDirs = index.data.items
+    .filter(x => x.flags?.includes('waiting-dir'))
+    .map(x => Path.dirname(x.pathRelative))
+
+  for (let item of index.data.items) {
+    let pItem = pathItemFromIndex(item)
+
+    const runInclude = (all: string[], acu: PathItem[]) => {
+      if (all.find(x => item.pathRelative.startsWith(x))) {
+        if (item.pathRelative.endsWith('index.md')) {
+          if (!all.includes(Path.dirname(item.pathRelative))) {
+            acu.push(pItem)
+          }
+        } else {
+          if (all.includes(Path.dirname(item.pathRelative))) {
+            acu.push(pItem)
+          }
+        }
+      }
+    }
+
+    runInclude(nowDirs, now)
+    runInclude(waitingDirs, waiting)
   }
 
   //

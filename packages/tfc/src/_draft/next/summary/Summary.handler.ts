@@ -5,6 +5,7 @@ import {
   isThisMonth,
   isThisWeek,
   isThisYear,
+  isToday,
   isWithinInterval,
 } from 'date-fns'
 import { WorkspaceIndex } from '../WorkspaceIndex.js'
@@ -35,7 +36,8 @@ const printTable = <T = Fox>(kv: {
   keys?: Array<keyof T>
   config?: Partial<Record<keyof T, { padding: number; head?: string }>>
 }) => {
-  let { log, keys, config } = kv
+  let { rows, log, keys, config } = kv
+  if (rows.length === 0) return
   config ??= {}
   let heads = ['', 'Started *', 'Due']
   let paddings = [config?.path?.padding ?? 40, 16]
@@ -163,7 +165,7 @@ export class SummaryHandler {
           printTable<Fox>({
             rows,
             log,
-            config: { path: { padding: PathPadding } },
+            config: { path: { padding: PathPadding, head: '' } },
           })
           log.dedent()
           break
@@ -339,12 +341,17 @@ const timeDiff = (kv: { date: Date; color?: Boolean }) => {
   let { date } = kv
   let due = ''
   if (date) {
+    let weekNum = getWeek(date)
+    if (isToday(date)) {
+      due = 'Today'
+      return due
+    }
     let weekDue = getWeek(date)
     let symbol = weekDue > weekNumberNow ? '+' : '-'
     let weekCount = weekDue - weekNumberNow
     let diff = Math.abs(weekDue - weekNumberNow).toString()
     // .padStart(2)
-    due = `W${getWeek(date)} ${symbol}${diff}w`
+    due = `W${weekNum} ${symbol}${diff}w`
     if (kv.color !== false) {
       if (weekCount < 0) {
         due = Logger.style.red(due)

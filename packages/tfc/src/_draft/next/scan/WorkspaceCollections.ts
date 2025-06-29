@@ -4,11 +4,15 @@ import { join } from 'path/posix'
 export class WorkspaceCollections {
   fs = fs
   file: string
-  data: { type; workspaces: {}[] }
+  data: { type; workspaces: {} }
 
   constructor() {
     let dir = join(process.env.HOME, '.config/TaskFolders.com')
     this.file = join(dir, 'workspaces.json')
+    this.setup()
+  }
+
+  setup() {
     let { fs, file } = this
     if (fs.existsSync(file)) {
       let doc = JSON.parse(fs.readFileSync(file).toString())
@@ -16,17 +20,17 @@ export class WorkspaceCollections {
     } else {
       this.data = {
         type: 'draft/workspace-locations',
-        workspaces: [],
+        workspaces: {},
       }
     }
   }
 
   upsert(kv: { uid; dir; sid }) {
-    this.data.workspaces[kv.uid] = kv
+    this.data.workspaces[kv.dir] = kv
   }
 
   write() {
-    let data = JSON.stringify(this.data)
+    let data = JSON.stringify(this.data, null, 2)
     this.fs.writeFileSync(this.file, data)
   }
 }
