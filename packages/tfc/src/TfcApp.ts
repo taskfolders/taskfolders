@@ -3,7 +3,7 @@ import { DC } from '@taskfolders/utils/dependencies'
 import { ScanV2Handler } from './_draft/next/scan/ScanV2.handler.js'
 import { ReadReferenceHandler } from './_draft/next/ReadReference.handler.js'
 import { SummaryHandler } from './_draft/next/summary/Summary.handler.js'
-import * as fs from 'fs'
+import * as fs from 'node:fs'
 
 export class TfcApp {
   dc = new DC()
@@ -29,6 +29,8 @@ export class TfcApp {
           },
           all: {
             boolean: true,
+            alias: 'a',
+            default: false,
           },
         },
         handler: async argv => {
@@ -124,7 +126,9 @@ export class TfcApp {
         describe: 'NEW summary of workspace',
         builder: {
           all: {
-            boolean: false,
+            boolean: true,
+            alias: 'a',
+            default: false,
           },
         },
         handler: async argv => {
@@ -132,7 +136,6 @@ export class TfcApp {
             cwd: process.cwd(),
             allWorkspaces: argv.all,
           })
-          await han.setup()
           await han.execute()
         },
       })

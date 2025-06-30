@@ -4,6 +4,10 @@ import { padEnd } from '@taskfolders/utils/native/string/padEnd'
 
 import { shellHyperlink } from '@taskfolders/utils/screen'
 
+import { URL } from 'node:url' // in Browser, the URL in native accessible on window
+
+const __filename = new URL('', import.meta.url).pathname
+
 const Col = Color.createColors({ useColor: true })
 
 const levelColors = {

@@ -11,12 +11,20 @@ import {
 import { WorkspaceIndex } from '../WorkspaceIndex.js'
 import { findUpWorkspace } from '../findUpWorkspace.js'
 import * as fs from 'fs'
-import { parseWorkspaceIndex, IndexResult } from './parseWorkspaceIndex.js'
+import {
+  parseWorkspaceIndex,
+  IndexResult,
+  CalendarItem,
+} from './parseWorkspaceIndex.js'
 import { PathItem } from './PathItem.js'
 import { padEnd } from '@taskfolders/utils/native/string/padEnd'
 import { Folder } from '../Folder.js'
 import { WorkspaceCollections } from '../scan/WorkspaceCollections.js'
 import { timeDiff } from './timeDiff.js'
+
+import { URL } from 'node:url'
+const __filename = new URL('', import.meta.url).pathname
+
 type Fox = { path; started; due }
 
 const dimKeysApply = item => {
@@ -86,28 +94,25 @@ const printTable = <T>(kv: {
 
 export class SummaryHandler {
   log = new Logger()
-  index: WorkspaceIndex
+  // index: WorkspaceIndex
 
   static async create(params: SummaryHandler['params']) {
     let sut = new SummaryHandler(params)
-    await sut.setup()
     return sut
   }
 
   constructor(public params: { cwd: string; allWorkspaces?: boolean }) {}
 
-  async setup() {
+  async _getIndex() {
     let ws = await findUpWorkspace(this.params.cwd)
 
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     let body = fs.readFileSync(path, 'utf-8').toString()
     let index = WorkspaceIndex.fromJSON(body, { path: ws.dir })
-    this.index = index
+    return index
   }
 
   async _getData() {
-    await this.setup()
-
     let res: IndexResult = {
       calendar: [],
       waiting: [],
@@ -135,9 +140,10 @@ export class SummaryHandler {
         })
       }
     } else {
+      let index = await this._getIndex()
       let ws = await findUpWorkspace(this.params.cwd)
       // TODO #refactor #workspace
-      res = await parseWorkspaceIndex(this.index, {
+      res = await parseWorkspaceIndex(index, {
         basePath: ws.dir,
         wsName: ws.data_std.sid,
       })
@@ -197,7 +203,6 @@ export class SummaryHandler {
           log.indent()
 
           let all = val as PathItem[]
-          console.dir({ val })
 
           let rows = all
             .map(x => {
@@ -233,13 +238,21 @@ export class SummaryHandler {
         case 'calendar': {
           printSection('Calendar')
           log.indent()
+          const putLine = (item: CalendarItem) => {
+            let date = item.date.toISOString().slice(0, 10)
+            let link = Logger.link({
+              text: item.title,
+              path: item.item.pathFull,
+            })
+            log.put(date, link)
+          }
+
           let printAll = (val: { date; title }[]) => {
             let all = val.sort(
               (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
             )
             for (let item of all) {
-              let date = item.date.toISOString().slice(0, 10)
-              log.put(date, item.title)
+              putLine(item)
             }
           }
 
@@ -253,14 +266,7 @@ export class SummaryHandler {
 
           log.put('In a month').indent()
           if (byNearTimeGroups.month) {
-            let val = byNearTimeGroups.month
-            let all = val.sort(
-              (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
-            )
-            for (let item of all) {
-              let date = item.date.toISOString().slice(0, 10)
-              log.put(date, item.title)
-            }
+            printAll(byNearTimeGroups.month)
           } else {
             log.put('..none')
           }

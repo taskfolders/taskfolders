@@ -30,12 +30,12 @@ export const prettyNow = (all: PathItem[]) => {
 const ungroup = x => Object.values<any>(x).flat()
 
 export type IndexResult = Awaited<ReturnType<typeof parseWorkspaceIndex>>
-
+export type CalendarItem = { title; date: Date; item: PathItem }
 export const parseWorkspaceIndex = async (
   index: WorkspaceIndex,
   { basePath, wsName },
 ) => {
-  let calendar: { title; date: Date }[] = []
+  let calendar: CalendarItem[] = []
   // for .before and next .calendar event
   let waiting: PathItem[] = []
   let now: PathItem[] = []
@@ -77,6 +77,7 @@ export const parseWorkspaceIndex = async (
           ...x,
           path: pItem.pathRelative,
           date: new Date(x.date),
+          item: pItem,
         })
       })
     }
