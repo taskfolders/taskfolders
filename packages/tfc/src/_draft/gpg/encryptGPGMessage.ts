@@ -17,6 +17,7 @@ export function encryptGPGMessage(kv: {
   gpg.stdin.end()
 
   let stdoutBuffer = Buffer.alloc(0)
+  let stderrBuffer = Buffer.alloc(0)
 
   gpg.stdout.on('data', data => {
     // console.log(data.toString())
@@ -24,6 +25,7 @@ export function encryptGPGMessage(kv: {
   })
 
   gpg.stderr.on('data', data => {
+    stderrBuffer = Buffer.concat([stderrBuffer, data])
     // $dev({ data: data.toString() })
   })
   gpg.on('error', () => {
@@ -37,7 +39,11 @@ export function encryptGPGMessage(kv: {
       } else {
         let e = new Error('Encryption failed')
         // @ts-expect-error TODO
-        e.data = { exitCode: code }
+        e.data = {
+          exitCode: code,
+          stdout: stdoutBuffer.toString(),
+          stderr: stderrBuffer.toString(),
+        }
         reject(e)
       }
     })

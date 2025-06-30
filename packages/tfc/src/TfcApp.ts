@@ -1,8 +1,5 @@
 import Yargs from 'yargs'
 import { DC } from '@taskfolders/utils/dependencies'
-import { ScanV2Handler } from './_draft/next/scan/ScanV2.handler.js'
-import { ReadReferenceHandler } from './_draft/next/ReadReference.handler.js'
-import { SummaryHandler } from './_draft/next/summary/Summary.handler.js'
 import * as fs from 'node:fs'
 
 export class TfcApp {
@@ -83,6 +80,9 @@ export class TfcApp {
         command: 'show id',
         describe: 'NEW Show file by sid/uid',
         handler: async argv => {
+          const { ReadReferenceHandler } = await import(
+            './_draft/next/ReadReference.handler.js'
+          )
           let han = new ReadReferenceHandler({
             cwd: process.cwd(),
             id: argv.id,
@@ -116,6 +116,9 @@ export class TfcApp {
         command: 'scan',
         describe: 'NEW next generation scan',
         handler: async argv => {
+          const { ScanV2Handler } = await import(
+            './_draft/next/scan/ScanV2.handler.js'
+          )
           let han = new ScanV2Handler({ dir: process.cwd() })
           await han.execute()
         },
@@ -132,6 +135,9 @@ export class TfcApp {
           },
         },
         handler: async argv => {
+          const { SummaryHandler } = await import(
+            './_draft/next/summary/Summary.handler.js'
+          )
           let han = new SummaryHandler({
             cwd: process.cwd(),
             allWorkspaces: argv.all,
@@ -159,6 +165,26 @@ export class TfcApp {
           console.log({ pathToDir, pathTo, pathFrom })
           fs.mkdirSync(pathToDir)
           await fs.promises.rename(pathFrom, pathTo)
+        },
+      })
+
+      .command({
+        command: 'dir path-id',
+        describe: 'DRAFT convert string to folder path',
+        handler: async argv => {},
+      })
+
+      .command({
+        command: 'edit reference',
+        describe: 'DRAFT edit',
+        handler: async argv => {
+          const { EditReferenceHandler } = await import(
+            './handlers/EditReference/EditReference.handler.js'
+          )
+
+          await new EditReferenceHandler({
+            reference: argv.reference,
+          }).execute()
         },
       })
 

@@ -2,6 +2,15 @@ import { toDate } from './toDate.js'
 import { FlagKey } from './summary/PathItem.js'
 
 export class StandardMetadata {
+  flags: FlagKey[]
+
+  review: { next: Date; last: Date }
+
+  after?: Date
+  before?: Date
+  exclude: string[] = []
+  recipients: string[]
+
   constructor(
     public _raw: Partial<{
       uid
@@ -15,6 +24,7 @@ export class StandardMetadata {
       flags
       labels
       exclude
+      recipients: string | string[]
     }>,
   ) {
     _raw ??= {}
@@ -30,6 +40,9 @@ export class StandardMetadata {
     }
 
     this.flags = ensureWords(_raw.flags)
+    if (_raw.recipients) {
+      this.recipients = [].concat(_raw.recipients)
+    }
   }
 
   static fromJSON(doc) {
@@ -52,14 +65,6 @@ export class StandardMetadata {
   get calendar() {
     return [].concat(this._raw.calendar ?? [])
   }
-
-  flags: FlagKey[]
-
-  review: { next: Date; last: Date }
-
-  after?: Date
-  before?: Date
-  exclude: string[] = []
 
   isParsable() {
     if (!this._raw.type) return true
