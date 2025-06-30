@@ -56,13 +56,13 @@ export class MarkdownDocument<T = unknown> {
   }
 
   toString() {
-    let parts = [
-      '---',
-      YAML.stringify(this.data).trim(),
-      '---',
-      '',
-      this.content,
-    ]
+    let parts = ['---', YAML.stringify(this.data).trim(), '---']
+    let lines = this.content.split('\n')
+    if (lines[0] !== '') {
+      parts.push('')
+    }
+    parts = parts.concat(lines)
+
     return parts.join('\n')
   }
 }

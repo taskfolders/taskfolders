@@ -1,11 +1,15 @@
 import { findWorkspaceUp } from '../WorkspaceRepo.js'
-import { TaskFoldersMarkdown } from '@taskfolders/utils/markdown'
+import {
+  TaskFoldersMarkdown,
+  MarkdownDocument,
+} from '@taskfolders/utils/markdown'
 import { join, relative } from 'node:path'
 
 import { expect, describe, it } from 'vitest'
 import { ScanV2Handler } from './scan/ScanV2.handler.js'
 import { StandardMetadata } from './StandardMetadata.js'
 import { parseWorkspaceIndex } from './summary/parseWorkspaceIndex.js'
+import { dedent } from '@taskfolders/utils/native/string/dedent'
 
 it.skip('x', async () => {
   let data = {
@@ -51,4 +55,15 @@ it.skip('x y #todo #slow #scaffold', async () => {
   // s1.log.info({ index })
   //sut.parse()
   //sut.findBase()
+})
+
+it('x edit md', async () => {
+  let body = dedent`
+    fox: 1
+    
+    hi
+  `
+  let md = await MarkdownDocument.fromBody(body, { implicitFrontmatter: true })
+  console.log(md.toString().split('\n'))
+  console.log(md.content.split('\n'))
 })

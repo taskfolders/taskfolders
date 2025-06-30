@@ -82,7 +82,7 @@ it('x #story', async () => {
   `)
 })
 
-it.only('x bad fm #edge', async () => {
+it('x bad fm #edge', async () => {
   let res
   await MarkdownDocument.fromBody(
     dedent`
@@ -94,4 +94,16 @@ it.only('x bad fm #edge', async () => {
     res = e
   })
   $dev(res.message)
+})
+
+it('x edit md', async () => {
+  let body = dedent`
+    fox: 1
+    
+    hi
+  `
+  let md = await MarkdownDocument.fromBody(body, { implicitFrontmatter: true })
+  let lines = md.toString().split('\n')
+
+  expect(lines).toEqual(['---', 'fox: 1', '---', '', 'hi'])
 })

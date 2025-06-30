@@ -21,7 +21,6 @@ export class MarkdownSections {
         let error = Error('Unreadable markdown section frontmatter')
         // @ts-expect-error TODO
         error.code = 'md-section-unreadable-fm'
-        // @ts-expect-error TODO
         error.cause = e
         throw error
       })
