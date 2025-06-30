@@ -1,7 +1,29 @@
 import * as fs from 'node:fs'
-import { FlagKey, PathItem } from './summary/PathItem.js'
+import { FlagKey, PathItem } from '../summary/PathItem.js'
 import { join } from 'path/posix'
-import { cleanObjectCopy } from './cleanObject.js'
+import { cleanObjectCopy } from '../cleanObject.js'
+import { ensureWords } from '../StandardMetadata.js'
+
+export const pathIndexToPathItem = (kv: {
+  index: PathIndex
+  wsName: string
+  baseDir: string
+}) => {
+  let { index } = kv
+  let item = new PathItem({ pathRelative: index.pathRelative })
+  //next.wsName = wsName
+  item.wsName = kv.wsName
+  // next.base = basePath
+  item.base = kv.baseDir
+  item.path = index.pathRelative
+  item.after = index.after
+  item.before = index.before
+  item.tags = ensureWords(index.tags)
+  item.uid = index.uid
+  item.sid = index.sid
+  item.flags = ensureWords(index.flags)
+  return item
+}
 
 export type PathIndex = {
   sid?: any
@@ -167,7 +189,6 @@ export class WorkspaceIndex {
         target[key] = kv[key]
       }
     })
-    const pathItemToIndexItem = () => {}
 
     target.mtime = item.mtime
     target.inode = item.inode

@@ -8,7 +8,7 @@ import {
   isThisYear,
   isWithinInterval,
 } from 'date-fns'
-import { WorkspaceIndex } from '../WorkspaceIndex.js'
+import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
 import { findUpWorkspace } from '../findUpWorkspace.js'
 import * as fs from 'fs'
 import {

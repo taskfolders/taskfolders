@@ -1,4 +1,8 @@
-import { PathIndex, WorkspaceIndex } from '../WorkspaceIndex.js'
+import {
+  PathIndex,
+  WorkspaceIndex,
+  pathIndexToPathItem,
+} from '../index/WorkspaceIndex.js'
 import * as fs from 'node:fs'
 import { PathItem } from './PathItem.js'
 import { ensureWords } from '../StandardMetadata.js'
@@ -41,24 +45,8 @@ export const parseWorkspaceIndex = async (
   let now: PathItem[] = []
   let active: PathItem[] = []
 
-  const pathItemFromIndex = (
-    item: PathIndex,
-    // TODO drop
-    /** @deprecated */
-    path?,
-  ) => {
-    let next = new PathItem({ pathRelative: path ?? item.pathRelative })
-    next.wsName = wsName
-    next.base = basePath
-    next.path = path ?? item.pathRelative
-    next.after = item.after
-    next.before = item.before
-    next.tags = ensureWords(item.tags)
-    next.uid = item.uid
-    next.sid = item.sid
-    next.flags = ensureWords(item.flags)
-    return next
-  }
+  const pathItemFromIndex = (item: PathIndex) =>
+    pathIndexToPathItem({ index: item, wsName, baseDir: basePath })
 
   let nowDirs = index.data.items
     .filter(x => x.flags?.includes('now-dir'))
@@ -120,6 +108,7 @@ export const parseWorkspaceIndex = async (
 
   now = prettyNow(now)
 
+  // TODO sort
   active.sort((lhs, rhs) => {
     return lhs.after.getTime() - rhs.after.getTime()
   })

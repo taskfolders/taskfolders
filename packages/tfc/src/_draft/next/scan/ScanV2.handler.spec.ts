@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { ScanV2Handler } from './ScanV2.handler.js'
 import { join } from 'path'
 import { Folder } from '../Folder.js'
-import { WorkspaceIndex } from '../WorkspaceIndex.js'
+import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
 
 it('scan a single file #scaffold', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')

@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest'
 import { SummaryHandler } from './Summary.handler.js'
-import { WorkspaceIndex } from '../WorkspaceIndex.js'
+import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
 import { parseWorkspaceIndex } from './parseWorkspaceIndex.js'
 import { join } from 'node:path'
 

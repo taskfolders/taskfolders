@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { WorkspaceIndex } from '../WorkspaceIndex.js'
+import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
 import { parseWorkspaceIndex, prettyNow } from './parseWorkspaceIndex.js'
 import { join } from 'path/posix'
 import { Logger } from '../Logger.js'
