@@ -22,9 +22,17 @@ class PathItemIndex {
         this.byUID[item.uid] = item
       }
       if (item.sid) {
-        this.byUID[item.sid] = item
+        this.bySID[item.sid] = item
       }
     }
+  }
+
+  findReference(ref: string) {
+    let found = this.byUID[ref]
+    if (found) return found
+
+    found = this.bySID[ref]
+    if (found) return found
   }
 }
 
@@ -52,6 +60,10 @@ async function fetchGlobalIndex() {
         baseDir: ws.dir,
         wsName: ws.data_std.sid,
       })
+      // if (first.sid === 'finance-app') {
+      //   console.log({ first, x: { ...item }, sid: item.sid })
+      //   // return
+      // }
       acuPathItems.push(item)
     }
   }
