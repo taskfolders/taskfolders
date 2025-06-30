@@ -73,6 +73,7 @@ async function fetchGlobalIndex() {
 }
 
 it('x', async () => {
-  let res = await fetchGlobalIndex()
-  console.log(res)
+  let sut = await fetchGlobalIndex()
+  let item = sut.findReference('tv-shows')
+  expect(item.pathRelative).toContain('tv-shows/index.md')
 })
