@@ -3,6 +3,7 @@ import { FlagKey, PathItem } from '../summary/PathItem.js'
 import { join } from 'path/posix'
 import { cleanObjectCopy } from '../cleanObject.js'
 import { ensureWords } from '../StandardMetadata.js'
+import { isBlank } from './isBlank.js'
 
 export const pathIndexToPathItem = (kv: {
   index: PathIndex
@@ -260,21 +261,4 @@ export class WorkspaceIndex {
 
 function deepCopy<T>(data: T): T {
   return JSON.parse(JSON.stringify(data))
-}
-
-// TODO #review #utils #refactor
-function isBlank(value: any): boolean {
-  if (value === undefined) return true
-  if (value === null) return true
-  if (typeof value === 'string' && value.trim() === '') return true
-  if (Array.isArray(value) && value.length === 0) return true
-
-  function isPlainObjectEmpty(obj) {
-    return obj && obj.constructor === Object && Object.keys(obj).length === 0
-  }
-
-  if (isPlainObjectEmpty(value)) {
-    return true
-  }
-  return false
 }

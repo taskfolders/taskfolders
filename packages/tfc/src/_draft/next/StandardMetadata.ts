@@ -1,6 +1,21 @@
 import { toDate } from './toDate.js'
 import { FlagKey } from './summary/PathItem.js'
+import { isBlank } from './index/isBlank.js'
 
+type UserInput = {
+  uid
+  type
+  sid
+  tags
+  before
+  after
+  calendar
+  review
+  flags
+  labels
+  exclude
+  recipients: string | string[]
+}
 export class StandardMetadata {
   flags: FlagKey[]
 
@@ -9,24 +24,10 @@ export class StandardMetadata {
   after?: Date
   before?: Date
   exclude: string[] = []
+  tags: string[] = []
   recipients: string[]
 
-  constructor(
-    public _raw: Partial<{
-      uid
-      type
-      sid
-      tags
-      before
-      after
-      calendar
-      review
-      flags
-      labels
-      exclude
-      recipients: string | string[]
-    }>,
-  ) {
+  constructor(public _raw: Record<string, any>) {
     _raw ??= {}
     if (_raw.after) this.after = toDate(_raw.after)
     if (_raw.before) this.before = toDate(_raw.before)
@@ -34,6 +35,7 @@ export class StandardMetadata {
       this.review = _raw.review
       this.review.next = toDate(_raw.review.next)
     }
+    this.tags = ensureWords(_raw.tags)
 
     if (_raw.exclude) {
       this.exclude = [].concat(_raw.exclude)
@@ -59,13 +61,25 @@ export class StandardMetadata {
   get sid() {
     return this._raw.sid
   }
-  get tags() {
-    return [].concat(this._raw.tags ?? [])
-  }
+
   get calendar() {
     return [].concat(this._raw.calendar ?? [])
   }
 
+  toJSON() {
+    let copy = { ...this._raw } as any
+
+    for (let key in this) {
+      if (key.startsWith('_')) continue
+      let value = this[key]
+      if (isBlank(value)) continue
+
+      copy[key] = value
+    }
+    return copy
+  }
+
+  // TODO wrong? keep?
   isParsable() {
     if (!this._raw.type) return true
     return this._raw.type?.includes('taskfolders.com/')

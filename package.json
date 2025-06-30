@@ -14,19 +14,19 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.0",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
-    "expect": "^29.7.0",
+    "expect": "^30.0.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.7.0",
     "typescript": "^5.8.3",
-    "vitest": "^3.0.0-beta.3"
+    "vitest": "^3.2.0"
   },
   "dependencies": {
-    "ansi-escapes": "^4.3.2",
+    "ansi-escapes": "^7.0.0",
     "dedent": "^1.5.1",
     "fast-glob": "^3.3.2",
     "jsonpath": "^1.1.1",

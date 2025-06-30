@@ -63,7 +63,12 @@ it('x edit md', async () => {
     
     hi
   `
-  let md = await MarkdownDocument.fromBody(body, { implicitFrontmatter: true })
-  console.log(md.toString().split('\n'))
-  console.log(md.content.split('\n'))
+  let md = await MarkdownDocument.fromBody<any>(body, {
+    implicitFrontmatter: true,
+  })
+  let std = new StandardMetadata(md.data)
+
+  md.data.fox = 2
+  let lines = md.toString().split('\n')
+  expect(lines).toEqual(['---', 'fox: 2', '---', '', 'hi'])
 })

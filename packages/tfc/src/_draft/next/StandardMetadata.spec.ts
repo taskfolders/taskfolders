@@ -27,7 +27,7 @@ it('x', async () => {
   expect(sut.after).toBeCloseTo(new Date('2025-01-04').getTime())
 })
 
-it.only('flags', async () => {
+it('flags', async () => {
   let sut = new StandardMetadata({ flags: 'workspace' })
   expect(sut.flags).toContain('workspace')
 
@@ -36,4 +36,11 @@ it.only('flags', async () => {
 
   sut = new StandardMetadata({})
   expect(sut.flags).toEqual([])
+})
+
+it('serialize', async () => {
+  let sut = new StandardMetadata({ title: 'demo', fox: 1, flags: 'one' })
+  let doc = JSON.parse(JSON.stringify(sut))
+
+  expect(doc).toEqual({ title: 'demo', fox: 1, flags: ['one'] })
 })

@@ -10,8 +10,8 @@ import { flatToListTree, Output } from './tree.js'
 it('x', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
   let sut = new SummaryHandler({ cwd, allWorkspaces: true })
-  await sut.setup()
-  let res = await parseWorkspaceIndex(sut.index, {
+  let index = await sut._getIndex()
+  let res = await parseWorkspaceIndex(index, {
     basePath: cwd,
     wsName: 'demo',
   })
