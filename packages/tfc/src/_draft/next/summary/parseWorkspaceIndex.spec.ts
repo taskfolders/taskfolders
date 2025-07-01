@@ -15,7 +15,7 @@ it('x', async () => {
     basePath: cwd,
     wsName: 'demo',
   })
-  console.log(res.now)
+  console.log(res)
 })
 
 it.skip('pretty now', async () => {

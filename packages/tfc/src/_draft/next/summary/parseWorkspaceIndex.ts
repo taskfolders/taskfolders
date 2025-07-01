@@ -58,6 +58,7 @@ export const parseWorkspaceIndex = async (
 
   for (let pathIndex of index.data.items) {
     let pItem = pathItemFromIndex(pathIndex)
+    console.log('..cal', pathIndex)
     if (pItem.flags.includes('skip')) continue
     if (pathIndex.calendar) {
       pathIndex.calendar.forEach(x => {

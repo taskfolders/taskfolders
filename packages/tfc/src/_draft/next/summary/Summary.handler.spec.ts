@@ -32,8 +32,8 @@ it.only('x', async () => {
   let sut = await SummaryHandler.create({ cwd, allWorkspaces: true })
   let res = await sut._getData()
 
-  // let res = await parseWorkspaceIndex(sut.index, { basePath: sut.ws.dir })
-  // let res = await sut.execute()
+  // let r1 = await parseWorkspaceIndex(sut.index, { basePath: sut.ws.dir })
+  // let r2 = await sut.execute()
   //console.log(sut.index.data)
 
   console.log(res)

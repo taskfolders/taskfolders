@@ -1,6 +1,9 @@
 import { toDate } from './toDate.js'
 import { FlagKey } from './summary/PathItem.js'
 import { isBlank } from './index/isBlank.js'
+import { Logger } from './Logger'
+
+const log = new Logger()
 
 type UserInput = {
   uid
@@ -45,11 +48,18 @@ export class StandardMetadata {
 
   get after() {
     let val = this._raw.after
+    if (!val) return
+    if (typeof val !== 'string') {
+      // TODO
+      log.warn('why stored date??')
+      return val
+    }
     return toDate(val)
   }
 
   get before() {
     let val = this._raw.before
+    if (!val) return val
     return toDate(val)
   }
 
