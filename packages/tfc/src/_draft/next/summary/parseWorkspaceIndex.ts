@@ -56,9 +56,10 @@ export const parseWorkspaceIndex = async (
     .filter(x => x.flags?.includes('waiting-dir'))
     .map(x => Path.dirname(x.pathRelative))
 
+  // TODO drop?
   for (let pathIndex of index.data.items) {
     let pItem = pathItemFromIndex(pathIndex)
-    console.log('..cal', pathIndex)
+    // console.log('..cal', pathIndex)
     if (pItem.flags.includes('skip')) continue
     if (pathIndex.calendar) {
       pathIndex.calendar.forEach(x => {

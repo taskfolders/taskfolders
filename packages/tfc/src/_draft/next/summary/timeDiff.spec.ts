@@ -19,3 +19,12 @@ it('x', async () => {
   })
   expect(res).toBe('-2d')
 })
+
+it.only('x', async () => {
+  let res = timeDiff({
+    date: new Date('2026-01-01'),
+    color: false,
+    // now: new Date('2025-01-03'),
+  })
+  console.log({ res })
+})
