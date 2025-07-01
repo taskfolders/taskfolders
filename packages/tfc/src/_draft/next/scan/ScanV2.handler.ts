@@ -162,8 +162,8 @@ export class ScanV2Handler {
     for (let file of files) {
       await this._scanOneFile(file, folder, folders).catch(err => {
         stats.errors++
-        log.info('Error scanning file', file)
-        log.info(err)
+        log.error('Error scanning file', file)
+        log.error(err)
         // TODO way to log error with print/error cause?
         // log.info('Error scanning file', file, {cause: error})
       })
