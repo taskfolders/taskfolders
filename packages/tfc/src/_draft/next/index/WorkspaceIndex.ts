@@ -76,7 +76,7 @@ export class WorkspaceIndex {
     // TODO
     // Object.assign(file, found)
     return file
-    console.log(found)
+    // console.log(found)
   }
 
   _createItem(path: string) {
@@ -87,8 +87,10 @@ export class WorkspaceIndex {
     for (let key in Object.keys(found)) {
       file[key] = found[key]
     }
+
+    // Object.assign(file, found)
     return file
-    console.log(found)
+    // console.log(found)
   }
 
   constructor(kv: { path }) {

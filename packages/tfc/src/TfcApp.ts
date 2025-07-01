@@ -113,7 +113,7 @@ export class TfcApp {
       })
 
       .command({
-        command: 'scan',
+        command: 'scan [path]',
         describe: 'NEW next generation scan',
         builder: {
           all: {

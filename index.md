@@ -1,5 +1,6 @@
 ---
 type: tf
+labels: workspace
 scripts:
   get-dir:
     dir: package
