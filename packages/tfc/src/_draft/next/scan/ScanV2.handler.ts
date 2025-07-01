@@ -7,8 +7,10 @@ import { Folder } from '../Folder.js'
 import { Logger } from '../Logger.js'
 import { WorkspaceIndex, PathIndex } from '../index/WorkspaceIndex.js'
 import { StandardMetadata } from '../StandardMetadata.js'
-import { parseDateHuman } from '../parseDateHuman.js'
 import { WorkspaceCollections } from './WorkspaceCollections.js'
+import { toDate } from '../toDate.js'
+import * as Path from 'node:path'
+import { ByteSugar } from '@taskfolders/utils/fs'
 
 export class ScanV2Handler {
   fs = fs
@@ -55,6 +57,14 @@ export class ScanV2Handler {
         let meta = new StandardMetadata(_data)
         // let item = wsIndexData.get(relPath)
 
+        // ---
+        // checks
+        let issues = StandardMetadata.sanitize(_data)
+        if (!issues.ok) {
+          log.warn('Document frontmatter has issues', issues.issues)
+        }
+
+        // ---
         wsIndexData.updateFile(relPath, {
           uid: meta.uid,
           sid: meta.sid,
@@ -67,8 +77,12 @@ export class ScanV2Handler {
 
         if (meta.calendar.length > 0) {
           let calendar = meta.calendar.map(x => {
-            let date = parseDateHuman(x.date)
-            log.info({ date: date.toISOString(), x: x.date })
+            log.warn('Calendar with no date')
+            if (!x.date) return x
+
+            let date = toDate(x.date)
+
+            // log.info({ date: date.toISOString(), x: x.date })
             x.date = date
             return x
           })
@@ -100,10 +114,19 @@ export class ScanV2Handler {
     }
 
     if (file.endsWith('.md')) {
-      log.info('Scan file', relPath)
+      log.debug('Scan file', relPath)
 
-      let body = fs.readFileSync(fullPath, 'utf-8').toString()
-      await scanMarkdown({ body, path: relPath })
+      const stats = fs.statSync(fullPath)
+      if (stats.size > 100_000) {
+        let bytes = ByteSugar.fromBytes(stats.size)
+        log.warn(
+          `Skip large file (${bytes})`,
+          Logger.link({ path: fullPath, text: relPath }),
+        )
+      } else {
+        let body = fs.readFileSync(fullPath, 'utf-8').toString()
+        await scanMarkdown({ body, path: relPath })
+      }
     } else if (file.endsWith('index.json')) {
       log.info('Scan file', relPath)
       let body = fs.readFileSync(fullPath, 'utf-8').toString()
@@ -162,7 +185,11 @@ export class ScanV2Handler {
     for (let file of files) {
       await this._scanOneFile(file, folder, folders).catch(err => {
         stats.errors++
-        log.error('Error scanning file', file)
+        let link = Logger.link({
+          text: file,
+          path: Path.join(folder.dir, file),
+        })
+        log.error('Error scanning file', link)
         log.error(err)
         // TODO way to log error with print/error cause?
         // log.info('Error scanning file', file, {cause: error})

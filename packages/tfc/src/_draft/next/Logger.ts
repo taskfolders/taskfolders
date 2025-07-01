@@ -18,10 +18,25 @@ const levelColors = {
   debug: 'white',
   trace: 'gray',
 }
-let colorizeLevel = level => {
+
+const LogLevels = {
+  trace: 0,
+  debug: 1,
+  info: 2,
+  warn: 3,
+  dev: 3,
+  error: 4,
+  fatal: 5,
+  off: 6,
+}
+type LevelName = keyof typeof LogLevels
+
+const threshold_value = LogLevels[process.env.LOG_LEVEL ?? 'info']
+
+let colorizeLevel = (level: LevelName): string => {
   level = Col[levelColors[level]](level.toUpperCase())
   if (level === 'dev') {
-    level = Col.bold(level)
+    level = Col.bold(level) as any
   }
   return level
 }
@@ -92,8 +107,10 @@ export class Logger {
     return this
   }
 
-  raw(kv: { level?; message?; args?; depth? }) {
+  raw(kv: { level?: LevelName; message?; args?; depth? }) {
     let { args } = kv
+
+    if (LogLevels[kv.level] < threshold_value) return
 
     if (args.length === 1) {
       if (typeof args[0] === 'object') {

@@ -1,7 +1,9 @@
 import { toDate } from './toDate.js'
 import { FlagKey } from './summary/PathItem.js'
 import { isBlank } from './index/isBlank.js'
-import { Logger } from './Logger'
+import { Logger } from './Logger.js'
+import { isDate, isValid } from 'date-fns'
+import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
 
 const log = new Logger()
 
@@ -19,7 +21,38 @@ type UserInput = {
   exclude
   recipients: string | string[]
 }
+
 export class StandardMetadata {
+  static sanitize(doc: UserInput) {
+    let issues = []
+    const checkDateField = (key: keyof UserInput) => {
+      let input = doc[key]
+
+      if (!input) return
+      input = input.toString()
+
+      let value = toDate(input)
+      if (isValid(value)) return value
+      let tm = TimeMarker.from(input)
+      if (tm.isValid()) {
+        issues.push({
+          field: key,
+          value: input,
+          code: 'relative-date',
+          fix: { value: tm.final },
+        })
+      } else {
+        // TODO label-milestone? sid? VS just plain wrong date?
+        issues.push({ field: 'after', value: input, code: 'invalid' })
+      }
+    }
+    checkDateField('after')
+    checkDateField('before')
+
+    let ok = issues.length === 0
+    return { ok, issues }
+  }
+
   flags: FlagKey[]
 
   review: { next: Date; last: Date }
@@ -32,7 +65,7 @@ export class StandardMetadata {
     _raw ??= {}
     if (_raw.review) {
       this.review = _raw.review
-      this.review.next = toDate(_raw.review.next)
+      // this.review.next = toDate(_raw.review.next)
     }
     this.tags = ensureWords(_raw.tags)
 

@@ -24,6 +24,7 @@ function parseIsoWeek(isoWeekStr) {
 
   return targetDate
 }
+
 export let toDate = (txt: string) => {
   txt = txt.toUpperCase()
   if (/\d+-W\w+$/i.test(txt)) {
