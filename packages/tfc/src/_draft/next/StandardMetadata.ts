@@ -87,13 +87,13 @@ export class StandardMetadata {
       log.warn('why stored date??')
       return val
     }
-    return toDate(val)
+    return toDate(val.toString())
   }
 
   get before() {
     let val = this._raw.before
     if (!val) return val
-    return toDate(val)
+    return toDate(val.toString())
   }
 
   static fromJSON(doc) {
