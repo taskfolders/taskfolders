@@ -115,11 +115,21 @@ export class TfcApp {
       .command({
         command: 'scan',
         describe: 'NEW next generation scan',
+        builder: {
+          all: {
+            boolean: true,
+            alias: 'a',
+            default: false,
+          },
+        },
         handler: async argv => {
           const { ScanV2Handler } = await import(
             './_draft/next/scan/ScanV2.handler.js'
           )
-          let han = new ScanV2Handler({ dir: process.cwd() })
+          let han = new ScanV2Handler({
+            dir: process.cwd(),
+            allWorkspaces: argv.all,
+          })
           await han.execute()
         },
       })

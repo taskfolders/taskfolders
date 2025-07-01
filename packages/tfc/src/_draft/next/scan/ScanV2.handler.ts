@@ -20,7 +20,7 @@ export class ScanV2Handler {
   stats = { files: 0, errors: 0 }
   wsIndexData: WorkspaceIndex
 
-  constructor(public params: { dir: string }) {}
+  constructor(public params: { dir: string; allWorkspaces?: boolean }) {}
 
   async _scanOneFile(file: string, folder: Folder, folders: Folder[]) {
     let { log, stats, workspace, wsIndexData } = this
@@ -253,6 +253,24 @@ export class ScanV2Handler {
     // TODO clean
     this.workspace = workspace
     this.wsIndexData = wsIndexData
+    return await this._runWorkspaceScan({
+      workspace,
+      start,
+      log,
+      wsIndexData,
+      stats,
+    })
+  }
+
+  async _runWorkspaceScan(kv: {
+    workspace: Folder
+    wsIndexData: WorkspaceIndex
+    log: Logger
+    stats
+    start: number
+  }) {
+    let { workspace, wsIndexData, log, stats, start } = kv
+
     await this._scanFolder(workspace)
 
     this.fs.writeFileSync(

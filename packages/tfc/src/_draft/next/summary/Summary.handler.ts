@@ -121,24 +121,7 @@ export class SummaryHandler {
     }
 
     if (this.params.allWorkspaces) {
-      let loc = WorkspaceCollections.request()
-      for (let val of Object.values(loc.data.workspaces)) {
-        // TODO clean
-        let folder = new Folder(val.dir)
-        let path = folder.dataDir({ join: ['workspace-index.json'] })
-
-        let body = fs.readFileSync(path, 'utf-8').toString()
-
-        let index = WorkspaceIndex.fromJSON(body, { path: val.dir })
-
-        let one = await parseWorkspaceIndex(index, {
-          basePath: val.dir,
-          wsName: val.sid,
-        })
-        Object.keys(one).forEach(key => {
-          res[key] = res[key].concat(one[key])
-        })
-      }
+      await applyIndexForAllWorkspaces(res)
     } else {
       let index = await this._getIndex()
       let ws = await findUpWorkspace(this.params.cwd)
@@ -404,6 +387,32 @@ export class SummaryHandler {
     log.info('ShowHandler.execute called', log.link({ path: __filename }))
     let res = await this._getData()
     await this._printData(res)
+  }
+}
+
+async function applyIndexForAllWorkspaces(res: {
+  calendar: CalendarItem[]
+  waiting: PathItem[]
+  now: PathItem[]
+  active: PathItem[]
+}) {
+  let loc = WorkspaceCollections.request()
+  for (let val of Object.values(loc.data.workspaces)) {
+    // TODO clean
+    let folder = new Folder(val.dir)
+    let path = folder.dataDir({ join: ['workspace-index.json'] })
+
+    let body = fs.readFileSync(path, 'utf-8').toString()
+
+    let index = WorkspaceIndex.fromJSON(body, { path: val.dir })
+
+    let one = await parseWorkspaceIndex(index, {
+      basePath: val.dir,
+      wsName: val.sid,
+    })
+    Object.keys(one).forEach(key => {
+      res[key] = res[key].concat(one[key])
+    })
   }
 }
 
