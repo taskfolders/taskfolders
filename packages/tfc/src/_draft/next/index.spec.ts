@@ -10,6 +10,7 @@ import { ScanV2Handler } from './scan/ScanV2.handler.js'
 import { StandardMetadata } from './StandardMetadata.js'
 import { parseWorkspaceIndex } from './summary/parseWorkspaceIndex.js'
 import { dedent } from '@taskfolders/utils/native/string/dedent'
+import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
 
 it.skip('x', async () => {
   let data = {
@@ -57,18 +58,36 @@ it.skip('x y #todo #slow #scaffold', async () => {
   //sut.findBase()
 })
 
-it('x edit md', async () => {
+const sanitizeMarkdown = (md: MarkdownDocument) => {
+  let std = new StandardMetadata(md.data)
+  let fixes: Partial<any> = {}
+  if (std.after) {
+    let now = new Date('2025-01-01')
+    let marker = TimeMarker.from('3w', { now })
+    if (marker.isSanitized) {
+      std._raw.after = marker.final
+      fixes['after'] = marker.final
+    }
+  }
+  md.data = std.toJSON()
+  // md.data.fox = 2
+  return { markdown: md, fixes }
+}
+
+it('x edit md with time updates', async () => {
   let body = dedent`
     fox: 1
+    after: 3w
     
     hi
   `
   let md = await MarkdownDocument.fromBody<any>(body, {
     implicitFrontmatter: true,
   })
-  let std = new StandardMetadata(md.data)
 
-  md.data.fox = 2
-  let lines = md.toString().split('\n')
-  expect(lines).toEqual(['---', 'fox: 2', '---', '', 'hi'])
+  let r1 = sanitizeMarkdown(md)
+
+  let lines = r1.markdown.toString().split('\n')
+  // console.log(lines)
+  expect(lines).toEqual(['---', 'fox: 1', 'after: 2025-W04', '---', '', 'hi'])
 })

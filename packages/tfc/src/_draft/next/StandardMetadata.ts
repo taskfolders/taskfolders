@@ -21,16 +21,12 @@ export class StandardMetadata {
 
   review: { next: Date; last: Date }
 
-  after?: Date
-  before?: Date
   exclude: string[] = []
   tags: string[] = []
   recipients: string[]
 
   constructor(public _raw: Record<string, any>) {
     _raw ??= {}
-    if (_raw.after) this.after = toDate(_raw.after)
-    if (_raw.before) this.before = toDate(_raw.before)
     if (_raw.review) {
       this.review = _raw.review
       this.review.next = toDate(_raw.review.next)
@@ -45,6 +41,16 @@ export class StandardMetadata {
     if (_raw.recipients) {
       this.recipients = [].concat(_raw.recipients)
     }
+  }
+
+  get after() {
+    let val = this._raw.after
+    return toDate(val)
+  }
+
+  get before() {
+    let val = this._raw.before
+    return toDate(val)
   }
 
   static fromJSON(doc) {

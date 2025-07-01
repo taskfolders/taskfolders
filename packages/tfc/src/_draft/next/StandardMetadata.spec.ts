@@ -39,8 +39,19 @@ it('flags', async () => {
 })
 
 it('serialize', async () => {
-  let sut = new StandardMetadata({ title: 'demo', fox: 1, flags: 'one' })
+  let sut = new StandardMetadata({
+    title: 'demo',
+    fox: 1,
+    after: '2025-jan',
+    flags: 'one',
+  })
   let doc = JSON.parse(JSON.stringify(sut))
 
-  expect(doc).toEqual({ title: 'demo', fox: 1, flags: ['one'] })
+  expect(doc).toEqual({
+    title: 'demo',
+    fox: 1,
+    // preserve date
+    after: '2025-jan',
+    flags: ['one'],
+  })
 })
