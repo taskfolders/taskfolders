@@ -138,6 +138,10 @@ export class TfcApp {
         command: 'sum',
         describe: 'NEW summary of workspace',
         builder: {
+          showAll: {
+            boolean: true,
+            default: false,
+          },
           all: {
             boolean: true,
             alias: 'a',
@@ -151,6 +155,7 @@ export class TfcApp {
           let han = new SummaryHandler({
             cwd: process.cwd(),
             allWorkspaces: argv.all,
+            showAll: argv.showAll,
           })
           await han.execute()
         },

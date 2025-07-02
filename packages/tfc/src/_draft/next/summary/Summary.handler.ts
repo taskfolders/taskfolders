@@ -101,7 +101,9 @@ export class SummaryHandler {
     return sut
   }
 
-  constructor(public params: { cwd: string; allWorkspaces?: boolean }) {}
+  constructor(
+    public params: { cwd: string; allWorkspaces?: boolean; showAll?: boolean },
+  ) {}
 
   async _getIndex() {
     let ws = await findUpWorkspace(this.params.cwd)
@@ -386,6 +388,10 @@ export class SummaryHandler {
     let { log } = this
     log.info('ShowHandler.execute called', log.link({ path: __filename }))
     let res = await this._getData()
+
+    if (this.params.showAll === true) {
+      printOptions.hideAfterDays = 360
+    }
     await this._printData(res)
   }
 }

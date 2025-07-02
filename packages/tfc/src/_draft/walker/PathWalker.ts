@@ -134,7 +134,7 @@ export class PathWalker<T> {
       let pass = micromatch(path_f, this.exclude)
       if (pass.length) continue
 
-      let isDir: Boolean
+      let isDir: boolean
       try {
         isDir = file.stat.isDirectory()
       } catch (e) {

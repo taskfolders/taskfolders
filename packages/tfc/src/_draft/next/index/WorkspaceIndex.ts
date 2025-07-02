@@ -4,6 +4,8 @@ import { join } from 'path/posix'
 import { cleanObjectCopy } from '../cleanObject.js'
 import { ensureWords } from '../StandardMetadata.js'
 import { isBlank } from './isBlank.js'
+import { isDate } from 'date-fns'
+import { toDate } from '../toDate.js'
 
 export const pathIndexToPathItem = (kv: {
   index: PathIndex
@@ -172,6 +174,13 @@ export class WorkspaceIndex {
 
     item.before = kv.before
     item.after = kv.after
+    if (kv.after) {
+      if (isDate(kv.after)) {
+        item.after = kv.after
+      } else {
+        item.after = toDate(kv.after)
+      }
+    }
     item.tags = kv.tags
     item.flags = kv.flags
     this.data.paths_v2[relPath] = item
@@ -187,7 +196,11 @@ export class WorkspaceIndex {
 
     keys.forEach(key => {
       if (!isBlank(kv[key])) {
-        target[key] = kv[key]
+        let value = kv[key]
+        if (['after'].includes(key)) {
+          value = toDate(value)
+        }
+        target[key] = value
       }
     })
 
