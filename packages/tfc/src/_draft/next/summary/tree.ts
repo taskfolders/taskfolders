@@ -60,8 +60,8 @@ export const flattenTree = (
 export const dropTreeNotStarted = (x: Output<PathItem>[], now = new Date()) => {
   if (!x) return
   for (let node of x) {
-    if (node.item.after) {
-      if (node.item.after > now) {
+    if (node.item.after_v2) {
+      if (node.item.after_v2.date > now) {
         node.children = []
         return
       }

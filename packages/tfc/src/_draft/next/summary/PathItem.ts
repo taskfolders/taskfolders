@@ -48,7 +48,6 @@ export class PathItem {
   uid?: string
   sid?: string
   done?: boolean
-  after_v2?: TimeMark
 
   /** @deprecated */
   path: string
@@ -61,7 +60,9 @@ export class PathItem {
   /** @deprecated */
   base
   before: Date
+  /** @deprecated */
   after: Date
+  after_v2?: TimeMark
   tags: string[] = []
   flags: FlagKey[] = []
   review: StandardMetadata['review']

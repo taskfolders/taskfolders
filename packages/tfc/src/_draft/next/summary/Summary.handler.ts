@@ -197,7 +197,9 @@ export class SummaryHandler {
           let rows = all
             .map(x => {
               //let started = x.after ? x.after.toISOString().slice(0, 10) : ''
-              let started = x.after ? timeDiff({ date: x.after }) : ''
+              let started = x.after_v2.date
+                ? timeDiff({ date: x.after_v2.date })
+                : ''
               let item = {
                 // path: log.link({ text: x.path, path: x.pathFull }),
                 path: toPathPrint(x),
@@ -205,8 +207,8 @@ export class SummaryHandler {
                 // due: '',
               }
 
-              if (now < x.after) {
-                let days = differenceInCalendarDays(x.after, now)
+              if (now < x.after_v2.date) {
+                let days = differenceInCalendarDays(x.after_v2.date, now)
                 if (days > printOptions.hideAfterDays) {
                   return null
                 }
@@ -380,7 +382,7 @@ export class SummaryHandler {
             let item = { path: toPathPrint(x), started, due }
 
             if (!isActive) {
-              let days = differenceInCalendarDays(x.after, now)
+              let days = differenceInCalendarDays(x.after_v2.date, now)
               if (days > printOptions.hideAfterDays) {
                 return null
               }

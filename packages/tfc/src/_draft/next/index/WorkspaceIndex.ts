@@ -37,6 +37,7 @@ export const pathIndexToPathItem = (kv: {
 export type PathIndex = {
   sid?: any
   uid?: any
+  /** @deprecated */
   after?: Date
   after_v2: TimeMark
   done?

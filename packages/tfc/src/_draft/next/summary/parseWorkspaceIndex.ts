@@ -79,7 +79,7 @@ export const parseWorkspaceIndex = async (
     if (pItem.flags.includes('waiting')) {
       now.push(pItem)
     }
-    if (pItem.after ?? pItem.after_v2) {
+    if (pItem.after_v2) {
       active.push(pItem)
     }
     if (pItem.flags.includes('now')) {
