@@ -94,7 +94,9 @@ const printTable = <T>(kv: {
 
 export class SummaryHandler {
   log = new Logger()
-  // index: WorkspaceIndex
+
+  // TODO multi index?
+  index?: WorkspaceIndex
 
   static async create(params: SummaryHandler['params']) {
     let sut = new SummaryHandler(params)
@@ -111,6 +113,8 @@ export class SummaryHandler {
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     let body = fs.readFileSync(path, 'utf-8').toString()
     let index = WorkspaceIndex.fromJSON(body, { path: ws.dir })
+    index.pathBaseDir = ws.dir
+    index._refreshIndex()
     return index
   }
 
@@ -126,6 +130,7 @@ export class SummaryHandler {
       await applyIndexForAllWorkspaces(res)
     } else {
       let index = await this._getIndex()
+      this.index = index
       let ws = await findUpWorkspace(this.params.cwd)
       // TODO #refactor #workspace
       res = await parseWorkspaceIndex(index, {
@@ -326,6 +331,7 @@ export class SummaryHandler {
 
           let all = val as PathItem[]
           let t1 = Object.groupBy(all, x => {
+            if (!x.after) return 'others'
             if (now.getTime() < x.after.getTime()) {
               return 'postponed'
             }
@@ -344,10 +350,30 @@ export class SummaryHandler {
           all.forEach(x => {
             // let mtime = x.mtime.toISOString().slice(0, 10)
             let started = ''
-            if (x.after) {
-              started = timeDiff({ date: x.after, color: false })
+            if (x.after_v2.date) {
+              started = timeDiff({ date: x.after_v2.date, color: false })
+            } else {
+              started = x.after_v2.value
+              if (x.after_v2.type === 'reference') {
+                let found = this.index.findByReference(x.after_v2.value)
+                if (found) {
+                  started = Logger.link({ text: started, path: found.pathFull })
+                }
+              }
             }
-            let isActive = now.getTime() > x.after.getTime()
+            let isActive = x.after_v2.date
+              ? now.getTime() > x.after.getTime()
+              : false
+            if (x.after_v2.type === 'reference') {
+              if (this.index) {
+                let found = this.index.findByReference(x.after_v2.value)
+                if (found) {
+                  isActive = found.done ?? false
+                }
+              } else {
+                log.dev('todo multi index')
+              }
+            }
 
             let due = x.before ? timeDiff({ date: x.before }) : ''
 

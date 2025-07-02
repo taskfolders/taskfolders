@@ -58,8 +58,7 @@ export const parseWorkspaceIndex = async (
     .map(x => Path.dirname(x.pathRelative))
 
   // TODO NOW
-  log.dev('NOW... hack')
-  // index.data.items = index.data.items.slice(-1)
+  // log.dev('NOW... hack')
 
   // TODO drop?
   for (let pathIndex of index.data.items) {
@@ -80,7 +79,7 @@ export const parseWorkspaceIndex = async (
     if (pItem.flags.includes('waiting')) {
       now.push(pItem)
     }
-    if (pItem.after) {
+    if (pItem.after ?? pItem.after_v2) {
       active.push(pItem)
     }
     if (pItem.flags.includes('now')) {
@@ -118,11 +117,12 @@ export const parseWorkspaceIndex = async (
 
   // TODO sort
   active.sort((lhs, rhs) => {
-    return lhs.after.getTime() - rhs.after.getTime()
+    return lhs.after_v2.date?.getTime() - rhs.after_v2.date?.getTime()
   })
 
   //
   let blob = { calendar, waiting, now, active }
+  // log.dev(blob)
 
   return blob
 }

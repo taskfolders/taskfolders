@@ -4,7 +4,7 @@ import { isValid } from 'date-fns'
 export class TimeMark {
   value
   date
-  type: 'date' | 'relative' | 'milestone'
+  type: 'date' | 'relative' | 'reference'
 
   _milestone?: {
     id?: string
@@ -13,6 +13,7 @@ export class TimeMark {
   }
 
   static fromValue(x) {
+    if (x instanceof TimeMark) return x
     let obj = new this()
     obj.value = x
     let date = toDate(x)
@@ -25,7 +26,7 @@ export class TimeMark {
         let [_, number, key] = match
         obj.type = 'relative'
       } else {
-        obj.type = 'milestone'
+        obj.type = 'reference'
         obj._milestone = {
           // id: x,
         }

@@ -44,7 +44,10 @@ it.only('x', async () => {
   sut.pathBaseDir = '/app'
   sut.updateFile('one.md', { sid: 'one', after: 2026, done: true })
   sut.updateFile('two.md', { after: 'tango' })
-  console.log(sut.data)
+
+  sut._refreshIndex()
+  let res = sut.findByReference('one')
+  console.log(sut)
 
   // console.log(sut.toJSON())
 })

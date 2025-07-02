@@ -28,7 +28,7 @@ export const pathIndexToPathItem = (kv: {
   item.sid = index.sid
   item.done = index.done
   if (index.after_v2) {
-    // item.after_v2 = TimeMark.fromValue(index.after_v2)
+    item.after_v2 = TimeMark.fromValue(index.after_v2)
   }
   item.flags = ensureWords(index.flags)
   return item
@@ -55,7 +55,18 @@ export type PathIndex = {
   mtime?
 }
 export class WorkspaceIndex {
-  _index = { uids: {} }
+  findByReference(ref: string): PathItem {
+    let found = this._index.sid[ref]
+    if (found) return found
+    return this._index.uid[ref]
+  }
+  _index = {
+    /** @deprecated */
+    uids: {},
+    sid: {} as Record<string, PathItem>,
+    uid: {} as Record<string, PathItem>,
+  }
+  _items: PathItem[] = []
   pathIndexFile: string
   pathBaseDir: string
   timestamp = new Date()
@@ -144,6 +155,30 @@ export class WorkspaceIndex {
   }
 
   _refreshIndex() {
+    this._items = []
+    let wsName = 'xx'
+    let baseDir = this.pathBaseDir
+
+    Object.entries(this.data.paths).forEach(([pathRelative, index]) => {
+      this._items.push(
+        pathIndexToPathItem({
+          // TODO review.. why not already .index.pathRelative?
+          index: { pathRelative, ...index },
+          wsName,
+          baseDir,
+        }),
+      )
+    })
+
+    for (let item of this._items) {
+      if (item.sid) {
+        this._index.sid[item.sid] = item
+      }
+      if (item.uid) {
+        this._index.uid[item.uid] = item
+      }
+    }
+
     for (let [key, val] of Object.entries(this.data.paths)) {
       if (val.uid) {
         this._index.uids[val.uid] = { path: key, type: 'path' }
