@@ -34,7 +34,7 @@ export class StandardMetadata {
       let value = toDate(input)
       if (isValid(value)) return value
       let tm = TimeMarker.from(input)
-      if (tm.isValid()) {
+      if (tm.isValid() && tm._type === 'relative') {
         issues.push({
           field: key,
           value: input,
@@ -54,6 +54,7 @@ export class StandardMetadata {
   }
 
   flags: FlagKey[]
+  done: boolean
 
   review: { next: Date; last: Date }
 
@@ -77,6 +78,7 @@ export class StandardMetadata {
     if (_raw.recipients) {
       this.recipients = [].concat(_raw.recipients)
     }
+    this.done = _raw.done
   }
 
   get after() {

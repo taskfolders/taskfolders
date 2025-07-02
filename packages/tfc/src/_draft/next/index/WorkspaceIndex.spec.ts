@@ -1,6 +1,7 @@
 import { expect, describe, it } from 'vitest'
 import { WorkspaceIndex } from './WorkspaceIndex.js'
 import { join } from 'path/posix'
+import * as fs from 'fs'
 
 // TODO mock stat.mtime
 it.skip('x', async () => {
@@ -17,18 +18,33 @@ it('x read one #scaffold #live', async () => {
   let sut = await WorkspaceIndex.fromDir({ baseDir, indexDir })
   // let r1 = sut.get('action/now-fgo/index.md')
   let r1 = sut.get('demo/index.md')
-  r1.mtime
   let r2 = sut.data
   // console.log({ ...r1 })
   console.log(sut.data.paths['demo/index.md'])
 })
 
-it.only('x process one #scaffold #live', async () => {
+it('x process one #scaffold #live', async () => {
   let path = join(process.env.HOME, 'work/fgo')
   let sut = new WorkspaceIndex({ path })
   sut.pathBaseDir = path
   sut.updateFile('demo/index.md', { sid: 'one', after: 2026 })
 
   console.log(sut.data)
+  // console.log(sut.toJSON())
+})
+
+it.only('x', async () => {
+  let sut = new WorkspaceIndex({ path: '/app' })
+  sut.fs = {
+    statSync() {
+      return { ino: 1, mtime: new Date() }
+    },
+  } satisfies { [k in keyof typeof fs]?: any } as any
+
+  sut.pathBaseDir = '/app'
+  sut.updateFile('one.md', { sid: 'one', after: 2026, done: true })
+  sut.updateFile('two.md', { after: 'tango' })
+  console.log(sut.data)
+
   // console.log(sut.toJSON())
 })

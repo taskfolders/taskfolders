@@ -4,8 +4,10 @@ import { join } from 'path/posix'
 import { cleanObjectCopy } from '../cleanObject.js'
 import { ensureWords } from '../StandardMetadata.js'
 import { isBlank } from './isBlank.js'
-import { isDate } from 'date-fns'
+import { isDate, isValid } from 'date-fns'
 import { toDate } from '../toDate.js'
+import * as Path from 'node:path'
+import { TimeMark } from '../TimeMark.js'
 
 export const pathIndexToPathItem = (kv: {
   index: PathIndex
@@ -24,6 +26,10 @@ export const pathIndexToPathItem = (kv: {
   item.tags = ensureWords(index.tags)
   item.uid = index.uid
   item.sid = index.sid
+  item.done = index.done
+  if (index.after_v2) {
+    // item.after_v2 = TimeMark.fromValue(index.after_v2)
+  }
   item.flags = ensureWords(index.flags)
   return item
 }
@@ -32,6 +38,8 @@ export type PathIndex = {
   sid?: any
   uid?: any
   after?: Date
+  after_v2: TimeMark
+  done?
   before?: Date
   tags?: string[]
   flags?: FlagKey[]
@@ -164,6 +172,7 @@ export class WorkspaceIndex {
       uid?: any
       sid?: any
       review?
+      done?
       after?
       before?
       tags?
@@ -171,21 +180,23 @@ export class WorkspaceIndex {
     },
   ) {
     // TODO ..
-    let item = this._createItem(relPath)
-    item.base = this.pathBaseDir
+    // if (0) {
+    //   let item = this._createItem(relPath)
+    //   item.base = this.pathBaseDir
+    //   item.before = kv.before
+    //   item.after = kv.after
 
-    item.before = kv.before
-    item.after = kv.after
-    if (kv.after) {
-      if (isDate(kv.after)) {
-        item.after = kv.after
-      } else {
-        item.after = toDate(kv.after)
-      }
-    }
-    item.tags = kv.tags
-    item.flags = kv.flags
-    this.data.paths_v2[relPath] = item
+    //   if (kv.after) {
+    //     if (isDate(kv.after)) {
+    //       item.after = kv.after
+    //     } else {
+    //       item.after = toDate(kv.after)
+    //     }
+    //   }
+    //   item.tags = kv.tags
+    //   item.flags = kv.flags
+    //   this.data.paths_v2[relPath] = item
+    // }
 
     // TODO def-path-index
     // @ts-expect-error TODO
@@ -193,7 +204,14 @@ export class WorkspaceIndex {
 
     let target = this.data.paths[relPath]
 
-    let keys: Array<keyof PathItem> = ['uid', 'sid', 'after', 'before', 'tags']
+    let keys: Array<keyof PathItem> = [
+      'uid',
+      'sid',
+      'after',
+      'before',
+      'tags',
+      'done',
+    ]
     //
 
     keys.forEach(key => {
@@ -201,17 +219,34 @@ export class WorkspaceIndex {
         let value = kv[key]
         if (['after'].includes(key)) {
           value = toDate(value)
+
+          if (isDate(kv.after)) {
+            if (isValid(kv.after)) {
+              let tm = TimeMark.fromValue(kv.after)
+              target.after_v2 = tm
+            }
+          } else {
+            let tm = TimeMark.fromValue(kv.after)
+            target.after_v2 = tm
+          }
         }
         target[key] = value
+      } else {
+        // console.log('blank..', key)
       }
     })
 
-    target.mtime = item.mtime
-    target.inode = item.inode
+    // target.pathRelative = relPath
+    let full = Path.join(this.pathBaseDir, relPath)
+    let stat = this.fs.statSync(full)
+
+    target.mtime = stat.mtime
+    target.inode = stat.ino
     if (!isBlank(kv.flags)) {
       target.flags = kv.flags
     }
-    return item
+
+    return target
   }
 
   toJSON() {
@@ -227,8 +262,6 @@ export class WorkspaceIndex {
     // TODO drop ?? {}
     // TODO dedup up
     Object.values(copy.paths_v2 ?? {}).forEach(item => {
-      console.log('see!')
-
       let target = copy.paths[item.path]
       if (item.review) {
         target.review = item.review

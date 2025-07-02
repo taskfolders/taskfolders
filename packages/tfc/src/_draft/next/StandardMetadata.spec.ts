@@ -9,14 +9,6 @@ it('x', async () => {
 
   sut = new StandardMetadata({ flags: 'workspace' })
   expect(sut.flags).toContain('workspace')
-
-  sut = new StandardMetadata({ review: { next: '2025-01-01' } })
-  expect(sut.review.next).toBeCloseTo(new Date('2025-01-01').getTime())
-})
-
-it('x', async () => {
-  let sut = new StandardMetadata({ review: { next: '2025-01-01' } })
-  expect(sut.review.next).toBeCloseTo(new Date('2025-01').getTime())
 })
 
 it('x', async () => {

@@ -69,10 +69,12 @@ export class ScanV2Handler {
           uid: meta.uid,
           sid: meta.sid,
           review: meta.review,
-          after: meta.after,
+          after: meta._raw.after,
+          //after: meta.after,
           before: meta.before,
           tags: meta.tags,
           flags: meta.flags,
+          done: meta.done,
         })
 
         if (meta.calendar.length > 0) {

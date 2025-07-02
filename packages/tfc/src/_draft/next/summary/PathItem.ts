@@ -1,6 +1,7 @@
 import { join } from 'path/posix'
 import * as fs from 'fs'
 import { StandardMetadata } from '../StandardMetadata.js'
+import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
 
 function cacheResult(...args) {
   let [fn, ctx] = args
@@ -45,6 +46,8 @@ export class PathItem {
 
   uid?: string
   sid?: string
+  done?: boolean
+  after_v2?: TimeMarker
 
   /** @deprecated */
   path: string

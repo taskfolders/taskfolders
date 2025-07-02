@@ -7,6 +7,7 @@ import * as fs from 'node:fs'
 import { PathItem } from './PathItem.js'
 import { ensureWords } from '../StandardMetadata.js'
 import * as Path from 'path'
+import { log } from '../../../dc.js'
 
 export const prettyNow = (all: PathItem[]) => {
   let r1 = all
@@ -56,9 +57,14 @@ export const parseWorkspaceIndex = async (
     .filter(x => x.flags?.includes('waiting-dir'))
     .map(x => Path.dirname(x.pathRelative))
 
+  // TODO NOW
+  log.dev('NOW... hack')
+  // index.data.items = index.data.items.slice(-1)
+
   // TODO drop?
   for (let pathIndex of index.data.items) {
     let pItem = pathItemFromIndex(pathIndex)
+    // log.dev({ ...pItem })
     // console.log('..cal', pathIndex)
     if (pItem.flags.includes('skip')) continue
     if (pathIndex.calendar) {
