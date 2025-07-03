@@ -361,6 +361,8 @@ export class SummaryHandler {
                 if (found) {
                   started = Logger.link({ text: started, path: found.pathFull })
                 }
+              } else if (x.after_v2.type === 'relative') {
+                started = Logger.style.yellow(`rel(${started})`)
               }
             }
             let isActive = x.after_v2.date

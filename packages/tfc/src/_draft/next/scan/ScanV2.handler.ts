@@ -11,6 +11,7 @@ import { WorkspaceCollections } from './WorkspaceCollections.js'
 import { toDate } from '../toDate.js'
 import * as Path from 'node:path'
 import { ByteSugar } from '@taskfolders/utils/fs'
+import { relative } from 'node:path'
 
 export class ScanV2Handler {
   fs = fs
@@ -26,11 +27,13 @@ export class ScanV2Handler {
     let { log, stats, workspace, wsIndexData } = this
 
     let fullPath = join(folder.dir, file)
+    let relPath = workspace.relative(fullPath)
+    let shot = { pathRelative: relPath, pathFull: fullPath }
+
     if (!fs.existsSync(fullPath)) {
       log.warn('File does not exist', fullPath)
-      return
+      return shot
     }
-    let relPath = workspace.relative(fullPath)
 
     if (file.endsWith('.md.asc')) {
       log.info('Skip', file)
@@ -152,6 +155,8 @@ export class ScanV2Handler {
         folders.push(folder)
       }
     }
+
+    return shot
   }
 
   async _scanFolder(folder: Folder) {
