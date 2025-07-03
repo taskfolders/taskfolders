@@ -28,7 +28,7 @@ export class ScanV2Handler {
 
     let fullPath = join(folder.dir, file)
     let relPath = workspace.relative(fullPath)
-    let shot = { pathRelative: relPath, pathFull: fullPath }
+    let shot = { pathRelative: relPath, pathFull: fullPath, issues: [] }
 
     if (!fs.existsSync(fullPath)) {
       log.warn('File does not exist', fullPath)
@@ -65,6 +65,7 @@ export class ScanV2Handler {
         let issues = StandardMetadata.sanitize(_data)
         if (!issues.ok) {
           log.warn('Document frontmatter has issues', issues.issues)
+          shot.issues.push(issues)
         }
 
         // ---
