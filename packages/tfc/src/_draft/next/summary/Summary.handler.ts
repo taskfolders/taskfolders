@@ -114,6 +114,7 @@ export class SummaryHandler {
     let body = fs.readFileSync(path, 'utf-8').toString()
     let index = WorkspaceIndex.fromJSON(body, { path: ws.dir })
     index.pathBaseDir = ws.dir
+    index.pathIndexFile = path
     index._refreshIndex()
     return index
   }
@@ -357,7 +358,8 @@ export class SummaryHandler {
             } else {
               started = x.after_v2.value
               if (x.after_v2.type === 'reference') {
-                let found = this.index.findByReference(x.after_v2.value)
+                // TODO :multi-index
+                let found = this.index?.findByReference(x.after_v2.value)
                 if (found) {
                   started = Logger.link({ text: started, path: found.pathFull })
                 }
@@ -412,6 +414,14 @@ export class SummaryHandler {
           throw Error(`unknown key ${key}`)
       }
     }
+
+    let indexLabel = Logger.link({
+      text: 'index',
+      path: this.index?.pathIndexFile,
+    })
+    log
+      .put()
+      .dev(...[indexLabel, `days-ahead=${printOptions.hideAfterDays} hidden=x`])
   }
 
   async execute() {

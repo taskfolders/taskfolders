@@ -2,6 +2,7 @@ import { findWorkspaceUp } from '../WorkspaceRepo.js'
 import {
   TaskFoldersMarkdown,
   MarkdownDocument,
+  MarkdownSections,
 } from '@taskfolders/utils/markdown'
 import { join, relative } from 'node:path'
 
@@ -91,4 +92,49 @@ it('x edit md with time updates', async () => {
   let lines = r1.markdown.toString().split('\n')
   // console.log(lines)
   expect(lines).toEqual(['---', 'fox: 1', 'after: 2025-W04', '---', '', 'hi'])
+})
+
+it.only('x todo', async () => {
+  let body = dedent`
+    fox: 1
+    after: 3w
+    
+    # Section
+    - [ ] one
+    - [x] two
+
+    hi
+  `
+
+  let md = await MarkdownDocument.fromBody<any>(body, {
+    implicitFrontmatter: true,
+  })
+  let m2 = await TaskFoldersMarkdown.parse(body, { coerce: true })
+  let sec = await MarkdownSections.parse(md.content)
+  log.dev(md)
+  log.dev(sec)
+  log.dev(m2)
+})
+
+import fs from 'node:fs'
+import { log } from '../../dc.js'
+import { createSort } from '@taskfolders/utils/native/array/createSort'
+it('x inboxes', async () => {
+  let d1 = join(process.env.HOME, 'Downloads')
+  // TODO get from osx env/config? linux?
+  let d2 = join(process.env.HOME, 'Downloads/Screenshots')
+  let all = fs.readdirSync(d1).map(pathRelative => {
+    let pathFull = join(d1, pathRelative)
+    let stat = fs.statSync(pathFull)
+
+    return { path: pathRelative, mtime: stat.mtime }
+  })
+  all.sort(createSort({ key: 'mtime', direction: 'descending' }))
+  all = all.filter(x => {
+    if (x.path.startsWith('.')) return false
+    return true
+  })
+  all = all.slice(0, 10)
+
+  log.dev(all)
 })
