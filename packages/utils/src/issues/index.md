@@ -1,3 +1,4 @@
+flags: now, todo
 
 # TODO eval naming Issue vs Check
 doc or think.. Issue or Check??
