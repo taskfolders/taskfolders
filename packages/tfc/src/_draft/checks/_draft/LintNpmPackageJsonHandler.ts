@@ -81,7 +81,13 @@ export class LintNpmPackageHandler {
         return t.error('no repository')
       }
     })
-    let res = await sut.execute()
+
+    test('dev-misplaced', t => {
+      let devOnly = ['vitest', 'eslint', 'webpack']
+      t.skip('todo')
+    })
+
+    await sut.executeForShell()
   }
 }
 
