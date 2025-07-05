@@ -104,7 +104,7 @@ export class ActiveFile<T = unknown> {
   }
 
   write(text: string, kv: never)
-  write(obj: Object, kv?: { pretty?: boolean })
+  write(obj: object, kv?: { pretty?: boolean })
   write(thing, kv) {
     let body: string
     if (typeof thing === 'string') {

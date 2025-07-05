@@ -4,6 +4,7 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:node/recommended",
     "plugin:import/recommended"
   ],
   "ignorePatterns": ["packages/*/dist/**"],
@@ -28,6 +29,11 @@
     "prefer-const": 0,
 
     //
+    "node/file-extension-in-import": ["error", "always"],
+
+    "node/no-extraneous-import": 0,
+    "node/no-unsupported-features/es-syntax": 0,
+    "node/no-missing-import": 0,
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -36,6 +42,5 @@
         "mjs": "always"
       }
     ]
-
   }
 }
