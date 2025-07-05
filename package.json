@@ -1,9 +1,6 @@
 {
   "name": "tf-open",
   "description": "",
-  "engines": {
-    "node": ">=22.0.0"
-  },
   "type": "module",
   "scripts": {
     "outdated": "npm outdated",

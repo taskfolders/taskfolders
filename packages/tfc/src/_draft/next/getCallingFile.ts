@@ -14,16 +14,9 @@ export function getCallingFile(
     })
     console.log({ all })
   } else if (kv.afterFileName) {
-    let all = stack.map(x => {
-      return {
-        fileName: x.getFileName(),
-        str: x.toString(),
-        lineNumber: x.getLineNumber(),
-      }
-    })
-    let idx = all.findIndex(x => x.fileName === kv.afterFileName)
-    let pos = all[idx + 1]
-    return { path: pos.fileName, lineNumber: pos.lineNumber }
+    let idx = stack.findIndex(x => x.getFileName() === kv.afterFileName)
+    let pos = stack[idx + 1]
+    return { path: pos.getFileName(), lineNumber: pos.getLineNumber() }
   }
 
   // Find the first callsite outside this file

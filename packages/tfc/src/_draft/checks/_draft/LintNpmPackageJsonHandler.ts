@@ -7,7 +7,15 @@ export class LintNpmPackageHandler {
   constructor(public params: { dir: string }) {}
   async execute() {
     let file = Path.join(this.params.dir, 'package.json')
-    let doc = JSON.parse(await fs.readFile(file, 'utf-8'))
+    let doc = JSON.parse(await fs.readFile(file, 'utf-8')) as {
+      name
+      private?
+      repository?
+      type?: 'module'
+      engines: {
+        node?: string
+      }
+    }
 
     let sut = new IssueSuite()
     sut.log.info('Start linting', file)
@@ -28,6 +36,40 @@ export class LintNpmPackageHandler {
         } else {
           return t.skip('no subpackage')
         }
+      }
+    })
+
+    test('engine', t => {
+      if (!doc.engines?.node) {
+        t.warn('No engine specified')
+        t.fix({
+          title: 'define engine field',
+          after: { engines: { node: '>=22.0' } },
+        })
+        return
+      }
+    })
+
+    test('publish', t => {
+      if (doc.private === undefined) {
+        t.error('Package does not specify if it is private or public')
+
+        t.fix({
+          code: 'private',
+          title: 'Make package private',
+          after: { private: true },
+        })
+        t.fix({
+          code: 'public',
+          title: 'Add configuration to publish package',
+          after: { private: false, repository: 'git...' },
+        })
+      }
+
+      if (doc.private === true) return
+
+      if (!doc.repository) {
+        return t.error('no repository')
       }
     })
     let res = await sut.execute()

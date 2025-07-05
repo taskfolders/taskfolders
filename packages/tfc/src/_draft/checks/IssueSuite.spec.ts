@@ -80,11 +80,6 @@ it('skip #todo', async () => {
   console.log({ res })
 })
 
-it.only('x', async () => {
-  let sut = new LintNpmPackageHandler()
-  await sut.execute()
-})
-
 // TODO pending?
 it.skip('one check type, but many fail types', async () => {
   let sut = new IssueSuite()
@@ -92,4 +87,14 @@ it.skip('one check type, but many fail types', async () => {
     return t.fail('no engine specified')
     return t.fail('old engine')
   })
+})
+
+it.only('x', async () => {
+  let sut = new IssueSuite()
+  sut.test(t => {
+    t.warn('one')
+    t.warn('two')
+    return
+  })
+  await sut.execute()
 })

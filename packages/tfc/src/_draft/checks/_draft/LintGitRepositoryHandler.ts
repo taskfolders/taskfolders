@@ -26,7 +26,7 @@ export class LintGitRepositoryHandler {
     let file = Path.join(process.env.HOME, 'repos/tf-open')
     this.file = file
 
-    let doc = JSON.parse(await fs.readFile(file, 'utf-8'))
+    // let doc = JSON.parse(await fs.readFile(file, 'utf-8'))
 
     let sut = new IssueSuite()
     let { test, skip } = sut
