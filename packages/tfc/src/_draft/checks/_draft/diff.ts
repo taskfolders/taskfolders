@@ -1,6 +1,6 @@
-import { diffChars } from 'diff'
+import { diffChars, diffLines } from 'diff'
 
-const diff = (kv: { before; after }) => {
+export const diff = (kv: { before; after }) => {
   let acu = []
 
   let before =
@@ -15,6 +15,8 @@ const diff = (kv: { before; after }) => {
   let changes = diffChars(before, after)
 
   for (const part of changes) {
+    if (!part.removed && !part.added) continue
+
     const color = part.added
       ? '\x1b[32m' // Green for added
       : part.removed
@@ -23,5 +25,5 @@ const diff = (kv: { before; after }) => {
 
     acu.push(color + part.value + '\x1b[0m')
   }
-  return acu.join('')
+  return acu.join('\n')
 }

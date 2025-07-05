@@ -1,6 +1,7 @@
 import { indent } from '@taskfolders/utils/native/string/indent'
 import { getCallingFile } from '../next/getCallingFile.js'
 import { Logger } from '../next/Logger.js'
+import { diff } from './_draft/diff.js'
 
 import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
@@ -133,6 +134,7 @@ export class IssueSuite {
           let reason = warn.reason ?? '(no reason given)'
           log.put(`${label}: ${reason}`)
         }
+
         for (let warn of ctx._errors) {
           let label = log.style.red('error')
           let reason = warn.reason ?? '(no reason given)'
@@ -144,10 +146,18 @@ export class IssueSuite {
           log.put(`${label}: ${reason}`)
 
           if (fix.after) {
-            let json = JSON.stringify(fix.after, null, 2)
-            let txt = indent(json, log.options.padding + 2)
-
-            log.put(txt)
+            let txt: string
+            if (typeof fix.after !== 'string') {
+              txt = JSON.stringify(fix.after, null, 2)
+            }
+            let before = fix.before
+            if (before) {
+              if (typeof before !== 'string') {
+                before = JSON.stringify(before, null, 2)
+              }
+              txt = diff({ before, after: txt })
+            }
+            log.indent().put(txt).dedent()
           }
         }
 
@@ -159,10 +169,11 @@ export class IssueSuite {
             log.info(`${label}: ${reason}`)
           }
         }
+        log.dedent()
       } catch (error) {
         result.error = error
       } finally {
-        log.dedent()
+        // log.dedent()
       }
       acu.push(result)
     }

@@ -32,7 +32,9 @@ export class LintNpmPackageHandler {
         // ??
       } else {
         if (!doc.name?.test?.(/^@.*\//)) {
-          throw Error('missing @scope')
+          t.error('missing @scope')
+          return
+          //throw Error('missing @scope')
         } else {
           return t.skip('no subpackage')
         }
@@ -57,13 +59,16 @@ export class LintNpmPackageHandler {
         t.fix({
           code: 'private',
           title: 'Make package private',
-          after: { private: true },
+          before: doc,
+          after: { ...doc, private: true },
         })
         t.fix({
           code: 'public',
           title: 'Add configuration to publish package',
-          after: { private: false, repository: 'git...' },
+          before: doc,
+          after: { ...doc, private: false, repository: 'git...' },
         })
+        return
       }
 
       if (doc.private === true) return
