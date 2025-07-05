@@ -69,9 +69,6 @@ export class Logger {
   dev(...args) {
     this.raw({ args, level: 'dev' })
   }
-  warn(...args) {
-    this.raw({ args, level: 'warn' })
-  }
 
   error(...args) {
     this.raw({ args, level: 'error' })
