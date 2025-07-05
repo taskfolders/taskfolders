@@ -30,7 +30,7 @@ export function findUpAll(kv: FindUpOptions): string[] {
     if (current === '') current = Path.sep
     let found = test(current)
     if (found) {
-      console.log({ found, current })
+      // console.log({ found, current })
 
       if (options.many === false) return [found]
       acu.push(found)

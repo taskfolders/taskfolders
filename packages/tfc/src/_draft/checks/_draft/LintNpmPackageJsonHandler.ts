@@ -19,7 +19,7 @@ export class LintNpmPackageHandler {
 
     let sut = new IssueSuite()
     sut.log.info('Start linting', file)
-    let { test, skip } = sut
+    let { test } = sut
 
     test('esm', t => {
       if (doc.type !== 'module') {
@@ -28,7 +28,7 @@ export class LintNpmPackageHandler {
     })
 
     test('vscode', t => {
-      t.skip('will do')
+      t.skip('todo')
     })
 
     test('name', t => {

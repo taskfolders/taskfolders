@@ -201,7 +201,7 @@ export class IssueSuite {
       log.dedent()
     }
 
-    log.put(': suite end :')
+    log.put().put('::SUITE END::')
     log.put(stats)
   }
 
@@ -214,9 +214,6 @@ export class IssueSuite {
       let result = { title: test.title } as Result
       try {
         let res = await test.execute(ctx)
-        let log = ctx.log.indent()
-
-        log.dedent()
       } catch (error) {
         result.error = error
       } finally {
@@ -238,8 +235,25 @@ export class IssueSuite {
       throw error
     }
 
-    await this._print(acu)
     return acu
+  }
+
+  async executeForShell() {
+    let acu = await this.execute()
+
+    let stats = { errors: 0 }
+    acu.forEach(item => {
+      if (item.error) {
+        stats.errors++
+      } else if (item.ctx._errors.length > 0) {
+        stats.errors++
+      }
+    })
+    await this._print(acu)
+
+    if (stats.errors > 0) {
+      process.exitCode = 1
+    }
   }
 }
 
