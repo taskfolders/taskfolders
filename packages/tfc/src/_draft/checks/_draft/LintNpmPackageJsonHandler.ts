@@ -27,6 +27,10 @@ export class LintNpmPackageHandler {
       }
     })
 
+    test('vscode', t => {
+      t.skip('will do')
+    })
+
     test('name', t => {
       if (doc['workspaces']?.length > 0) {
         // ??

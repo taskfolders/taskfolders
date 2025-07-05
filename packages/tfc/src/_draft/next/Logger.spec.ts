@@ -1,8 +1,8 @@
 import { expect, describe, it } from 'vitest'
-import { Logger } from './Logger.js'
+import { NodeLogger } from './Logger.js'
 
 it('x', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
   sut.info('Hello world')
   sut.dev('Hello world')
   sut.debug('Hello world')
@@ -11,7 +11,7 @@ it('x', async () => {
 })
 
 it('x time', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
   sut.time()
   sut.info('one')
   sut.info('two')
@@ -20,7 +20,7 @@ it('x time', async () => {
 })
 
 it('x', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
   await sut.time(async () => {
     sut.info('one')
     sut.info('two')
@@ -30,7 +30,7 @@ it('x', async () => {
 
 describe('nesting', () => {
   it('group', async () => {
-    let sut = new Logger()
+    let sut = new NodeLogger()
     sut.put('one')
     sut.group()
     console.log(sut)
@@ -44,11 +44,11 @@ describe('nesting', () => {
 })
 
 it.skip('stack trace sanitization', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
 })
 
 it.only('x data', async () => {
-  let sut = new Logger()
+  let sut = new NodeLogger()
   sut.data = { foo: 'bar', baz: 123 }
   sut.info('hi')
 })

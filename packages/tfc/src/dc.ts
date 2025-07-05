@@ -1,7 +1,7 @@
-import { Logger } from './_draft/next/Logger.js'
+import { NodeLogger } from './_draft/next/Logger.js'
 
-export const log = new Logger()
+export const log = new NodeLogger()
 
 export const dc: {
-  log: Logger
-} = { log: new Logger() }
+  log: NodeLogger
+} = { log: new NodeLogger() }

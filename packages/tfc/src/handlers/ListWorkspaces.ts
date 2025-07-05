@@ -2,11 +2,11 @@ import { DiskIndexRepository } from './ScanPathContent/disk-index/DiskIndexRepos
 import { DC } from '@taskfolders/utils/dependencies'
 // import { Logger } from '@taskfolders/utils/logger'
 import { dirname } from 'node:path'
-import { Logger } from '../_draft/next/Logger.js'
+import { NodeLogger } from '../_draft/next/Logger.js'
 
 export class ListWorkspaces {
   // log = DC.inject(Logger)
-  log = new Logger()
+  log = new NodeLogger()
   async execute() {
     let dc = DC.get(this)
     let repo = dc.fetch(DiskIndexRepository)

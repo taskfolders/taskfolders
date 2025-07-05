@@ -1,12 +1,12 @@
 import { mkdtemp, rm } from 'node:fs/promises'
-import { Logger } from '../../_draft/next/Logger.js'
+import { NodeLogger } from '../../_draft/next/Logger.js'
 import * as fs from 'node:fs'
 import { isAbsolute } from 'path'
 import * as Path from 'node:path'
 import { decryptGPGMessage } from '../../_draft/gpg/decryptGPGMessage.js'
 import { MarkdownDocument } from '@taskfolders/utils/markdown'
 
-let log = new Logger()
+let log = new NodeLogger()
 
 import { spawnSync } from 'child_process'
 import { createHash } from 'node:crypto'

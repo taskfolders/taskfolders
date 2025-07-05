@@ -4,7 +4,7 @@ import { join } from 'path/posix'
 import { decryptGPGMessage } from '../../gpg/decryptGPGMessage.js'
 import { cleanObjectCopy } from '../cleanObject.js'
 import { Folder } from '../Folder.js'
-import { Logger } from '../Logger.js'
+import { NodeLogger } from '../Logger.js'
 import { WorkspaceIndex, PathIndex } from '../index/WorkspaceIndex.js'
 import { StandardMetadata } from '../StandardMetadata.js'
 import { WorkspaceCollections } from './WorkspaceCollections.js'
@@ -15,7 +15,7 @@ import { relative } from 'node:path'
 
 export class ScanV2Handler {
   fs = fs
-  log = new Logger()
+  log = new NodeLogger()
 
   workspace: Folder
   stats = { files: 0, errors: 0 }
@@ -127,7 +127,7 @@ export class ScanV2Handler {
         let bytes = ByteSugar.fromBytes(stats.size)
         log.warn(
           `Skip large file (${bytes})`,
-          Logger.link({ path: fullPath, text: relPath }),
+          NodeLogger.link({ path: fullPath, text: relPath }),
         )
       } else {
         let body = fs.readFileSync(fullPath, 'utf-8').toString()
@@ -193,7 +193,7 @@ export class ScanV2Handler {
     for (let file of files) {
       await this._scanOneFile(file, folder, folders).catch(err => {
         stats.errors++
-        let link = Logger.link({
+        let link = NodeLogger.link({
           text: file,
           path: Path.join(folder.dir, file),
         })
@@ -273,7 +273,7 @@ export class ScanV2Handler {
   async _runWorkspaceScan(kv: {
     workspace: Folder
     wsIndexData: WorkspaceIndex
-    log: Logger
+    log: NodeLogger
     stats
     start: number
   }) {

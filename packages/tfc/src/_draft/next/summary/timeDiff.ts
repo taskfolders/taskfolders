@@ -1,5 +1,5 @@
 import { differenceInDays, differenceInWeeks, getWeek, isToday } from 'date-fns'
-import { Logger } from '../Logger.js'
+import { NodeLogger } from '../Logger.js'
 
 export const timeDiff = (kv: { date: Date; color?: boolean; now?: Date }) => {
   let now = kv.now ?? new Date()
@@ -25,9 +25,9 @@ export const timeDiff = (kv: { date: Date; color?: boolean; now?: Date }) => {
   due = `${symbol}${diff}w`
   if (kv.color !== false) {
     if (weekDistance < 0) {
-      due = Logger.style.red(due)
+      due = NodeLogger.style.red(due)
     } else if (weekDistance < 6) {
-      due = Logger.style.yellow(due)
+      due = NodeLogger.style.yellow(due)
     }
   }
 

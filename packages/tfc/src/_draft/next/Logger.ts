@@ -43,7 +43,7 @@ let colorizeLevel = (level: LevelName): string => {
   return level
 }
 
-export class Logger {
+export class NodeLogger {
   static link = shellHyperlink
   static style = Col
 
@@ -154,7 +154,12 @@ export class Logger {
   }
 
   put(...args) {
-    let txt = args.map(x => x.toString()).join('')
+    let txt = args
+      .map(x => {
+        if (typeof x === 'string') return x
+        return inspect(x, { colors: true })
+      })
+      .join('')
     if (this.options.padding) {
       txt = indent(txt, this.options.padding)
       // args = [' '.repeat(this.options.padding), ...args]
@@ -164,11 +169,11 @@ export class Logger {
   }
 
   deep() {
-    let next = new Logger()
+    let next = new NodeLogger()
     return next
   }
   child() {
-    let copy = new Logger()
+    let copy = new NodeLogger()
     copy.options = { ...this.options }
     // return one shot parametrize logger
     return this

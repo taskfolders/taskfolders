@@ -1,11 +1,11 @@
 import { toDate } from './toDate.js'
 import { FlagKey } from './summary/PathItem.js'
 import { isBlank } from './index/isBlank.js'
-import { Logger } from './Logger.js'
+import { NodeLogger } from './Logger.js'
 import { isDate, isValid } from 'date-fns'
 import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
 
-const log = new Logger()
+const log = new NodeLogger()
 
 type UserInput = {
   uid

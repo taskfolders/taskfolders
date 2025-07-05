@@ -1,4 +1,4 @@
-import { Logger } from '../Logger.js'
+import { NodeLogger } from '../Logger.js'
 import {
   addDays,
   differenceInCalendarDays,
@@ -29,7 +29,7 @@ type Fox = { path; started; due }
 
 const dimKeysApply = item => {
   for (let key in item) {
-    item[key] = Logger.style.dim(item[key])
+    item[key] = NodeLogger.style.dim(item[key])
   }
 }
 
@@ -40,7 +40,7 @@ const toPathPrint = (x: PathItem) => {
     pathStr = '…' + pathStr.slice(pathStr.length - cap + 1)
   }
   pathStr = `{${x.wsName ?? 'x'}}:` + pathStr
-  let pathShow = Logger.link({ text: pathStr, path: x.pathFull })
+  let pathShow = NodeLogger.link({ text: pathStr, path: x.pathFull })
   return pathShow
 }
 
@@ -52,7 +52,7 @@ const printOptions = {
 
 const printTable = <T>(kv: {
   rows: T[]
-  log: Logger
+  log: NodeLogger
   keys?: Array<keyof T>
   config?: Partial<Record<keyof T, { padding: number; head?: string }>>
 }) => {
@@ -93,7 +93,7 @@ const printTable = <T>(kv: {
 }
 
 export class SummaryHandler {
-  log = new Logger()
+  log = new NodeLogger()
 
   // TODO multi index?
   index?: WorkspaceIndex
@@ -232,7 +232,7 @@ export class SummaryHandler {
           log.indent()
           const putLine = (item: CalendarItem) => {
             let date = item.date.toISOString().slice(0, 10)
-            let link = Logger.link({
+            let link = NodeLogger.link({
               text: item.title,
               path: item.item.pathFull,
             })
@@ -359,10 +359,13 @@ export class SummaryHandler {
               if (x.after_v2.type === 'reference') {
                 let found = this.index.findByReference(x.after_v2.value)
                 if (found) {
-                  started = Logger.link({ text: started, path: found.pathFull })
+                  started = NodeLogger.link({
+                    text: started,
+                    path: found.pathFull,
+                  })
                 }
               } else if (x.after_v2.type === 'relative') {
-                started = Logger.style.yellow(`rel(${started})`)
+                started = NodeLogger.style.yellow(`rel(${started})`)
               }
             }
             let isActive = x.after_v2.date

@@ -1,5 +1,5 @@
 import { findUpWorkspace } from './findUpWorkspace.js'
-import { Logger } from './Logger.js'
+import { NodeLogger } from './Logger.js'
 import { WorkspaceIndex } from './index/WorkspaceIndex.js'
 import { readFileSync } from 'fs'
 import * as fs from 'fs'
@@ -8,7 +8,7 @@ import { decryptGPGMessage } from '../gpg/decryptGPGMessage.js'
 import { MarkdownDocument } from '@taskfolders/utils/markdown'
 
 export class ReadReferenceHandler {
-  log = new Logger()
+  log = new NodeLogger()
 
   constructor(public params: { cwd: string; id: string }) {}
 
