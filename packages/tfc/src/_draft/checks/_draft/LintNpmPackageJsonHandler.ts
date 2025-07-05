@@ -3,12 +3,10 @@ import { IssueSuite } from '../IssueSuite.js'
 import fs from 'fs/promises'
 import { isRunFromShell } from '../../isRunFromShell.js'
 
-export class LintNpmPackageJsonHandler {
+export class LintNpmPackageHandler {
+  constructor(public params: { dir: string }) {}
   async execute() {
-    let file = Path.join(
-      process.env.HOME,
-      'repos/tf-open/packages/tfc/package.json',
-    )
+    let file = Path.join(this.params.dir, 'package.json')
     let doc = JSON.parse(await fs.readFile(file, 'utf-8'))
 
     let sut = new IssueSuite()
@@ -23,7 +21,9 @@ export class LintNpmPackageJsonHandler {
 
     test('name', t => {
       if (doc['workspaces']?.length > 0) {
-        if (!doc['name'].test(/^@.*\//)) {
+        // ??
+      } else {
+        if (!doc.name?.test?.(/^@.*\//)) {
           throw Error('missing @scope')
         } else {
           return t.skip('no subpackage')
@@ -35,5 +35,12 @@ export class LintNpmPackageJsonHandler {
 }
 
 if (isRunFromShell(import.meta.url)) {
-  new LintNpmPackageJsonHandler().execute()
+  let dir = process.argv[2]
+  if (dir && dir.includes('..')) {
+    dir = Path.resolve(dir)
+  } else {
+    dir = process.cwd()
+  }
+
+  new LintNpmPackageHandler({ dir }).execute()
 }

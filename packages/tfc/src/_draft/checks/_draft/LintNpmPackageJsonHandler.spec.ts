@@ -1,8 +1,8 @@
 import { expect, describe, it } from 'vitest'
-import { LintNpmPackageJsonHandler } from './LintNpmPackageJsonHandler.js'
+import { LintNpmPackageHandler } from './LintNpmPackageJsonHandler.js'
 import Path from 'path'
 
-it('x', async () => {
+it.only('x', async () => {
   let dir = Path.join(process.env.HOME, 'repos/tf-open')
-  let sut = new LintNpmPackageJsonHandler()
+  let sut = new LintNpmPackageHandler({ dir })
 })

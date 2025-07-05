@@ -1,4 +1,8 @@
+import { getCallingFile } from '../next/getCallingFile.js'
 import { Logger } from '../next/Logger.js'
+
+import { fileURLToPath } from 'url'
+const __filename = fileURLToPath(import.meta.url)
 
 const log = new Logger()
 class HandlerContext {
@@ -9,6 +13,9 @@ class HandlerContext {
   }
   skip = skip
 
+  fail(reason?: string) {
+    return { error: { reason } } satisfies HandlerOutput
+  }
   error(reason?: string) {
     return { error: { reason } } satisfies HandlerOutput
   }
@@ -40,7 +47,7 @@ class IssueSuiteError extends Error {
 }
 
 export class IssueSuite {
-  _tests: { title; execute: HandlerFunction }[] = []
+  _tests: { title; execute: HandlerFunction; caller? }[] = []
   title: string
   constructor(kv: { title?: string } = {}) {
     if (kv.title) this.title = kv.title
@@ -52,6 +59,8 @@ export class IssueSuite {
     (cb: HandlerFunction): IssueSuite
     (code: string, cb: HandlerFunction): IssueSuite
   } = (t1, t2?) => {
+    let caller = getCallingFile(__filename, { afterFileName: __filename })
+
     try {
       let cb
       let title
@@ -65,6 +74,7 @@ export class IssueSuite {
       this._tests.push({
         title,
         execute: cb,
+        caller,
       })
     } catch (error) {
       console.error(`IssueSuite: ${this.title} failed`, error)
@@ -83,7 +93,17 @@ export class IssueSuite {
 
     // console.log(`IssueSuite "${this.title}" started`)
     for (let test of this._tests) {
-      console.log(`test: ${test.title}`)
+      // let caller = getCallingFile(__filename, { debug: true })
+      let label = 'test'
+      if (test.caller) {
+        label = Logger.link({
+          path: test.caller.path,
+          lineNumber: test.caller.lineNumber,
+          text: label,
+        })
+      }
+
+      console.log(`${label}: ${test.title}`)
       let result = { title: test.title } as Result
       try {
         let res = await test.execute(ctx)
@@ -105,6 +125,11 @@ export class IssueSuite {
       let error = new IssueSuiteError(`IssueSuite "${this.title}" failed`)
       error.code = 'IssueSuite-TestError'
       error.results = acu
+      let all = acu.map(x => x.error).filter(Boolean)
+      all.forEach(x => {
+        log.error('Test error:', x)
+      })
+
       throw error
     }
 

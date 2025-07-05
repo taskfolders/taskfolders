@@ -5,6 +5,7 @@ import { padEnd } from '@taskfolders/utils/native/string/padEnd'
 import { shellHyperlink } from '@taskfolders/utils/screen'
 
 import { URL } from 'node:url' // in Browser, the URL in native accessible on window
+import { getCallingFile } from './getCallingFile.js'
 
 const __filename = new URL('', import.meta.url).pathname
 
@@ -175,23 +176,6 @@ export class Logger {
   }
 }
 
-function isEmpty(data: {}) {
+function isEmpty(data: any) {
   return Object.keys(data).length === 0
-}
-
-function getCallingFile(__filename: string) {
-  const origPrepareStackTrace = Error.prepareStackTrace
-  Error.prepareStackTrace = (_, stack) => stack
-  const err = new Error()
-  const stack = err.stack as unknown as NodeJS.CallSite[]
-  Error.prepareStackTrace = origPrepareStackTrace
-
-  // Find the first callsite outside this file
-  for (let i = 0; i < stack.length; i++) {
-    const fileName = stack[i].getFileName()
-    if (fileName && fileName !== __filename) {
-      return { path: fileName, lineNumber: stack[i].getLineNumber() }
-    }
-  }
-  return undefined
 }

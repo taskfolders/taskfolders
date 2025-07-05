@@ -2,7 +2,7 @@ import { it, expect } from 'vitest'
 import Path from 'path'
 import fs from 'fs/promises'
 import { IssueSuite } from './IssueSuite.js'
-import { LintNpmPackageJsonHandler } from './_draft/LintNpmPackageJson.andler.js'
+import { LintNpmPackageHandler } from './_draft/LintNpmPackageJsonHandler.js'
 
 async function execute() {
   let suite = new IssueSuite({ title: 'git config' })
@@ -81,6 +81,15 @@ it('skip #todo', async () => {
 })
 
 it.only('x', async () => {
-  let sut = new LintNpmPackageJsonHandler()
+  let sut = new LintNpmPackageHandler()
   await sut.execute()
+})
+
+// TODO pending?
+it.skip('one check type, but many fail types', async () => {
+  let sut = new IssueSuite()
+  sut.test('engine', t => {
+    return t.fail('no engine specified')
+    return t.fail('old engine')
+  })
 })
