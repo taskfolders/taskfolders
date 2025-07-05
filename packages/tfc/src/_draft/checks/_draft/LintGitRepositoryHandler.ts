@@ -40,5 +40,5 @@ export class LintGitRepositoryHandler {
 }
 
 if (isRunFromShell(import.meta.url)) {
-  new LintGitRepositoryHandler().execute()
+  new LintGitRepositoryHandler({ dir: process.cwd() }).execute()
 }

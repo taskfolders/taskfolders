@@ -1,10 +1,10 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "import"],
+  "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:node/recommended",
+    "plugin:n/recommended",
     "plugin:import/recommended"
   ],
   "ignorePatterns": ["packages/*/dist/**"],
@@ -19,7 +19,6 @@
     "no-control-regex": 0,
 
     // TODO review imports
-    "import/extensions": ["error", "ignorePackages"],
     "import/no-unresolved": 0,
 
     // GROUP stay
@@ -29,16 +28,25 @@
     "prefer-const": 0,
 
     //
-    "node/file-extension-in-import": ["error", "always"],
+    // "n/file-extension-in-import": [
+    //   "error",
+    //   "always",
+    //   {
+    //     "tryExtensions": [".js"],
+    //     ".ts": "never",
+    //     ".xxx": "never"
+    //   }
+    // ],
 
-    "node/no-extraneous-import": 0,
-    "node/no-unsupported-features/es-syntax": 0,
-    "node/no-missing-import": 0,
+    "n/no-extraneous-import": 0,
+    "n/no-unsupported-features/es-syntax": 0,
+    "n/no-missing-import": 0,
     "import/extensions": [
       "error",
       "ignorePackages",
       {
         "js": "always",
+        "ts": "never",
         "mjs": "always"
       }
     ]

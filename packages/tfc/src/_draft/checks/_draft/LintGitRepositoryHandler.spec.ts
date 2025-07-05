@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { LintGitRepositoryHandler } from './LintGitRepositoryHandler'
+import { LintGitRepositoryHandler } from './LintGitRepositoryHandler.js'
 import * as Path from 'path'
 
 it('x', async () => {

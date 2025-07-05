@@ -2,7 +2,7 @@
   "name": "tf-open",
   "description": "",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "type": "module",
   "scripts": {
@@ -22,6 +22,7 @@
     "@typescript-eslint/parser": "^8.35.1",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^17.21.0",
     "eslint-plugin-node": "^11.1.0",
     "expect": "^30.0.3",
     "ts-node": "^10.9.2",
