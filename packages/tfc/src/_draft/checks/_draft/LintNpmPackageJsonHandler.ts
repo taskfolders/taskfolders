@@ -2,6 +2,7 @@ import * as Path from 'node:path'
 import { IssueSuite } from '../IssueSuite.js'
 import fs from 'fs/promises'
 import { isRunFromShell } from '../../isRunFromShell.js'
+import { log } from '../../../dc.js'
 
 export class LintNpmPackageHandler {
   constructor(public params: { dir: string }) {}
@@ -11,6 +12,8 @@ export class LintNpmPackageHandler {
       name
       private?
       repository?
+      dependencies?
+      devDependencies?
       type?: 'module'
       engines: {
         node?: string
@@ -33,14 +36,12 @@ export class LintNpmPackageHandler {
 
     test('name', t => {
       if (doc['workspaces']?.length > 0) {
+        return t.skip('no subpackage')
         // ??
       } else {
-        if (!doc.name?.test?.(/^@.*\//)) {
+        if (!doc.name?.match?.(/^@.*\//)) {
           t.fail('missing @scope')
           return
-          //throw Error('missing @scope')
-        } else {
-          return t.skip('no subpackage')
         }
       }
     })
@@ -84,6 +85,18 @@ export class LintNpmPackageHandler {
 
     test('dev-misplaced', t => {
       let devOnly = ['vitest', 'eslint', 'webpack']
+      let prodKeys = Object.keys(doc.dependencies)
+      let types = prodKeys.filter(x => x.startsWith('@types/'))
+      t.fail({
+        title: '@type packages should be defined as dev dependency',
+        data: { types },
+      })
+
+      let a1 = ['@eslint', 'webpack']
+      let shouldBeDev = prodKeys.filter(x => {
+        if (a1.some(key => x.startsWith(key))) return true
+      })
+      // log.dev({ shouldBeDev })
       t.skip('todo')
     })
 

@@ -1,6 +1,8 @@
 {
   "name": "@taskfolders/tfc",
   "version": "0.0.4",
+  "type": "module",
+  "private": false,
   "engines": {
     "node": ">=22.0.0"
   },
@@ -18,7 +20,6 @@
     "dist"
   ],
   "license": "MIT",
-  "type": "module",
   "main": "index.js",
   "bin": {
     "tfc": "bin/tfc"

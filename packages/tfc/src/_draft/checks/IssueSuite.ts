@@ -163,7 +163,7 @@ export class IssueSuite {
         })
       }
 
-      ctx.log.put(`${label}: ${test.title}`)
+      ctx.log.put(`${label}: ${test.code ?? test.title}`)
       let log = ctx.log.indent()
 
       for (let warn of ctx._warnings) {
@@ -219,7 +219,15 @@ export class IssueSuite {
     }
 
     log.put().put('::SUITE END::')
-    log.put(stats)
+    let copy = { ...stats }
+    if (copy.error > 0) {
+      copy[log.style.red('error')] = copy.error
+      delete copy.error
+    }
+    let r1 = Object.entries(copy)
+      .map(([key, value]) => `${key}=${log.style.yellow(value)}`)
+      .join(' ')
+    log.put(r1)
   }
 
   async execute() {
