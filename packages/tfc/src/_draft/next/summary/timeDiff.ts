@@ -1,5 +1,5 @@
 import { differenceInDays, differenceInWeeks, getWeek, isToday } from 'date-fns'
-import { NodeLogger } from '../Logger.js'
+import { NodeLogger } from '../NodeLogger.js'
 
 export const timeDiff = (kv: { date: Date; color?: boolean; now?: Date }) => {
   let now = kv.now ?? new Date()

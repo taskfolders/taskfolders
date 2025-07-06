@@ -1,6 +1,6 @@
 import { indent } from '@taskfolders/utils/native/string/indent'
 import { getCallingFile } from '../next/getCallingFile.js'
-import { NodeLogger } from '../next/Logger.js'
+import { NodeLogger } from '../next/NodeLogger.js'
 import { diff } from './_draft/diff.js'
 
 import { fileURLToPath } from 'url'
@@ -134,8 +134,6 @@ export class IssueSuite {
     })
     this._testEnd$.subscribe(x => {
       this._printOneTestResult({ test: x, stats: {}, log })
-      // TODO #wth #now
-      log.dedent()
     })
   }
 
@@ -209,7 +207,7 @@ export class IssueSuite {
       label = padEnd(label, labelPad)
       log.put(`${label} ${reason}`)
       if (error.data) {
-        log.indent().put(error.data).dedent()
+        log.indent().put(error.data)
       }
       stats.error++
     }
@@ -244,7 +242,7 @@ export class IssueSuite {
           }
           txt = diff({ before, after: txt })
         }
-        log.indent().put(':diff:').indent().put(txt).dedent().dedent()
+        log.indent().put(':diff:').indent().put(txt)
       }
     }
   }
@@ -256,7 +254,6 @@ export class IssueSuite {
       let ctx = test.ctx
       this._printTestTitle(test, ctx.log)
       this._printOneTestResult({ test, stats, log })
-      log.dedent()
     }
 
     log.put().put('::SUITE END::')
@@ -281,6 +278,7 @@ export class IssueSuite {
       let config = this._config.issues[test.code]
       ctx.config = config
       ctx._config_fixes = this._config.fixes
+      ctx.log = this.log.indent()
 
       this._testStart$.next(test)
       if (config?.enabled !== false) {

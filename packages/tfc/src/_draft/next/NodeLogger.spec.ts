@@ -1,5 +1,6 @@
 import { expect, describe, it } from 'vitest'
-import { NodeLogger } from './Logger.js'
+import { NodeLogger } from './NodeLogger.js'
+import dedent from 'dedent'
 
 it('x', async () => {
   let sut = new NodeLogger()
@@ -33,21 +34,65 @@ describe('nesting', () => {
     let sut = new NodeLogger()
     sut.put('one')
     sut.group()
-    console.log(sut)
 
     sut.put('two')
     sut.groupEnd()
     sut.put('three')
   })
 
-  it.skip('indent', async () => {})
+  it('indent', async () => {
+    let sut = new NodeLoggerTesting()
+    sut.put('one')
+    let child = sut.indent()
+
+    child.put('two')
+    sut.put('two')
+
+    sut.dedent()
+    sut.put('three')
+  })
+})
+
+class NodeLoggerTesting extends NodeLogger {
+  echo = false
+  _outputs = []
+  _rawPrint(line: string): void {
+    this._outputs.push(line)
+    if (this.echo) console.log(line)
+  }
+  clone() {
+    let next = new NodeLoggerTesting()
+    next.options = JSON.parse(JSON.stringify(this.options))
+    next._outputs = this._outputs
+    return next
+  }
+  output() {
+    return this._outputs.join('\n')
+  }
+}
+
+it('indent', async () => {
+  let sut = new NodeLoggerTesting()
+  sut.put('one')
+  let child = sut.indent()
+
+  child.put('two')
+  sut.put('two')
+
+  sut.dedent()
+  sut.put('three')
+  expect(sut.output()).toBe(dedent`
+    one
+      two
+    two
+    three`)
 })
 
 it.skip('stack trace sanitization', async () => {
   let sut = new NodeLogger()
 })
 
-it.only('x data', async () => {
+it('x data', async () => {
   let sut = new NodeLogger()
   sut.data = { foo: 'bar', baz: 123 }
   sut.info('hi')

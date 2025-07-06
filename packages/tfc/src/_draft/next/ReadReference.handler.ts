@@ -1,5 +1,5 @@
 import { findUpWorkspace } from './findUpWorkspace.js'
-import { NodeLogger } from './Logger.js'
+import { NodeLogger } from './NodeLogger.js'
 import { WorkspaceIndex } from './index/WorkspaceIndex.js'
 import { readFileSync } from 'fs'
 import * as fs from 'fs'

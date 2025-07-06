@@ -13,10 +13,18 @@ export function getCallingFile(
       return { fileName: x.getFileName(), str: x.toString() }
     })
     console.log({ all })
-  } else if (kv.afterFileName) {
+  }
+  if (kv.afterFileName) {
     let idx = stack.findIndex(x => x.getFileName() === kv.afterFileName)
-    let pos = stack[idx + 1]
-    return { path: pos.getFileName(), lineNumber: pos.getLineNumber() }
+
+    // keep looking for first different file
+    // - same file can appear multiple times
+    while (stack[idx].getFileName() == kv.afterFileName) {
+      idx++
+    }
+    let pos = stack[idx]
+    let res = { path: pos.getFileName(), lineNumber: pos.getLineNumber() }
+    return res
   }
 
   // Find the first callsite outside this file

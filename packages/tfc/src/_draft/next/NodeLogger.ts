@@ -51,7 +51,8 @@ export class NodeLogger {
     start?: Date
     depth?: number
     padding: number
-  } = { padding: 0 }
+    paddingLog: number
+  } = { padding: 0, paddingLog: 0 }
   data = {}
 
   style = Col
@@ -93,18 +94,33 @@ export class NodeLogger {
     return this
   }
 
+  clone() {
+    // WARNING port changes here to NodeLoggerTesting
+
+    let next = new NodeLogger()
+    next.options = JSON.parse(JSON.stringify(this.options))
+    return next
+  }
+
   indent() {
-    this.options.padding += 2
-    return this
+    let copy = this.clone()
+    copy.options.padding += 2
+    copy.options.paddingLog += 2
+    return copy
   }
+
   dedent() {
-    this.options.padding -= 2
-    return this
+    let copy = this.clone()
+    copy.options.padding -= 2
+    return copy
   }
+
+  /** @deprecated */
   group() {
     this.options.padding += 2
     return this
   }
+  /** @deprecated */
   groupEnd() {
     this.options.padding -= 2
     return this
@@ -126,7 +142,9 @@ export class NodeLogger {
     }
 
     let level = colorizeLevel(kv.level)
-    let caller = getCallingFile(__filename)
+    let caller = getCallingFile(__filename, {
+      afterFileName: __filename,
+    })
     if (caller) {
       level = shellHyperlink({
         text: level,
@@ -135,17 +153,25 @@ export class NodeLogger {
       })
     }
     if (this.options.padding) {
-      args = [' '.repeat(this.options.padding), ...args]
+      // args = [' '.repeat(this.options.padding), ...args]
     }
 
     let t1 = padEnd(`[${level}]`, 7)
-    console.log(t1, ...args)
+
+    let line = [' '.repeat(this.options.paddingLog) + t1, ...args].join(' ')
+    this._rawPrint(line)
     if (!isEmpty(this.data)) {
       let data = inspect(this.data, { depth: null, colors: false })
       data = Col.dim(data)
-      console.log(' '.repeat(this.options.padding), '  |', data)
+
+      line = [' '.repeat(this.options.padding), '  |', data].join('')
+      this._rawPrint(line)
     }
     return this
+  }
+
+  _rawPrint(line: string) {
+    console.log(line)
   }
 
   print(cb: (ctx: { link: typeof shellHyperlink }) => any) {
@@ -164,7 +190,7 @@ export class NodeLogger {
       txt = indent(txt, this.options.padding)
       // args = [' '.repeat(this.options.padding), ...args]
     }
-    console.log(txt)
+    this._rawPrint(txt)
     return this
   }
 
