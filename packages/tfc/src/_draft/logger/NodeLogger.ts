@@ -61,20 +61,25 @@ export class NodeLogger {
 
   info(...args) {
     this.raw({ args, level: 'info' })
+    return this
   }
   warn(...args) {
     this.raw({ args, level: 'warn' })
+    return this
   }
 
   debug(...args) {
     this.raw({ args, level: 'debug' })
+    return this
   }
   dev(...args) {
     this.raw({ args, level: 'dev' })
+    return this
   }
 
   error(...args) {
     this.raw({ args, level: 'error' })
+    return this
   }
 
   time(cb?: () => Promise<any>) {

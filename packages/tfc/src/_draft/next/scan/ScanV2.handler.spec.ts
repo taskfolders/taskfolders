@@ -21,11 +21,11 @@ it('scan a single file #scaffold', async () => {
   }
   sut.workspace = new Folder(cwd)
   let index = new WorkspaceIndex({ path: '/app' })
-  sut.wsIndexData = index
+  sut.wsIndex = index
   // TODO better source? in execute
-  sut.wsIndexData.pathBaseDir = cwd
+  sut.wsIndex.pathBaseDir = cwd
   await sut._scanOneFile(item.file, item.folder, item.folders)
-  console.log(sut.wsIndexData.data)
+  console.log(sut.wsIndex.data)
 })
 
 describe('exclude', () => {
@@ -39,6 +39,6 @@ describe('exclude', () => {
     let cwd = join(__dirname, '_test/exclude-2')
     let sut = new ScanV2Handler({ dir: cwd })
     await sut.execute()
-    expect(Object.keys(sut.wsIndexData.data.paths).length).toBe(1)
+    expect(Object.keys(sut.wsIndex.data.paths).length).toBe(1)
   })
 })

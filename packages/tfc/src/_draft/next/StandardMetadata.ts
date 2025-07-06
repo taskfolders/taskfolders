@@ -4,6 +4,7 @@ import { isBlank } from './index/isBlank.js'
 import { NodeLogger } from '../logger/NodeLogger.js'
 import { isDate, isValid } from 'date-fns'
 import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
+import { TimeMark } from './TimeMark.js'
 
 const log = new NodeLogger()
 
@@ -43,7 +44,7 @@ export class StandardMetadata {
         })
       } else {
         // TODO label-milestone? sid? VS just plain wrong date?
-        issues.push({ field: 'after', value: input, code: 'invalid' })
+        // issues.push({ field: 'after', value: input, code: 'invalid' })
       }
     }
     checkDateField('after')
@@ -79,11 +80,18 @@ export class StandardMetadata {
       this.recipients = [].concat(_raw.recipients)
     }
     this.done = _raw.done
+
+    if (_raw.after) {
+      this.after_v2 = TimeMark.fromValue(_raw.after)
+    }
   }
+
+  after_v2: TimeMark
 
   get after() {
     let val = this._raw.after
-    if (!val) return
+    if (!val) return undefined
+
     if (typeof val !== 'string') {
       // TODO
       log.warn('why stored date??')
@@ -120,12 +128,17 @@ export class StandardMetadata {
   toJSON() {
     let copy = { ...this._raw } as any
 
-    for (let key in this) {
-      if (key.startsWith('_')) continue
-      let value = this[key]
+    let myKeys: (keyof StandardMetadata)[] = ['after_v2']
+
+    for (let _key in this) {
+      let myKey = _key as keyof StandardMetadata
+      if (myKey.startsWith('_')) continue
+      if (myKey === 'after_v2') continue
+
+      let value = this[myKey]
       if (isBlank(value)) continue
 
-      copy[key] = value
+      copy[myKey] = value
     }
     return copy
   }
