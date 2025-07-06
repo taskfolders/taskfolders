@@ -5,7 +5,10 @@ import { diff } from './_draft/diff.js'
 
 import { fileURLToPath } from 'url'
 import { padEnd } from '@taskfolders/utils/native/string/padEnd'
+import { Subject } from 'rxjs'
 const __filename = fileURLToPath(import.meta.url)
+
+const labelPad = 7
 
 const log = new NodeLogger()
 type FixDSL = {
@@ -102,19 +105,38 @@ type RuleConfigRecord = {
   config?
 }
 
+type TestFunction = {
+  code: string
+  /**@deprecated */
+  title
+  execute: HandlerFunction
+  caller?
+}
+
 export class IssueSuite {
   _config = { issues: {} as Record<string, RuleConfigRecord>, fixes: {} }
 
-  _tests: {
-    code: string
-    /**@deprecated */
-    title
-    execute: HandlerFunction
-    caller?
-  }[] = []
+  _tests: TestFunction[] = []
   title: string
+  _printMode: 'after' | 'stream' = 'after'
+
+  _testStart$ = new Subject<TestFunction>()
+  _testEnd$ = new Subject<FinalResult>()
+
   constructor(kv: { title?: string } = {}) {
     if (kv.title) this.title = kv.title
+  }
+
+  setupPrintStream() {
+    this._printMode = 'stream'
+    this._testStart$.subscribe(x => {
+      this._printTestTitle(x, this.log)
+    })
+    this._testEnd$.subscribe(x => {
+      this._printOneTestResult({ test: x, stats: {}, log })
+      // TODO #wth #now
+      log.dedent()
+    })
   }
 
   // test(cb: HandlerFunction)
@@ -154,12 +176,8 @@ export class IssueSuite {
 
   log = log
 
-  async _print(all: FinalResult[]) {
-    let labelPad = 7
-    let stats = { skip: 0, pass: 0, error: 0, fix: 0 }
-    for (let test of all) {
-      let ctx = test.ctx
-      // let caller = getCallingFile(__filename, { debug: true })
+  _printTestTitle(test: { caller?; code?; title? }, log: NodeLogger) {
+    {
       let label = 'test'
       if (test.caller) {
         label = NodeLogger.link({
@@ -169,61 +187,75 @@ export class IssueSuite {
         })
       }
 
-      ctx.log.put(`${label}: ${test.code ?? test.title}`)
-      let log = ctx.log.indent()
+      log.put(`${label}: ${test.code ?? test.title}`)
+    }
+  }
 
-      for (let warn of ctx._warnings) {
-        let label = log.style.yellow('warn')
-        let reason = warn.reason ?? '(no reason given)'
-        label = padEnd(label, labelPad)
-        log.put(`${label} ${reason}`)
+  _printOneTestResult(kv: { test: FinalResult; stats; log: NodeLogger }) {
+    let { test, stats, log } = kv
+    let ctx = test.ctx
+    log = log.indent()
+
+    for (let warn of ctx._warnings) {
+      let label = log.style.yellow('warn')
+      let reason = warn.reason ?? '(no reason given)'
+      label = padEnd(label, labelPad)
+      log.put(`${label} ${reason}`)
+    }
+
+    for (let error of ctx._errors) {
+      let label = log.style.red('error')
+      let reason = error.reason ?? '(no reason given)'
+      label = padEnd(label, labelPad)
+      log.put(`${label} ${reason}`)
+      if (error.data) {
+        log.indent().put(error.data).dedent()
       }
+      stats.error++
+    }
+    for (let warn of ctx._skips) {
+      let label = log.style.cyan('skip')
+      let reason = warn.reason ?? '(no reason given)'
+      label = padEnd(label, labelPad)
+      log.put(`${label}: ${reason}`)
+      stats.skip++
+    }
+    for (let fix of ctx._fixes) {
+      stats.fix++
+      let label = log.style.green('fix')
+      label = padEnd(label, labelPad)
+      let reason = fix.title ?? '(no reason given)'
+      let code = ''
+      if (fix.code) {
+        code = NodeLogger.style.cyan(fix.code)
+        code = ':' + code
+      }
+      log.put(`${label} ${reason} ${code} `)
 
-      for (let error of ctx._errors) {
-        let label = log.style.red('error')
-        let reason = error.reason ?? '(no reason given)'
-        label = padEnd(label, labelPad)
-        log.put(`${label} ${reason}`)
-        if (error.data) {
-          log.indent().put(error.data).dedent()
+      if (fix.after) {
+        let txt: string
+        if (typeof fix.after !== 'string') {
+          txt = JSON.stringify(fix.after, null, 2)
         }
-        stats.error++
-      }
-      for (let warn of ctx._skips) {
-        let label = log.style.cyan('skip')
-        let reason = warn.reason ?? '(no reason given)'
-        label = padEnd(label, labelPad)
-        log.put(`${label}: ${reason}`)
-        stats.skip++
-      }
-      for (let fix of ctx._fixes) {
-        stats.fix++
-        let label = log.style.green('fix')
-        label = padEnd(label, labelPad)
-        let reason = fix.title ?? '(no reason given)'
-        let code = ''
-        if (fix.code) {
-          code = NodeLogger.style.cyan(fix.code)
-          code = ':' + code
-        }
-        log.put(`${label} ${reason} ${code} `)
-
-        if (fix.after) {
-          let txt: string
-          if (typeof fix.after !== 'string') {
-            txt = JSON.stringify(fix.after, null, 2)
+        let before = fix.before
+        if (before) {
+          if (typeof before !== 'string') {
+            before = JSON.stringify(before, null, 2)
           }
-          let before = fix.before
-          if (before) {
-            if (typeof before !== 'string') {
-              before = JSON.stringify(before, null, 2)
-            }
-            txt = diff({ before, after: txt })
-          }
-          log.indent().put(':diff:').indent().put(txt).dedent().dedent()
+          txt = diff({ before, after: txt })
         }
+        log.indent().put(':diff:').indent().put(txt).dedent().dedent()
       }
+    }
+  }
 
+  async _print(all: FinalResult[]) {
+    log.dev('--start printing')
+    let stats = { skip: 0, pass: 0, error: 0, fix: 0 }
+    for (let test of all) {
+      let ctx = test.ctx
+      this._printTestTitle(test, ctx.log)
+      this._printOneTestResult({ test, stats, log })
       log.dedent()
     }
 
@@ -250,6 +282,7 @@ export class IssueSuite {
       ctx.config = config
       ctx._config_fixes = this._config.fixes
 
+      this._testStart$.next(test)
       if (config?.enabled !== false) {
         try {
           await test.execute(ctx)
@@ -259,13 +292,15 @@ export class IssueSuite {
       } else {
         ctx.skip('disabled in config')
       }
-      acu.push({
+      let item: FinalResult = {
         code: test.code,
         //title: test.title,
         ctx,
         caller: test.caller,
         error,
-      })
+      }
+      acu.push(item)
+      this._testEnd$.next(item)
     }
 
     if (acu.some(r => r.error)) {
@@ -285,22 +320,34 @@ export class IssueSuite {
   }
 
   async executeForShell() {
+    this.setupPrintStream()
     let acu = await this.execute()
     let easy = toEasyResult(acu)
 
-    let stats = { errors: 0, pass: 0 }
+    let stats = { total: easy.length, error: 0, pass: 0, fix: 0, warnings: 0 }
     easy.forEach(item => {
       if (item.status === 'error') {
-        stats.errors++
+        stats.error++
       } else if (item.status === 'pass') {
         stats.pass++
       }
     })
     // TODO #finish
     // log.dev(easy)
-    await this._print(acu)
+    // await this._print(acu)
+    log.put().put('::SUITE END::')
+    let copy = { ...stats }
+    if (copy.error > 0) {
+      copy[log.style.red('error')] = copy.error
+      delete copy.error
+    }
+    let r1 = Object.entries(copy)
+      .map(([key, value]) => `${key}=${log.style.yellow(value)}`)
+      .join(' ')
+    log.put(r1)
 
-    if (stats.errors > 0) {
+    // ..
+    if (stats.error > 0) {
       process.exitCode = 1
     }
   }
