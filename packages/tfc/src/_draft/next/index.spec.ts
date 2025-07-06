@@ -1,4 +1,4 @@
-import { findWorkspaceUp } from '../WorkspaceRepo.js'
+import { findWorkspaceUp } from '../findWorkspaceUp.js'
 import {
   TaskFoldersMarkdown,
   MarkdownDocument,

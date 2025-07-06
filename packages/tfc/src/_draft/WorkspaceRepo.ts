@@ -1,10 +1,7 @@
-import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
-import {
-  TaskFoldersMarkdown,
-  MarkdownDocument,
-} from '@taskfolders/utils/markdown'
+import { TaskFoldersMarkdown } from '@taskfolders/utils/markdown'
 import * as FS from 'fs'
 import * as Path from 'path'
+import { findWorkspaceUp } from './findWorkspaceUp.js'
 
 class UidIndex {
   path: string
@@ -19,29 +16,6 @@ class WorkspaceIndexData {
   type = 'taskfolders.com/types/workspace-data/index'
   timestamp = new Date().toISOString()
   uids: Record<string, UidIndex> = {}
-}
-
-export const findWorkspaceUp = async (dir: string, fs = FS) => {
-  let all = findUpAll({ startFrom: dir, findName: 'index.md', fs })
-
-  let found
-
-  for (let x of all) {
-    let body = fs.readFileSync(x).toString()
-    let md = await MarkdownDocument.fromBody<any>(body, {
-      implicitFrontmatter: true,
-    })
-    //let md = await TaskFoldersMarkdown.fromBody(body)
-    let thing = md.data?.flags
-
-    if (!thing) continue
-    let flags = [].concat(thing)
-    if (flags.includes('workspace')) {
-      let dir = Path.dirname(x)
-      found = { path: x, dir }
-    }
-  }
-  return found
 }
 
 export class WorkspaceRepo {

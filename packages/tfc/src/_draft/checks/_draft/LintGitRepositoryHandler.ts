@@ -46,8 +46,8 @@ export class LintGitRepositoryHandler {
       let found = res.at(0)
       if (!found) throw Error('No git repository found')
       let preCommit = Path.join(found, '.git/hooks/pre-commit')
-      if (!(await fs.exists(preCommit))) {
-        t.error('No pre-commit hook installed')
+      if (!fsSync.existsSync(preCommit)) {
+        t.fail('No pre-commit hook installed')
         t.fix('Install pre-commit')
         t.fix('Install LeftHook')
       }

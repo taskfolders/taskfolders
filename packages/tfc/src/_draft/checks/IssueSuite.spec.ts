@@ -1,8 +1,9 @@
-import { it, expect } from 'vitest'
+import { it, expect, describe } from 'vitest'
 import Path from 'path'
 import fs from 'fs/promises'
 import { IssueSuite } from './IssueSuite.js'
 import { LintNpmPackageHandler } from './_draft/LintNpmPackageJsonHandler.js'
+import { log } from '../../dc.js'
 
 async function execute() {
   let suite = new IssueSuite({ title: 'git config' })
@@ -71,13 +72,20 @@ it('fail', async () => {
   sut.log.info({ res })
 })
 
-it('skip #todo', async () => {
+it('skip', async () => {
   let sut = new IssueSuite()
-  sut.test(t => {
-    return t.skip('my reason')
-  })
-  let res = await sut.execute()
-  console.log({ res })
+  sut
+    .test(t => {
+      return t.skip('my reason')
+    })
+    .test(t => {
+      return t.pending()
+    })
+    .test('some text')
+  let res = await sut.execute_v2()
+  expect(res[0].status).toBe('skip')
+  expect(res[1].status).toBe('pending')
+  expect(res[2].status).toBe('pending')
 })
 
 // TODO pending?
@@ -85,16 +93,87 @@ it.skip('one check type, but many fail types', async () => {
   let sut = new IssueSuite()
   sut.test('engine', t => {
     return t.fail('no engine specified')
-    return t.fail('old engine')
   })
 })
 
-it.only('x', async () => {
+it('x', async () => {
   let sut = new IssueSuite()
   sut.test(t => {
     t.warn('one')
     t.warn('two')
-    return
+    t.fix('some fix')
   })
-  await sut.execute()
+  let res = await sut.execute()
+  console.log(res[0])
+})
+
+describe('configuration', () => {
+  it('disable checks', async () => {
+    let sut = new IssueSuite()
+    let spy = { one: false, two: false }
+
+    sut
+      .test('one', t => {
+        spy.one = true
+      })
+      .test('two', t => {
+        spy.two = true
+        expect(t.config.level).toBe('warning')
+        expect(t.config.config.fox).toBe(1)
+      })
+
+    sut._config.issues['one'] = {
+      enabled: false,
+    }
+    sut._config.issues['two'] = {
+      level: 'warning',
+      config: { fox: 1 },
+    }
+
+    await sut.execute()
+    // console.log(res)
+    expect(spy).toEqual({ one: false, two: true })
+  })
+
+  it('change severity', async () => {
+    let sut = new IssueSuite()
+
+    sut
+      .test('one', t => {
+        t.fail('some reason')
+      })
+      .test('two', t => {
+        t.fail('some reason')
+      })
+
+    sut._config.issues['one'] = {
+      level: 'warning',
+    }
+
+    let res = await sut.execute_v2()
+
+    expect(res[0].status).toBe('warning')
+    expect(res[1].status).toBe('error')
+  })
+})
+
+describe('fixes', () => {
+  it('select which fix to apply', async () => {
+    let sut = new IssueSuite()
+    let spy
+
+    sut.test(t => {
+      t.fix('make-public', t => {
+        spy = 'one'
+      })
+      t.fix('make-private', t => {
+        spy = 'two'
+      })
+    })
+    sut._config.fixes['make-public'] = {}
+
+    let res = await sut.execute_v2()
+    expect(spy).toBe('one')
+    console.log(res)
+  })
 })

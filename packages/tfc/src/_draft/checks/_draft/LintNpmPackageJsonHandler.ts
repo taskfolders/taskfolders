@@ -36,7 +36,7 @@ export class LintNpmPackageHandler {
         // ??
       } else {
         if (!doc.name?.test?.(/^@.*\//)) {
-          t.error('missing @scope')
+          t.fail('missing @scope')
           return
           //throw Error('missing @scope')
         } else {
@@ -58,7 +58,7 @@ export class LintNpmPackageHandler {
 
     test('publish', t => {
       if (doc.private === undefined) {
-        t.error('Package does not specify if it is private or public')
+        t.fail('Package does not specify if it is private or public')
 
         t.fix({
           code: 'private',
@@ -78,7 +78,7 @@ export class LintNpmPackageHandler {
       if (doc.private === true) return
 
       if (!doc.repository) {
-        return t.error('no repository')
+        return t.fail('no repository')
       }
     })
 

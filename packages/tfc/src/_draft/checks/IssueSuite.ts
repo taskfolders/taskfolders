@@ -9,43 +9,59 @@ const __filename = fileURLToPath(import.meta.url)
 
 const log = new NodeLogger()
 type FixDSL = {
-  code?
-  title: string
+  code?: string
+  title?: string
   before?: string | object
   after?: string | object
 }
 
 class HandlerContext {
   log = log
+  config: RuleConfigRecord
   _warnings = []
   _skips = []
   _errors = []
   _fixes: FixDSL[] = []
 
+  _pending
+  _config_fixes: {}
+
+  pending() {
+    this._pending = true
+  }
+
   warn(reason?: string) {
     this._warnings.push({ reason })
-    return { warn: { reason } } satisfies HandlerOutput
   }
 
   skip(reason?: string) {
     this._skips.push({ reason })
-    return { skip: { reason } } satisfies HandlerOutput
   }
 
   fail(reason?: string) {
-    return { error: { reason } } satisfies HandlerOutput
-  }
-  error(reason?: string) {
-    this._errors.push({ reason })
-    return { error: { reason } } satisfies HandlerOutput
+    if (this.config?.level === 'warning') {
+      this._warnings.push({ reason })
+    } else {
+      this._errors.push({ reason })
+    }
   }
 
-  fix(thing: string | FixDSL) {
-    let kv = { title: '-unknown-' }
+  /** @deprecated use .fail */
+  error() {
+    throw Error('invalid action')
+  }
+
+  fix(thing: string | FixDSL, cbFix?) {
+    let kv: FixDSL = { code: '-unknown-' }
     if (typeof thing === 'string') {
-      kv.title = thing
+      kv.code = thing
     } else {
       kv = thing
+    }
+    if (cbFix) {
+      if (this._config_fixes[kv.code]) {
+        return cbFix()
+      }
     }
     this._fixes.push(kv)
   }
@@ -56,23 +72,11 @@ class HandlerContext {
 }
 
 type PromiseMaybe<T> = T | Promise<T>
-type HandlerOutput = {
-  skip?: { reason: string }
-  error?: { reason: string }
-  fix?: { reason: string }
-  warn?: { reason: string }
-}
-type HandlerFunction = (
-  ctx: HandlerContext,
-) => PromiseMaybe<HandlerOutput | void>
+type HandlerFunction = (ctx: HandlerContext) => PromiseMaybe<void>
 
-type Result = {
-  title
-  error?: any
-  skip?
-}
 type FinalResult = {
-  title
+  code: string
+  title?: string
   error?: any
   skip?
   ctx: HandlerContext
@@ -81,11 +85,27 @@ type FinalResult = {
 
 class IssueSuiteError extends Error {
   code: string
-  results: Result[]
+  results: FinalResult[]
+}
+
+type Level = 'warning' | 'error'
+type Status = 'warning' | 'error' | 'pass' | 'pending' | 'skip'
+type RuleConfigRecord = {
+  enabled?
+  level?: Level
+  config?
 }
 
 export class IssueSuite {
-  _tests: { title; execute: HandlerFunction; caller? }[] = []
+  _config = { issues: {} as Record<string, RuleConfigRecord>, fixes: {} }
+
+  _tests: {
+    code: string
+    /**@deprecated */
+    title
+    execute: HandlerFunction
+    caller?
+  }[] = []
   title: string
   constructor(kv: { title?: string } = {}) {
     if (kv.title) this.title = kv.title
@@ -95,7 +115,7 @@ export class IssueSuite {
   // test(code: string, cb: HandlerFunction)
   test: {
     (cb: HandlerFunction): IssueSuite
-    (code: string, cb: HandlerFunction): IssueSuite
+    (code: string, cb?: HandlerFunction): IssueSuite
   } = (t1, t2?) => {
     let caller = getCallingFile(__filename, { afterFileName: __filename })
 
@@ -104,12 +124,17 @@ export class IssueSuite {
       let title
       if (typeof t1 === 'function') {
         cb = t1
-        title = '_untitled_'
+        // title = '_untitled_'
       } else {
         title = t1
-        cb = t2
+        cb =
+          t2 ??
+          (t => {
+            t.pending()
+          })
       }
       this._tests.push({
+        code: title,
         title,
         execute: cb,
         caller,
@@ -190,14 +215,6 @@ export class IssueSuite {
         }
       }
 
-      // if (res) {
-      //   if (res.skip) {
-      //     let reason = res.skip.reason ?? '(no reason given)'
-      //     result.skip = reason
-      //     let label = log.style.yellow('skip')
-      //     log.info(`${label}: ${reason}`)
-      //   }
-      // }
       log.dedent()
     }
 
@@ -211,15 +228,27 @@ export class IssueSuite {
     // console.log(`IssueSuite "${this.title}" started`)
     for (let test of this._tests) {
       let ctx = new HandlerContext()
-      let result = { title: test.title } as Result
-      try {
-        let res = await test.execute(ctx)
-      } catch (error) {
-        result.error = error
-      } finally {
-        // log.dedent()
+      let error
+      let config = this._config.issues[test.code]
+      ctx.config = config
+      ctx._config_fixes = this._config.fixes
+
+      if (config?.enabled !== false) {
+        try {
+          await test.execute(ctx)
+        } catch (err) {
+          error = err
+        }
+      } else {
+        ctx.skip('disabled in config')
       }
-      acu.push({ title: result.title, ctx, caller: test.caller })
+      acu.push({
+        code: test.code,
+        //title: test.title,
+        ctx,
+        caller: test.caller,
+        error,
+      })
     }
 
     if (acu.some(r => r.error)) {
@@ -255,8 +284,39 @@ export class IssueSuite {
       process.exitCode = 1
     }
   }
+
+  async execute_v2() {
+    let res = await this.execute()
+
+    let r1 = toEasyResult(res)
+    return r1
+  }
 }
 
-const skip = (reason?: string) => {
-  return { skip: { reason } } satisfies HandlerOutput
+let toIssueBasic = (type: Level) => x => {
+  return {
+    type,
+    message: x.reason,
+  }
+}
+
+const toEasyResult = (all: FinalResult[]) => {
+  return all.map(result => {
+    let issues = [
+      ...result.ctx._warnings.map(toIssueBasic('warning')),
+      ...result.ctx._errors.map(toIssueBasic('error')),
+    ]
+
+    let status: Status = 'pass'
+    if (issues.some(x => x.type === 'error')) {
+      status = 'error'
+    } else if (issues.some(x => x.type === 'warning')) {
+      status = 'warning'
+    } else if (result.ctx._skips.length > 0) {
+      status = 'skip'
+    } else if (result.ctx._pending) {
+      status = 'pending'
+    }
+    return { code: result.code, status, issues, fixes: result.ctx._fixes }
+  })
 }
