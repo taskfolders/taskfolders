@@ -25,6 +25,7 @@ export class WorkspaceRepo {
 
   static async findUp(dir: string, fs = FS) {
     let found = await findWorkspaceUp(dir, fs)
+    console.log({ dir, found, a: fs.readdirSync('/') })
 
     let obj = new this({ pathBase: found.dir })
     obj.fs = fs

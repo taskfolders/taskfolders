@@ -1,4 +1,4 @@
-import { NodeLogger } from '../NodeLogger.js'
+import { NodeLogger } from '../../logger/NodeLogger.js'
 import {
   addDays,
   differenceInCalendarDays,
@@ -230,7 +230,10 @@ export class SummaryHandler {
         case 'calendar': {
           printSection('Calendar')
           log.indent()
-          const putLine = (item: CalendarItem) => {
+          const putLine = (
+            item: { title; item; date },
+            //CalendarItem
+          ) => {
             let date = item.date.toISOString().slice(0, 10)
             let link = NodeLogger.link({
               text: item.title,
@@ -239,7 +242,7 @@ export class SummaryHandler {
             log.put(date, link)
           }
 
-          let printAll = (val: { date; title }[]) => {
+          let printAll = (val: { date; title; item }[]) => {
             let all = val.sort(
               (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
             )
@@ -248,31 +251,30 @@ export class SummaryHandler {
             }
           }
 
-          log.put('In a week').indent()
+          log = log.put('In a week').indent()
           if (byNearTimeGroups.week) {
             log.put('..todo')
           } else {
             log.put(log.style.dim('none'))
           }
-          log.dedent()
+          log = log.dedent()
 
-          log.put('In a month').indent()
+          log = log.put('In a month').indent()
           if (byNearTimeGroups.month) {
             printAll(byNearTimeGroups.month)
           } else {
             log.put('..none')
           }
-          log.dedent()
+          log = log.dedent()
 
-          log.put('In a year').indent()
+          log = log.put('In a year').indent()
           if (byNearTimeGroups.year) {
             printAll(byNearTimeGroups.year)
           } else {
             log.put('..none')
           }
-          log.dedent()
+          log = log.dedent()
 
-          log.dedent()
           break
         }
         case 'now': {

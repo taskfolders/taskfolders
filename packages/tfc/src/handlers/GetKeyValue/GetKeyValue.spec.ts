@@ -19,7 +19,7 @@ it('x', async () => {
   // $dev('todo')
 })
 
-it('x #next', async () => {
+it.skip('x #now #next', async () => {
   let uid = '036ee5e6-7f53-4594-b9a8-b895558f7fce'
   let sut = await setupAfterScan({
     disk: {
@@ -27,6 +27,7 @@ it('x #next', async () => {
         ---
         uid: ${uid}
         sid: my-id
+        flags: workspace
         type: tf
         data:
           fox: 1

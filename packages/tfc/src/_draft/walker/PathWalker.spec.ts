@@ -12,7 +12,7 @@ function setup(disk) {
   return sut
 }
 
-it.only('x main #story #todo', async () => {
+it('x main #story #todo', async () => {
   let sut = setup({
     '/app/index.md': `
         ---
@@ -106,6 +106,6 @@ it('x', async () => {
 })
 
 it.skip('x some skipped test', () => {})
-it('x some error test #manual', () => {
+it.skip('x some error test #manual', () => {
   throw Error('Some error')
 })

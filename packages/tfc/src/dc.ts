@@ -1,4 +1,4 @@
-import { NodeLogger } from './_draft/next/NodeLogger.js'
+import { NodeLogger } from './_draft/logger/NodeLogger.js'
 
 export const log = new NodeLogger()
 

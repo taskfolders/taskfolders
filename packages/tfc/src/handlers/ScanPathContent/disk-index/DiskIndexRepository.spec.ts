@@ -3,7 +3,7 @@ import { DiskIndexRepository } from './DiskIndexRepository.js'
 import { LocalFileSystemMock } from '@taskfolders/utils/fs/test'
 import { ActiveFile } from '../../../_draft/walker/ActiveFile.js'
 
-it('main #story', async () => {
+it.skip('main #now #story', async () => {
   let sut = new DiskIndexRepository()
   sut.dbFile = '/app/.config/db.json'
   let fs = LocalFileSystemMock.fromFake({

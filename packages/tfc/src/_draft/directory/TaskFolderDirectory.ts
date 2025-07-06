@@ -48,6 +48,8 @@ async function parseFolder(dir: string) {
 
   return { markdown, data }
 }
+
+/** @deprecated */
 export class TaskFolderDirectory {
   data
   markdown

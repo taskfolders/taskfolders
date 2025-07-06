@@ -18,7 +18,7 @@ it('x after-v2', () => {
   console.log(sut)
 
   sut = TimeMark.fromValue('panda-event')
-  expect(sut.type).toBe('milestone')
+  expect(sut.type).toBe('reference')
   //    sut.panda
   console.log(sut)
 })

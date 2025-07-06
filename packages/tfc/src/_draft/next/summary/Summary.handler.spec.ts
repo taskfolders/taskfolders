@@ -8,7 +8,14 @@ it('x', async () => {
   let sut = new SummaryHandler({ cwd: '/app' })
   sut._getData = async () => {
     let idx = new WorkspaceIndex({ path: '/app' })
+    idx.pathBaseDir = '/app'
     idx.pathIndexFile = '/app'
+    idx.fs = {
+      // @ts-expect-error TODO use memfs
+      statSync() {
+        return {}
+      },
+    }
     idx.updateFile('action/now/ikea.md', {})
     idx.updateFile('action/now/second.md', {})
     idx.updateFile('action/now/doctor/index.md', {})
@@ -22,12 +29,12 @@ it('x', async () => {
     })
     return res
   }
-  let res = sut.execute()
+  let res = await sut.execute()
   // sut.printFolders()
   console.log(res)
 })
 
-it.only('x', async () => {
+it('x', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
   let sut = await SummaryHandler.create({ cwd, allWorkspaces: true })
   let res = await sut._getData()

@@ -1,7 +1,7 @@
 import { toDate } from './toDate.js'
 import { FlagKey } from './summary/PathItem.js'
 import { isBlank } from './index/isBlank.js'
-import { NodeLogger } from './NodeLogger.js'
+import { NodeLogger } from '../logger/NodeLogger.js'
 import { isDate, isValid } from 'date-fns'
 import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
 

@@ -1,5 +1,5 @@
 import { mkdtemp, rm } from 'node:fs/promises'
-import { NodeLogger } from '../../_draft/next/NodeLogger.js'
+import { NodeLogger } from '../../_draft/logger/NodeLogger.js'
 import * as fs from 'node:fs'
 import { isAbsolute } from 'path'
 import * as Path from 'node:path'

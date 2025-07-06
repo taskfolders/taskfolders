@@ -2,7 +2,7 @@ import { DiskIndexRepository } from './ScanPathContent/disk-index/DiskIndexRepos
 import { DC } from '@taskfolders/utils/dependencies'
 // import { Logger } from '@taskfolders/utils/logger'
 import { dirname } from 'node:path'
-import { NodeLogger } from '../_draft/next/NodeLogger.js'
+import { NodeLogger } from '../_draft/logger/NodeLogger.js'
 
 export class ListWorkspaces {
   // log = DC.inject(Logger)

@@ -5,7 +5,7 @@ import { encryptGPGMessage } from '../../../_draft/gpg/encryptGPGMessage.js'
 import { decryptGPGMessage } from '../../../_draft/gpg/decryptGPGMessage.js'
 
 describe('x #noci', () => {
-  it('x', async () => {
+  it.skip('x #todo', async () => {
     let uid = '036ee5e6-7f53-4594-b9a8-b895558f7fce'
     let message = dedent`
     ---

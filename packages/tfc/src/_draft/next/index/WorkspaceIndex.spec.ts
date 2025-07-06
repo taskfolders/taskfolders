@@ -33,7 +33,7 @@ it('x process one #scaffold #live', async () => {
   // console.log(sut.toJSON())
 })
 
-it.only('x', async () => {
+it('x', async () => {
   let sut = new WorkspaceIndex({ path: '/app' })
   sut.fs = {
     statSync() {
