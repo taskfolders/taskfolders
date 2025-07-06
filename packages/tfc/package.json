@@ -28,6 +28,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@types/bun": "^1.0.8",
     "@taskfolders/utils": "file:../utils",
     "ansi-escapes": "^7.0.0",
     "array-grouping": "^1.0.8",
@@ -42,7 +43,6 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@types/bun": "^1.0.8",
     "@types/node": "^20.11.25",
     "@types/yargs": "^17.0.32",
     "memfs": "^4.7.7",
