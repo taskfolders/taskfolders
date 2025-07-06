@@ -1,6 +1,6 @@
 import { indent } from '@taskfolders/utils/native/string/indent'
 import { getCallingFile } from '../next/getCallingFile.js'
-import { NodeLogger } from '../next/NodeLogger.js'
+import { NodeLogger } from '../logger/NodeLogger.js'
 import { diff } from './_draft/diff.js'
 
 import { fileURLToPath } from 'url'
