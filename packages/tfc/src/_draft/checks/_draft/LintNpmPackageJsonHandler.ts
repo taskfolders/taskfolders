@@ -12,8 +12,8 @@ export class LintNpmPackageHandler {
       name
       private?
       repository?
-      dependencies?
-      devDependencies?
+      dependencies?: string[]
+      devDependencies?: string[]
       type?: 'module'
       engines: {
         node?: string

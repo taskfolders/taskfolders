@@ -38,11 +38,17 @@ class HandlerContext {
     this._skips.push({ reason })
   }
 
-  fail(reason?: string) {
-    if (this.config?.level === 'warning') {
-      this._warnings.push({ reason })
+  fail(thing?: string | { title; data? }) {
+    let kv
+    if (typeof thing === 'string') {
+      kv = { reason: thing }
     } else {
-      this._errors.push({ reason })
+      kv = { reason: thing.title, data: thing.data }
+    }
+    if (this.config?.level === 'warning') {
+      this._warnings.push(kv)
+    } else {
+      this._errors.push(kv)
     }
   }
 
@@ -173,11 +179,14 @@ export class IssueSuite {
         log.put(`${label} ${reason}`)
       }
 
-      for (let warn of ctx._errors) {
+      for (let error of ctx._errors) {
         let label = log.style.red('error')
-        let reason = warn.reason ?? '(no reason given)'
+        let reason = error.reason ?? '(no reason given)'
         label = padEnd(label, labelPad)
         log.put(`${label} ${reason}`)
+        if (error.data) {
+          log.indent().put(error.data).dedent()
+        }
         stats.error++
       }
       for (let warn of ctx._skips) {
@@ -277,15 +286,18 @@ export class IssueSuite {
 
   async executeForShell() {
     let acu = await this.execute()
+    let easy = toEasyResult(acu)
 
-    let stats = { errors: 0 }
-    acu.forEach(item => {
-      if (item.error) {
+    let stats = { errors: 0, pass: 0 }
+    easy.forEach(item => {
+      if (item.status === 'error') {
         stats.errors++
-      } else if (item.ctx._errors.length > 0) {
-        stats.errors++
+      } else if (item.status === 'pass') {
+        stats.pass++
       }
     })
+    // TODO #finish
+    // log.dev(easy)
     await this._print(acu)
 
     if (stats.errors > 0) {
