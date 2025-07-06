@@ -47,6 +47,9 @@ export class LintNpmPackageHandler {
     })
 
     test('engine', t => {
+      console.log('at engine-1')
+      t.log.put('at engine-1')
+
       if (!doc.engines?.node) {
         t.warn('No engine specified')
         t.fix({
