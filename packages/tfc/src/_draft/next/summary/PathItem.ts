@@ -27,9 +27,11 @@ function cacheResult(...args) {
 
 export type FlagKey =
   | 'skip'
+  | 'todo'
   | 'waiting'
   | 'now'
   | 'now-dir'
+  | 'tasks-dir'
   | 'waiting-dir'
   | 'workspace'
   | 'workspace-global'

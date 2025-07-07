@@ -51,3 +51,15 @@ it('x', async () => {
 
   // console.log(sut.toJSON())
 })
+
+it.only('x upsert sections', async () => {
+  let sut = new WorkspaceIndex({ path: '/app' })
+  sut.fs = {
+    statSync() {
+      return { ino: 1, mtime: new Date() }
+    },
+  } satisfies { [k in keyof typeof fs]?: any } as any
+
+  sut.pathBaseDir = '/app'
+  sut.updateFile('one.md', { sid: 'one', after: 2026, done: true })
+})

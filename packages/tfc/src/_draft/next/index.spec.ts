@@ -94,32 +94,11 @@ it('x edit md with time updates', async () => {
   expect(lines).toEqual(['---', 'fox: 1', 'after: 2025-W04', '---', '', 'hi'])
 })
 
-it('x todo', async () => {
-  let body = dedent`
-    fox: 1
-    after: 3w
-    
-    # Section
-    - [ ] one
-    - [x] two
-
-    hi
-  `
-
-  let md = await MarkdownDocument.fromBody<any>(body, {
-    implicitFrontmatter: true,
-  })
-  let m2 = await TaskFoldersMarkdown.parse(body, { coerce: true })
-  let sec = await MarkdownSections.parse(md.content)
-  log.dev(md)
-  log.dev(sec)
-  log.dev(m2)
-})
-
 import fs from 'node:fs'
 import { log } from '../../dc.js'
 import { createSort } from '@taskfolders/utils/native/array/createSort'
 import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
+import { scanMarkdownSections } from './scan/scanMarkdownSections.js'
 it('x inboxes', async () => {
   let d1 = join(process.env.HOME, 'Downloads')
   // TODO get from osx env/config? linux?
@@ -140,7 +119,7 @@ it('x inboxes', async () => {
   log.dev(all)
 })
 
-it.only('x', async () => {
+it('x grab and merge many config data', async () => {
   log.dev('hello world')
 
   let startDir = join(process.env.HOME, 'repos/play/demo')

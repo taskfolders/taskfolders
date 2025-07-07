@@ -420,7 +420,7 @@ export class SummaryHandler {
       }
     }
 
-    let indexLabel = Logger.link({
+    let indexLabel = NodeLogger.link({
       text: 'index',
       path: this.index?.pathIndexFile,
     })

@@ -12,6 +12,7 @@ import { toDate } from '../toDate.js'
 import * as Path from 'node:path'
 import { ByteSugar } from '@taskfolders/utils/fs'
 import { relative } from 'node:path'
+import { scanMarkdownSections } from './scanMarkdownSections.js'
 
 type Shot = {
   pathRelative
@@ -63,6 +64,10 @@ export class ScanV2Handler {
       stats.files++
       let md = await MarkdownDocument.fromBody(body, {
         implicitFrontmatter: true,
+      })
+      let sections = await scanMarkdownSections(md).catch(e => {
+        log.error('could not parse sections')
+        return []
       })
 
       // TODO #now

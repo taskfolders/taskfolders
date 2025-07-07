@@ -67,7 +67,8 @@ export class StandardMetadata {
 
   // flags: FlagKey[]
   get flags(): FlagKey[] {
-    return ensureWords(this._raw.flags)
+    // TODO review allowing singular
+    return ensureWords(this._raw.flags ?? this._raw.flag)
   }
   set flags(value: FlagKey[]) {
     this._raw.flags = value
