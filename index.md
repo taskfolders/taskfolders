@@ -1,5 +1,6 @@
 ---
 type: tf
+sid: tf-open
 labels: workspace
 scripts:
   get-dir:
