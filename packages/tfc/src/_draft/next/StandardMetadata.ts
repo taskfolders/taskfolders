@@ -4,6 +4,8 @@ import { isBlank } from './index/isBlank.js'
 import { Logger } from './Logger.js'
 import { isDate, isValid } from 'date-fns'
 import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
+import { inspect } from 'node:util'
+import { TimeMark } from './TimeMark.js'
 
 const log = new Logger()
 
@@ -23,6 +25,16 @@ type UserInput = {
 }
 
 export class StandardMetadata {
+  readonly uid: string
+  readonly sid: string
+  readonly type: string
+  readonly title: string
+  readonly done: boolean
+  readonly review: { next: Date; last: Date }
+
+  readonly exclude: string[] = []
+  readonly recipients: string[]
+
   static sanitize(doc: UserInput) {
     let issues = []
     const checkDateField = (key: keyof UserInput) => {
@@ -53,14 +65,22 @@ export class StandardMetadata {
     return { ok, issues }
   }
 
-  flags: FlagKey[]
-  done: boolean
+  // flags: FlagKey[]
+  get flags(): FlagKey[] {
+    return ensureWords(this._raw.flags)
+  }
+  set flags(value: FlagKey[]) {
+    this._raw.flags = value
+  }
 
-  review: { next: Date; last: Date }
+  get tags(): readonly string[] {
+    let out = ensureWords(this._raw.tags)
+    return out
+  }
 
-  exclude: string[] = []
-  tags: string[] = []
-  recipients: string[]
+  set tags(value: string[]) {
+    this._raw.tags = value
+  }
 
   constructor(public _raw: Record<string, any>) {
     _raw ??= {}
@@ -68,17 +88,49 @@ export class StandardMetadata {
       this.review = _raw.review
       // this.review.next = toDate(_raw.review.next)
     }
-    this.tags = ensureWords(_raw.tags)
+    // this.tags = ensureWords(_raw.tags)
 
     if (_raw.exclude) {
       this.exclude = [].concat(_raw.exclude)
     }
 
-    this.flags = ensureWords(_raw.flags)
     if (_raw.recipients) {
       this.recipients = [].concat(_raw.recipients)
     }
-    this.done = _raw.done
+
+    return new Proxy(this, {
+      get(target, prop, receiver) {
+        if (prop in target) {
+          let res = Reflect.get(target, prop, receiver)
+          if (res) return res
+        }
+        // Forward to _raw
+        if (prop in target._raw) {
+          return (
+            // @ts-expect-error TODO
+            target._raw[prop]
+          )
+        }
+        return undefined
+      },
+      has(target, prop) {
+        return prop in target || prop in target._raw
+      },
+      ownKeys(target) {
+        const targetKeys = Reflect.ownKeys(target)
+        const rawKeys = Reflect.ownKeys(target._raw)
+        return Array.from(new Set([...targetKeys, ...rawKeys]))
+      },
+      getOwnPropertyDescriptor(target, prop) {
+        if (prop in target) {
+          return Object.getOwnPropertyDescriptor(target, prop)
+        }
+        if (prop in target._raw) {
+          return Object.getOwnPropertyDescriptor(target._raw, prop)
+        }
+        return undefined
+      },
+    })
   }
 
   get after() {
@@ -92,6 +144,12 @@ export class StandardMetadata {
     return toDate(val.toString())
   }
 
+  get after_v2() {
+    let val = this._raw.after_v2
+    if (!val) return
+    return TimeMark.fromValue(val)
+  }
+
   get before() {
     let val = this._raw.before
     if (!val) return val
@@ -102,17 +160,6 @@ export class StandardMetadata {
     return new this(doc)
   }
 
-  get type() {
-    return this._raw.type
-  }
-
-  get uid() {
-    return this._raw.uid
-  }
-  get sid() {
-    return this._raw.sid
-  }
-
   get calendar() {
     return [].concat(this._raw.calendar ?? [])
   }
@@ -120,13 +167,13 @@ export class StandardMetadata {
   toJSON() {
     let copy = { ...this._raw } as any
 
-    for (let key in this) {
-      if (key.startsWith('_')) continue
-      let value = this[key]
-      if (isBlank(value)) continue
+    // for (let key in this) {
+    //   if (key.startsWith('_')) continue
+    //   let value = this[key]
+    //   if (isBlank(value)) continue
 
-      copy[key] = value
-    }
+    //   copy[key] = value
+    // }
     return copy
   }
 
@@ -134,6 +181,11 @@ export class StandardMetadata {
   isParsable() {
     if (!this._raw.type) return true
     return this._raw.type?.includes('taskfolders.com/')
+  }
+
+  [Symbol.for('nodejs.util.inspect.custom')](depth, options) {
+    let json = this.toJSON()
+    return `${this.constructor.name} ${inspect(json, options)}`
   }
 }
 

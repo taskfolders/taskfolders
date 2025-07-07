@@ -4,7 +4,7 @@ import {
   MarkdownDocument,
   MarkdownSections,
 } from '@taskfolders/utils/markdown'
-import { join, relative } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 
 import { expect, describe, it } from 'vitest'
 import { ScanV2Handler } from './scan/ScanV2.handler.js'
@@ -94,7 +94,7 @@ it('x edit md with time updates', async () => {
   expect(lines).toEqual(['---', 'fox: 1', 'after: 2025-W04', '---', '', 'hi'])
 })
 
-it.only('x todo', async () => {
+it('x todo', async () => {
   let body = dedent`
     fox: 1
     after: 3w
@@ -119,6 +119,7 @@ it.only('x todo', async () => {
 import fs from 'node:fs'
 import { log } from '../../dc.js'
 import { createSort } from '@taskfolders/utils/native/array/createSort'
+import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
 it('x inboxes', async () => {
   let d1 = join(process.env.HOME, 'Downloads')
   // TODO get from osx env/config? linux?
@@ -137,4 +138,36 @@ it('x inboxes', async () => {
   all = all.slice(0, 10)
 
   log.dev(all)
+})
+
+it.only('x', async () => {
+  log.dev('hello world')
+
+  let startDir = join(process.env.HOME, 'repos/play/demo')
+  let parts = startDir.split('/')
+  let acu = []
+  while (parts.length > 0) {
+    let dir = resolve('/', join(...parts))
+    log.dev('checking', dir)
+    let path = join(dir, 'index.md')
+    if (fs.existsSync(path)) {
+      acu.push({ path })
+    }
+    path = join(dir, 'index.json')
+    if (fs.existsSync(path)) {
+      let doc = JSON.parse(fs.readFileSync(path, 'utf-8'))
+      let data = StandardMetadata.fromJSON(doc)
+      acu.push({ path, data })
+    }
+    path = join(dir, 'index.config.mjs')
+    if (fs.existsSync(path)) {
+      let { default: doc } = await import(path)
+      let data = StandardMetadata.fromJSON(doc)
+      log.dev({ data, doc })
+      acu.push({ path, data })
+    }
+
+    parts.pop()
+  }
+  log.dev('done', acu)
 })
