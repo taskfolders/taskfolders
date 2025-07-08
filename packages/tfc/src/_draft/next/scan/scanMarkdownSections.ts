@@ -2,10 +2,18 @@ import { MarkdownDocument, MarkdownSections } from '@taskfolders/utils/markdown'
 import { log } from '../../../dc.js'
 import { StandardMetadata } from '../StandardMetadata.js'
 
-export const scanMarkdownSections = async (md: MarkdownDocument) => {
+export type SectionSummary = {
+  type: 'todo'
+  lineNumber
+  title
+}
+
+export const scanMarkdownSections = async (
+  md: MarkdownDocument,
+): Promise<SectionSummary[]> => {
   let mds = await MarkdownSections.parse(md.content)
   let full = md.toString().split('\n')
-  let acu = []
+  let acu: SectionSummary[] = []
   let task = /^- \[ \]/m
   for (let sec of mds.all) {
     let title

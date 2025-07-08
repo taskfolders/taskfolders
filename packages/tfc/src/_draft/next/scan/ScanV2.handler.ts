@@ -38,7 +38,7 @@ export class ScanV2Handler {
     folder: Folder,
     folders: Folder[],
   ): Promise<Shot> {
-    let { log, stats, workspace, wsIndex } = this
+    let { log, stats, workspace, wsIndex, fs } = this
 
     let fullPath = join(folder.dir, file)
     let relPath = workspace.relative(fullPath)
@@ -112,6 +112,7 @@ export class ScanV2Handler {
           tags: meta.tags,
           flags: meta.flags,
           done: meta.done,
+          sections,
         })
 
         if (meta.calendar.length > 0) {
@@ -192,7 +193,7 @@ export class ScanV2Handler {
     } else {
       let stat = fs.statSync(fullPath)
       if (stat.isDirectory()) {
-        let folder = new Folder(fullPath)
+        let folder = new Folder(fullPath, { fs })
         await folder.parse()
         folders.push(folder)
       }
@@ -286,7 +287,7 @@ export class ScanV2Handler {
     let workspace: Folder
     let dir_now = dir
     while (dir_now !== '/') {
-      let folder = new Folder(dir_now)
+      let folder = new Folder(dir_now, { fs: this.fs })
 
       await folder.parse()
       // console.log(dir_now, folder.isWorkspace(), folder.data)
@@ -309,6 +310,7 @@ export class ScanV2Handler {
       ensure: true,
     })
     wsIndexData.pathBaseDir = workspace.dir
+    wsIndexData.fs = this.fs
 
     // let before = new WorkspaceIndex({ path: wsIndexData.pathIndexFile })
     // if (fs.existsSync(before.pathIndexFile)) {
@@ -339,7 +341,10 @@ export class ScanV2Handler {
     if (this.params.allWorkspaces) {
       log.warn('TODO support for multi-ws')
     }
-    this._shots[0].index._refreshIndex()
+    if (!this._shots[0]) {
+      log.warn('No scan results')
+    }
+    this._shots[0]?.index._refreshIndex()
 
     for (let shot of this._shots) {
       let after = shot.meta?.after_v2

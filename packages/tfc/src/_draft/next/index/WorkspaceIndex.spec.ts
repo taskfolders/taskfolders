@@ -2,6 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { WorkspaceIndex } from './WorkspaceIndex.js'
 import { join } from 'path/posix'
 import * as fs from 'fs'
+import { SectionSummary } from '../scan/scanMarkdownSections.js'
 
 // TODO mock stat.mtime
 it.skip('x', async () => {
@@ -61,5 +62,10 @@ it.only('x upsert sections', async () => {
   } satisfies { [k in keyof typeof fs]?: any } as any
 
   sut.pathBaseDir = '/app'
-  sut.updateFile('one.md', { sid: 'one', after: 2026, done: true })
+  let sections: SectionSummary[] = [
+    { type: 'todo', title: 'one task', lineNumber: 32 },
+  ]
+  sut.updateFile('one.md', { sid: 'one', after: 2026, done: true, sections })
+
+  console.log(sut.toJSON())
 })

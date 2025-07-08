@@ -8,6 +8,7 @@ import { PathItem } from './PathItem.js'
 import { ensureWords } from '../StandardMetadata.js'
 import * as Path from 'path'
 import { log } from '../../../dc.js'
+import { TimeMark } from '../TimeMark.js'
 
 export const prettyNow = (all: PathItem[]) => {
   let r1 = all
@@ -82,6 +83,18 @@ export const parseWorkspaceIndex = async (
     if (pItem.after_v2) {
       active.push(pItem)
     }
+
+    let todoSections = pItem.sections?.filter(x => x.type === 'todo')
+    if (todoSections?.length) {
+      log.warn('Crazy hack to support started with no date')
+      // TODO #bug dedup?
+      pItem.after ??= new Date()
+      pItem.after_v2 ??= TimeMark.fromValue(
+        pItem.after.toISOString().slice(0, 10),
+      )
+      active.push(pItem)
+    }
+
     if (pItem.flags.includes('now')) {
       now.push(pItem)
       continue
@@ -117,7 +130,8 @@ export const parseWorkspaceIndex = async (
 
   // TODO sort
   active.sort((lhs, rhs) => {
-    return lhs.after_v2.date?.getTime() - rhs.after_v2.date?.getTime()
+    // console.log({ lhs, rhs, x: rhs.after_v2 })
+    return lhs.after_v2?.date?.getTime() - rhs.after_v2?.date?.getTime()
   })
 
   //

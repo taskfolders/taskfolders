@@ -9,13 +9,16 @@ export class Folder {
   data
   data_std: StandardMetadata
 
-  constructor(public dir: string) {}
+  constructor(public dir: string, kv = { fs }) {
+    this.fs = kv.fs
+  }
 
   findBase() {
     //let all = findUpAll({ startFrom: this.dir, findName: 'index.md' })
   }
 
   async parse() {
+    let { fs } = this
     let dir = this.dir
 
     let files = fs.readdirSync(dir)

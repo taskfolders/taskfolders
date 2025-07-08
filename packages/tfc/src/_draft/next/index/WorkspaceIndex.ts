@@ -8,6 +8,7 @@ import { isDate, isValid } from 'date-fns'
 import { toDate } from '../toDate.js'
 import * as Path from 'node:path'
 import { TimeMark } from '../TimeMark.js'
+import { SectionSummary } from '../scan/scanMarkdownSections.js'
 
 export const pathIndexToPathItem = (kv: {
   index: PathIndex
@@ -27,6 +28,7 @@ export const pathIndexToPathItem = (kv: {
   item.uid = index.uid
   item.sid = index.sid
   item.done = index.done
+  item.sections = index.sections_v2
   if (index.after_v2) {
     item.after_v2 = TimeMark.fromValue(index.after_v2)
   }
@@ -35,6 +37,7 @@ export const pathIndexToPathItem = (kv: {
 }
 
 export type PathIndex = {
+  sections_v2: SectionSummary[]
   sid?: any
   uid?: any
   /** @deprecated */
@@ -213,6 +216,7 @@ export class WorkspaceIndex {
       before?
       tags?
       flags?: FlagKey[]
+      sections?: SectionSummary[]
     },
   ) {
     // TODO ..
@@ -282,6 +286,9 @@ export class WorkspaceIndex {
       target.flags = kv.flags
     }
 
+    // sections
+    target.sections_v2 = kv.sections
+
     return target
   }
 
@@ -307,6 +314,14 @@ export class WorkspaceIndex {
     copy['items'] = []
     Object.entries(copy.paths).forEach(([key, item]) => {
       copy['items'].push({ pathRelative: key, type: 'path', ...item })
+    })
+
+    Object.entries(copy.paths).map(([key, val]) => {
+      // TODO cleaner?
+      //copy.paths[key] = cleanObjectCopy(copy.paths[key]) as any
+      if (copy.paths[key].sections_v2?.length === 0) {
+        delete copy.paths[key]
+      }
     })
 
     // Remove keys with value {}
@@ -343,6 +358,7 @@ export class WorkspaceIndex {
   }
 }
 
+// TODO util?
 function deepCopy<T>(data: T): T {
   return JSON.parse(JSON.stringify(data))
 }

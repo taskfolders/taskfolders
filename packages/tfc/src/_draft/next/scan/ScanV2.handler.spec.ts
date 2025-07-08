@@ -3,6 +3,7 @@ import { ScanV2Handler } from './ScanV2.handler.js'
 import { join } from 'path'
 import { Folder } from '../Folder.js'
 import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
+import { memoryFilesystem } from '../summary/memoryFilesystem.js'
 
 it('scan all #scaffold', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
@@ -41,4 +42,21 @@ describe('exclude', () => {
     await sut.execute()
     expect(Object.keys(sut.wsIndex.data.paths).length).toBe(1)
   })
+})
+
+it.only('x in memory test', async () => {
+  let sut = new ScanV2Handler({ dir: '/app' })
+  sut.fs = memoryFilesystem({
+    '/app/index.md': 'flags: workspace',
+    '/app/action/now/ikea.md': 'flags: now\n\nhi',
+    '/app/action/now/second.md': '',
+    '/app/action/now/doctor/index.md': '',
+    '/app/action/now/doctor/blood-test.md': '',
+    '/app/action/now/hike/nested/index.md': '',
+    '/app/projects/india/action/now/plan.md': 'fox: 1',
+    '/app/action/alien/index.md': '',
+  })
+
+  await sut.execute()
+  $dev(sut.wsIndex)
 })

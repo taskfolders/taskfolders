@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import { StandardMetadata } from '../StandardMetadata.js'
 import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
 import { TimeMark } from '../TimeMark.js'
+import { SectionSummary } from '../scan/scanMarkdownSections.js'
 
 function cacheResult(...args) {
   let [fn, ctx] = args
@@ -90,7 +91,8 @@ export class PathItem {
     this.after = kv?.after
   }
 
-  sections = [];
+  sections: SectionSummary[] = [];
+
   [Symbol.for('nodejs.util.inspect.custom')]() {
     return `<${this.constructor.name} {${this.wsName}}:${this.path}>`
   }
