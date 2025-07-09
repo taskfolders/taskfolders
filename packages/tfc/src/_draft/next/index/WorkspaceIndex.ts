@@ -8,7 +8,7 @@ import { isDate, isValid } from 'date-fns'
 import { toDate } from '../toDate.js'
 import * as Path from 'node:path'
 import { TimeMark } from '../TimeMark.js'
-import { SectionSummary } from '../scan/scanMarkdownSections.js'
+import { SectionSummary } from '../scan/parseMarkdownSections.js'
 
 export const pathIndexToPathItem = (kv: {
   index: PathIndex

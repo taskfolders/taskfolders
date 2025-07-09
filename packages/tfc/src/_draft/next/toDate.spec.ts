@@ -30,3 +30,8 @@ it('x', async () => {
   res = toDate('2024-02-26')
   expect(isValid(res)).toBe(true)
 })
+
+it('x', async () => {
+  let res = toDate('2024-1-1')
+  expect(res.toISOString()).toBe('2024-01-01T00:00:00.000Z')
+})

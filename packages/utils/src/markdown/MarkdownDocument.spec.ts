@@ -4,6 +4,7 @@ import { dedent } from '../native/string/dedent.js'
 import { readFileSync } from 'node:fs'
 import { TaskFoldersFrontmatterWriteModel } from './task-folders/model/WriteModel.js'
 import { expectType } from '../types/expectType.js'
+import { log } from 'node:console'
 
 it('x #now #tmp', async () => {
   let res = await MarkdownDocument.fromBody(dedent`
@@ -70,13 +71,11 @@ it('x #story', async () => {
 
   let r1 = res.setData(Panda.fromJSON(res.data))
   expectType<typeof r1, MarkdownDocument<Panda>>()
-  console.log(r1)
+  // console.log(r1)
   let txt = r1.toString()
-  console.log(txt)
+  // console.log(txt)
   expect(txt).toBe(dedent`
-    ---
     fox: 1
-    ---
 
     more
   `)
@@ -93,7 +92,6 @@ it('x bad fm #edge', async () => {
   ).catch(e => {
     res = e
   })
-  $dev(res.message)
 })
 
 it('x edit md', async () => {
@@ -102,8 +100,32 @@ it('x edit md', async () => {
     
     hi
   `
-  let md = await MarkdownDocument.fromBody(body, { implicitFrontmatter: true })
+  let md = await MarkdownDocument.fromBody<{ fox }>(body, {
+    implicitFrontmatter: true,
+  })
+  md.data.fox = 2
   let lines = md.toString().split('\n')
 
-  expect(lines).toEqual(['---', 'fox: 1', '---', '', 'hi'])
+  expect(lines).toEqual(['fox: 2', '', 'hi'])
+})
+
+it('convert to string', async () => {
+  let body = dedent`
+    fox: 1
+    
+    hi
+  `
+  let md = await MarkdownDocument.fromBody(body, { implicitFrontmatter: true })
+  let after = md.toString()
+  expect(body).toBe(after)
+
+  body = dedent`
+    ---
+    fox: 1
+    ---
+    
+    hi
+  `
+  md = await MarkdownDocument.fromBody(body, { implicitFrontmatter: true })
+  expect(body).toBe(md.toString())
 })

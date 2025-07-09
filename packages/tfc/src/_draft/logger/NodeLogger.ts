@@ -155,6 +155,7 @@ export class NodeLogger {
         text: level,
         path: caller.path,
         lineNumber: caller.lineNumber,
+        template: 'vscode',
       })
     }
     if (this.options.padding) {
@@ -164,19 +165,30 @@ export class NodeLogger {
     let t1 = padEnd(`[${level}]`, 7)
 
     let line = [' '.repeat(this.options.paddingLog) + t1, ...args].join(' ')
-    this._rawPrint(line)
+
+    let output =
+      kv.level === 'error' ? ('stderr' as const) : ('stdout' as const)
+
+    this._rawPrint(line, { output })
     if (!isEmpty(this.data)) {
       let data = inspect(this.data, { depth: null, colors: false })
       data = Col.dim(data)
 
       line = [' '.repeat(this.options.padding), '  |', data].join('')
-      this._rawPrint(line)
+      this._rawPrint(line, { output })
     }
     return this
   }
 
-  _rawPrint(line: string) {
-    console.log(line)
+  _rawPrint(
+    line: string,
+    kv: { output?: 'stdout' | 'stderr' } = { output: 'stdout' },
+  ) {
+    if (kv.output === 'stderr') {
+      console.error(line)
+    } else {
+      console.log(line)
+    }
   }
 
   print(cb: (ctx: { link: typeof shellHyperlink }) => any) {

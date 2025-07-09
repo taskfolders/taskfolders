@@ -2,13 +2,15 @@ import { MarkdownDocument, MarkdownSections } from '@taskfolders/utils/markdown'
 import { log } from '../../../dc.js'
 import { StandardMetadata } from '../StandardMetadata.js'
 
-export type SectionSummary = {
-  type: 'todo'
-  lineNumber
-  title
-}
+export type SectionSummary =
+  | {
+      type: 'todo'
+      lineNumber
+      title
+    }
+  | { type: 'uid' | 'sid' | 'todo'; value: string; lineNumber: number }
 
-export const scanMarkdownSections = async (
+export const parseMarkdownSections = async (
   md: MarkdownDocument,
 ): Promise<SectionSummary[]> => {
   let mds = await MarkdownSections.parse(md.content)
@@ -35,7 +37,7 @@ export const scanMarkdownSections = async (
       acu.push({
         type: 'todo',
         lineNumber,
-        title,
+        title: title.replace(/^TODO\s+/, '').trim(),
       })
     }
     if (sec.data) {

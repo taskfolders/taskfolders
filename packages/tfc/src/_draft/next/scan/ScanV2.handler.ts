@@ -12,7 +12,10 @@ import { toDate } from '../toDate.js'
 import * as Path from 'node:path'
 import { ByteSugar } from '@taskfolders/utils/fs'
 import { relative } from 'node:path'
-import { scanMarkdownSections } from './scanMarkdownSections.js'
+import { parseMarkdownSections } from './parseMarkdownSections.js'
+import { parseGenericCodeSections } from './parseGenericCodeSections.js'
+
+const isJavascriptVariant = file => file.match(/\.(js|ts|cjs|mjs|tsx|jsx)$/)
 
 type Shot = {
   pathRelative
@@ -65,8 +68,8 @@ export class ScanV2Handler {
       let md = await MarkdownDocument.fromBody(body, {
         implicitFrontmatter: true,
       })
-      let sections = await scanMarkdownSections(md).catch(e => {
-        log.error('could not parse sections')
+      let sections = await parseMarkdownSections(md).catch(e => {
+        log.error('could not parse sections', { path })
         return []
       })
 
@@ -190,6 +193,34 @@ export class ScanV2Handler {
       scanMarkdown({ body: out.message, path: '' })
       wsIndex.updateFile(relPath, { uid: null })
       //console.log('TODO md.asc', relPath, out)
+    } else if (isJavascriptVariant(file)) {
+      log.info('Scan file', relPath)
+      let body = fs.readFileSync(fullPath, 'utf-8')
+      let sections = parseGenericCodeSections({ body, marker: '//' })
+      if (sections.length) {
+        let stat = fs.statSync(fullPath)
+
+        wsIndex.updateFile(relPath, {
+          uid:
+            // TODO solve uid for file, not section. Real uuid?
+            `tmp-hack-code-${stat.ino.toString()}`,
+          sections,
+        })
+      }
+    } else if (file.match(/\.(tf|py|bash|sh)$/)) {
+      log.info('Scan file', relPath)
+      let body = fs.readFileSync(fullPath, 'utf-8')
+      let sections = parseGenericCodeSections({ body, marker: '#' })
+      if (sections.length) {
+        let stat = fs.statSync(fullPath)
+
+        wsIndex.updateFile(relPath, {
+          uid:
+            // TODO solve uid for file, not section. Real uuid?
+            `tmp-hack-code-${stat.ino.toString()}`,
+          sections,
+        })
+      }
     } else {
       let stat = fs.statSync(fullPath)
       if (stat.isDirectory()) {

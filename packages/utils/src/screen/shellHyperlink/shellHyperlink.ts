@@ -52,6 +52,7 @@ export function shellHyperlink(
     path?: string
     cwd?: string
     lineNumber?: number | string
+    columnNumber?: number | string
     scheme?
   } & (
     | {
@@ -106,6 +107,7 @@ export function shellHyperlink(
       template = 'default'
     }
   }
+
   if (template === 'default') {
     template =
       kv.template ??
@@ -124,7 +126,9 @@ export function shellHyperlink(
       // TODO windows
       // vscode://file/C:/Users/username/Documents/myfile.txt?lineNumber=50
       link = `vscode://file${filePath}`
-      if (lineNumber) link += `?lineNumber=${lineNumber}`
+      // if (lineNumber) link += `?lineNumber=${lineNumber}`
+      if (lineNumber) link += `:${lineNumber}`
+      if (kv.columnNumber) link += `:${kv.columnNumber}`
       break
     }
     case 'sublime': {
@@ -151,6 +155,7 @@ export function shellHyperlink(
     default:
       assertNever(template)
   }
+
   return ansiEscapes.link(text, link)
 
   // TODO boo!!! clean this, scheme is set in hyperlink_OLD
