@@ -408,7 +408,10 @@ export class ScanV2Handler {
       wsIndexData.pathIndexFile,
       JSON.stringify(wsIndexData, null, 2),
     )
-    log.info('Workspace index written to', wsIndexData.pathIndexFile)
+    log.info(
+      'Workspace index written to',
+      NodeLogger.link({ path: wsIndexData.pathIndexFile }),
+    )
     let diff = new Date().getTime() - start
     log.info(`Scan completed in ${diff}ms`)
     log.info(`Scanned files=${stats.files} errors=${stats.errors}`)
