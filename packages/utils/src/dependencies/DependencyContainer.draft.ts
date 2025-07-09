@@ -577,7 +577,6 @@ export class DependencyContainer {
         }
         // $dev(data)
         let error = Error('Unable to inject value')
-        // @ts-expect-error TODO on es2022
         error.cause = e
         // @ts-expect-error TODO
         error.data = data

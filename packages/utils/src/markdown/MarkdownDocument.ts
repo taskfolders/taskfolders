@@ -8,6 +8,7 @@ const MarkdownError = CustomError.defineGroup('MarkdownError', {
 
 export class MarkdownDocument<T = unknown> {
   _inputBody: string
+  _frontMatter: { bodyLineOffset; delimiter }
   path?: string
   data: T
   content: string
@@ -17,25 +18,29 @@ export class MarkdownDocument<T = unknown> {
     this.content = content
   }
 
-  static async fromBody<T extends typeof MarkdownDocument<any>>(
-    this: T,
+  static async fromBody<T extends {}>(
+    // this: T,
     body: string,
     kv: { implicitFrontmatter?: boolean; unsafe?: boolean } = {},
-  ): Promise<InstanceType<T>> {
+    //): Promise<InstanceType<T>> {
+  ): Promise<MarkdownDocument<T>> {
     let fm = await extractFrontMatter(body, {
       guess: kv.implicitFrontmatter,
     }).catch(e => {
       let error = new Error('Unreadable frontmatter')
-      // @ts-expect-error
       error.cause = e
       throw error
     })
-
     let data = (await fm.getData()) as T
     // if (process.env.NODE_ENV === 'test') {
     //   Object.freeze(data)
     // }
     let obj = new this(data, fm.body)
+    obj._frontMatter = {
+      bodyLineOffset: fm.bodyLineOffset,
+      delimiter: fm.hasDelimiters ? '---' : null,
+    }
+
     // Object.defineProperty(obj, '_inputBody', {
     //   value: body,
     //   enumerable: false,
@@ -56,7 +61,10 @@ export class MarkdownDocument<T = unknown> {
   }
 
   toString() {
-    let parts = ['---', YAML.stringify(this.data).trim(), '---']
+    let delimiter = this._frontMatter.delimiter
+    let parts = [delimiter, YAML.stringify(this.data).trim(), delimiter].filter(
+      Boolean,
+    )
     let lines = this.content.split('\n')
     if (lines[0] !== '') {
       parts.push('')

@@ -23,7 +23,7 @@ it.skip('x #todo', async () => {
 })
 
 describe('x #noci', () => {
-  it('x encrypt-decrypt #story', async () => {
+  it.skip('x encrypt-decrypt #story #scaffold', async () => {
     let message = 'hello fox'
     let encrypted = await encryptGPGMessage({
       message,

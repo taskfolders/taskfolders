@@ -1,4 +1,4 @@
-import { findUpWorkspace } from './findUpWorkspace.js'
+import { findUpWorkspaceFolder } from './findUpWorkspace.js'
 import { NodeLogger } from '../logger/NodeLogger.js'
 import { WorkspaceIndex } from './index/WorkspaceIndex.js'
 import { readFileSync } from 'fs'
@@ -16,7 +16,7 @@ export class ReadReferenceHandler {
     let { log } = this
     // TODO log.raw({__filename})
     log.info('ShowHandler.execute called', __filename)
-    let ws = await findUpWorkspace(process.cwd())
+    let ws = await findUpWorkspaceFolder(process.cwd())
     log.info(ws)
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     log.info('Reading workspace index from', path)

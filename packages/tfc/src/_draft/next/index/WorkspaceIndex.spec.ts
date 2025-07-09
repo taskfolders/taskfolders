@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { WorkspaceIndex } from './WorkspaceIndex.js'
 import { join } from 'path/posix'
 import * as fs from 'fs'
-import { SectionSummary } from '../scan/scanMarkdownSections.js'
+import { SectionSummary } from '../scan/parseMarkdownSections.js'
 
 // TODO mock stat.mtime
 it.skip('x', async () => {
@@ -53,7 +53,7 @@ it('x', async () => {
   // console.log(sut.toJSON())
 })
 
-it.only('x upsert sections', async () => {
+it('x upsert sections', async () => {
   let sut = new WorkspaceIndex({ path: '/app' })
   sut.fs = {
     statSync() {

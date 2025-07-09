@@ -1,7 +1,9 @@
 import { join } from 'path/posix'
 import { Folder } from './Folder.js'
+import { $dev } from '../../dc.js'
 
-export async function findUpWorkspace(dir) {
+// TODO dedup with findWorkspaceUp
+export async function findUpWorkspaceFolder(dir) {
   let workspace: Folder
   let dir_now = dir
   while (dir_now !== '/') {

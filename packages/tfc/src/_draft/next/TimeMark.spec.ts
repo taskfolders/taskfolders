@@ -22,3 +22,16 @@ it('x after-v2', () => {
   //    sut.panda
   console.log(sut)
 })
+
+it('x', () => {
+  let sut = TimeMark.fromValue('jul')
+  let res = sut.solveRelative(new Date('2025-01-01'))
+  expect(res.value).toBe('2025-7-1')
+  expect(res.date.toISOString()).toBe('2025-07-01T00:00:00.000Z')
+  // // Example usage:
+  // console.log(getMonthNumber("March"));   // 3
+  // console.log(getMonthNumber("mar"));     // 3
+  // console.log(getMonthNumber("sept"));    // 9
+  // console.log(getMonthNumber("Nov"));     // 11
+  // console.log(getMonthNumber("invalid")); // null
+})

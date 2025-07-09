@@ -9,7 +9,7 @@ import {
   isWithinInterval,
 } from 'date-fns'
 import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
-import { findUpWorkspace } from '../findUpWorkspace.js'
+import { findUpWorkspaceFolder } from '../findUpWorkspace.js'
 import * as fs from 'fs'
 import {
   parseWorkspaceIndex,
@@ -108,7 +108,7 @@ export class SummaryHandler {
   ) {}
 
   async _getIndex() {
-    let ws = await findUpWorkspace(this.params.cwd)
+    let ws = await findUpWorkspaceFolder(this.params.cwd)
 
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     let body = fs.readFileSync(path, 'utf-8').toString()
@@ -132,7 +132,7 @@ export class SummaryHandler {
     } else {
       let index = await this._getIndex()
       this.index = index
-      let ws = await findUpWorkspace(this.params.cwd)
+      let ws = await findUpWorkspaceFolder(this.params.cwd)
       // TODO #refactor #workspace
       res = await parseWorkspaceIndex(index, {
         basePath: ws.dir,
@@ -352,53 +352,87 @@ export class SummaryHandler {
 
           let rows: Fox[] = []
 
-          all.forEach(x => {
+          all.forEach(pathItem => {
             // let mtime = x.mtime.toISOString().slice(0, 10)
             let started = ''
-            if (x.after_v2.date) {
-              started = timeDiff({ date: x.after_v2.date, color: false })
+            if (pathItem.after_v2?.date) {
+              started = timeDiff({ date: pathItem.after_v2.date, color: false })
             } else {
-              started = x.after_v2.value
-              if (x.after_v2.type === 'reference') {
+              started = pathItem.after_v2?.value ?? ''
+              if (pathItem.after_v2?.type === 'reference') {
                 // TODO :multi-index
-                let found = this.index?.findByReference(x.after_v2.value)
+                let found = this.index?.findByReference(pathItem.after_v2.value)
                 if (found) {
                   started = NodeLogger.link({
                     text: started,
                     path: found.pathFull,
                   })
                 }
-              } else if (x.after_v2.type === 'relative') {
+              } else if (pathItem.after_v2?.type === 'relative') {
                 started = NodeLogger.style.yellow(`rel(${started})`)
               }
             }
-            let isActive = x.after_v2.date
-              ? now.getTime() > x.after.getTime()
-              : false
-            if (x.after_v2.type === 'reference') {
-              if (this.index) {
-                let found = this.index.findByReference(x.after_v2.value)
-                if (found) {
-                  isActive = found.done ?? false
+
+            // --
+            let isActive = true
+            if (pathItem.after_v2) {
+              isActive = pathItem.after_v2.date
+                ? now.getTime() > pathItem.after.getTime()
+                : false
+
+              if (pathItem.after_v2.type === 'reference') {
+                if (this.index) {
+                  let found = this.index.findByReference(
+                    pathItem.after_v2.value,
+                  )
+                  if (found) {
+                    isActive = found.done ?? false
+                  }
+                } else {
+                  log.dev('todo multi index')
                 }
-              } else {
-                log.dev('todo multi index')
               }
             }
 
-            let due = x.before ? timeDiff({ date: x.before }) : ''
+            let due = pathItem.before ? timeDiff({ date: pathItem.before }) : ''
 
-            let item = { path: toPathPrint(x), started, due }
+            let row = { path: toPathPrint(pathItem), started, due }
+
+            pathItem.sections
+              .filter(x => x.type === 'todo')
+              .forEach(section => {
+                // log.dev(section)
+                let link = NodeLogger.link({
+                  text: 'sec',
+                  path: pathItem.pathFull,
+                  lineNumber: section.lineNumber,
+                  template: 'vscode',
+                })
+                if (section.lineNumber) {
+                  // TODO review #hack #dirty
+                  // ... just want to see title when hovering link in terminal
+                  // ?? just add queryParams to link utility?
+                  link = link.replace(
+                    `:${section.lineNumber}`,
+                    `:${section.lineNumber}?title=${section.title.replace(
+                      / /g,
+                      '_',
+                    )}`,
+                  )
+                }
+                row.path += ` ${link}`
+              })
 
             if (!isActive) {
-              let days = differenceInCalendarDays(x.after_v2.date, now)
+              let days = differenceInCalendarDays(pathItem.after_v2.date, now)
               if (days > printOptions.hideAfterDays) {
                 return null
               }
 
-              dimKeysApply(item)
+              dimKeysApply(row)
             }
-            rows.push(item)
+
+            rows.push(row)
           })
 
           printTable({

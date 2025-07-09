@@ -80,18 +80,13 @@ export const parseWorkspaceIndex = async (
     if (pItem.flags.includes('waiting')) {
       now.push(pItem)
     }
-    if (pItem.after_v2) {
-      active.push(pItem)
+
+    let hasTodoSections = () => {
+      let todoSections = pItem.sections?.filter(x => x.type === 'todo')
+      return !!todoSections?.length
     }
 
-    let todoSections = pItem.sections?.filter(x => x.type === 'todo')
-    if (todoSections?.length) {
-      log.warn('Crazy hack to support started with no date')
-      // TODO #bug dedup?
-      pItem.after ??= new Date()
-      pItem.after_v2 ??= TimeMark.fromValue(
-        pItem.after.toISOString().slice(0, 10),
-      )
+    if (pItem.after_v2 || hasTodoSections()) {
       active.push(pItem)
     }
 
@@ -136,7 +131,7 @@ export const parseWorkspaceIndex = async (
 
   //
   let blob = { calendar, waiting, now, active }
-  // log.dev(blob)
+  // log.dev(blob.active)
 
   return blob
 }

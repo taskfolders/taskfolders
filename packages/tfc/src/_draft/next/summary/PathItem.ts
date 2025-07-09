@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import { StandardMetadata } from '../StandardMetadata.js'
 import { TimeMarker } from '@taskfolders/utils/native/date/TimeMarker'
 import { TimeMark } from '../TimeMark.js'
-import { SectionSummary } from '../scan/scanMarkdownSections.js'
+import { SectionSummary } from '../scan/parseMarkdownSections.js'
 
 function cacheResult(...args) {
   let [fn, ctx] = args

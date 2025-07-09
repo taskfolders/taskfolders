@@ -31,7 +31,8 @@ export let toDate = (txt: string) => {
     return parseIsoWeek(txt)
   }
   if (/\d+-\d+$/.test(txt)) {
-    return new Date(txt)
+    let res = new Date(txt + 'Z')
+    return res
   }
   if (/\d+-\w+$/.test(txt)) {
     return parseYearMonth(txt)

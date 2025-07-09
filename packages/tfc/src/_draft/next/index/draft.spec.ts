@@ -1,4 +1,8 @@
 import { expect, describe, it } from 'vitest'
+import { findWorkspaceUp } from '../../findWorkspaceUp.js'
+import { findWorkspaceForPath } from './findWorkspaceForPath.js'
+
+import Path from 'node:path'
 import { WorkspaceCollections } from '../scan/WorkspaceCollections.js'
 import {
   PathIndex,
@@ -76,4 +80,12 @@ it('x', async () => {
   let sut = await fetchGlobalIndex()
   let item = sut.findReference('tv-shows')
   expect(item.pathRelative).toContain('tv-shows/index.md')
+})
+
+it.only('x', async () => {
+  let dir = Path.join(process.env.HOME, 'work/fgo/demo')
+
+  let sut = await findWorkspaceForPath(dir)
+  // let sut = await findUpWorkspace(dir)
+  $dev(sut)
 })

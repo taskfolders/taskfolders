@@ -91,14 +91,14 @@ it('x edit md with time updates', async () => {
 
   let lines = r1.markdown.toString().split('\n')
   // console.log(lines)
-  expect(lines).toEqual(['---', 'fox: 1', 'after: 2025-W04', '---', '', 'hi'])
+  expect(lines).toEqual(['fox: 1', 'after: 2025-W04', '', 'hi'])
 })
 
 import fs from 'node:fs'
 import { log } from '../../dc.js'
 import { createSort } from '@taskfolders/utils/native/array/createSort'
 import { findUpAll } from '@taskfolders/utils/fs/findUpAll'
-import { scanMarkdownSections } from './scan/scanMarkdownSections.js'
+import { parseMarkdownSections } from './scan/parseMarkdownSections.js'
 it('x inboxes', async () => {
   let d1 = join(process.env.HOME, 'Downloads')
   // TODO get from osx env/config? linux?

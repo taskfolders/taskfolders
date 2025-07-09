@@ -6,7 +6,7 @@ import { StandardMetadata } from './StandardMetadata.js'
 
 export class Folder {
   fs = fs
-  data
+  data_raw
   data_std: StandardMetadata
 
   constructor(public dir: string, kv = { fs }) {
@@ -23,20 +23,27 @@ export class Folder {
 
     let files = fs.readdirSync(dir)
 
-    if (files.includes('index.json')) {
-      let file = join(dir, 'index.json')
-      let json = fs.readFileSync(file, 'utf-8').toString()
-      let doc = JSON.parse(json)
-      this.data = doc
-    } else if (files.includes('index.md')) {
-      let file = join(dir, 'index.md')
+    const doMarkdown = async (file: string) => {
       let body = fs.readFileSync(file, 'utf-8').toString()
       let md = await MarkdownDocument.fromBody(body, {
         implicitFrontmatter: true,
       })
 
-      this.data = md.data
+      this.data_raw = md.data
       this.data_std = new StandardMetadata(md.data)
+    }
+
+    if (files.includes('index.json')) {
+      let file = join(dir, 'index.json')
+      let json = fs.readFileSync(file, 'utf-8').toString()
+      let doc = JSON.parse(json)
+      this.data_raw = doc
+    } else if (files.includes('index.md')) {
+      let file = join(dir, 'index.md')
+      await doMarkdown(file)
+    } else if (files.includes('index.personal.md')) {
+      let file = join(dir, 'index.personal.md')
+      await doMarkdown(file)
     } else if (files.includes('index.md.asc')) {
       console.log('TODO gpg asc')
     } else if (files.includes('index.md.gpg')) {
@@ -56,8 +63,8 @@ export class Folder {
   }
 
   isWorkspace() {
-    if (this.data?.flags?.includes('workspace')) return true
-    return this.data?.labels === 'workspace'
+    if (this.data_raw?.flags?.includes('workspace')) return true
+    return this.data_raw?.labels === 'workspace'
   }
   relative(path) {
     return Path.relative(this.dir, path)
