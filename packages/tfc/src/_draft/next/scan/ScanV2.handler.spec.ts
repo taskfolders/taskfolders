@@ -11,6 +11,13 @@ it('scan all #scaffold', async () => {
   await sut.execute()
 })
 
+it('x', async () => {
+  type One = {
+    foo
+    bar
+  }
+})
+
 it('scan a single file #scaffold', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
   let sut = new ScanV2Handler({ dir: cwd })
