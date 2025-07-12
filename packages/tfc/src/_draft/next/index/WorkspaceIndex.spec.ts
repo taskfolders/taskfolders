@@ -15,7 +15,7 @@ it.skip('x', async () => {
 
 it('x read one #scaffold #live', async () => {
   let baseDir = join(process.env.HOME, 'work/fgo')
-  let indexDir = join(baseDir, '_data/tf')
+  let indexDir = join(baseDir, '_data/taskfolders.com')
   let sut = await WorkspaceIndex.fromDir({ baseDir, indexDir })
   // let r1 = sut.get('action/now-fgo/index.md')
   let r1 = sut.get('demo/index.md')
