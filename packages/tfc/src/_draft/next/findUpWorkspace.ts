@@ -1,13 +1,14 @@
 import { join } from 'path/posix'
 import { Folder } from './Folder.js'
 import { $dev } from '../../dc.js'
+import * as fs from 'fs'
 
 // TODO dedup with findWorkspaceUp
-export async function findUpWorkspaceFolder(dir) {
+export async function findUpWorkspaceFolder(dir, kv: { fs } = { fs }) {
   let workspace: Folder
   let dir_now = dir
   while (dir_now !== '/') {
-    let folder = new Folder(dir_now)
+    let folder = new Folder(dir_now, { fs: kv.fs })
     await folder.parse()
     // console.log(dir_now, folder.isWorkspace(), folder.data)
     if (folder.isWorkspace()) {

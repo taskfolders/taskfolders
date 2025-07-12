@@ -51,6 +51,7 @@ export class PathItem {
   uid?: string
   sid?: string
   done?: boolean
+  focus?: TimeMark
 
   /** @deprecated */
   path: string

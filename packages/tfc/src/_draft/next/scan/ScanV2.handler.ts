@@ -63,7 +63,7 @@ export class ScanV2Handler {
     }
 
     // log.info('scan file', relPath)
-    let scanMarkdown = async ({ body, path }) => {
+    let parseOneMarkdown = async ({ body, path }) => {
       stats.files++
       let md = await MarkdownDocument.fromBody(body, {
         implicitFrontmatter: true,
@@ -109,6 +109,7 @@ export class ScanV2Handler {
         wsIndex.updateFile(relPath, {
           uid: meta.uid,
           sid: meta.sid,
+          focus: meta.focus,
           review: meta.review,
           after: meta._raw.after,
           //after: meta.after,
@@ -177,7 +178,7 @@ export class ScanV2Handler {
         )
       } else {
         let body = fs.readFileSync(fullPath, 'utf-8').toString()
-        await scanMarkdown({ body, path: relPath })
+        await parseOneMarkdown({ body, path: relPath })
       }
     } else if (file.endsWith('index.json')) {
       log.info('Scan file', relPath)
@@ -191,7 +192,7 @@ export class ScanV2Handler {
       let body = fs.readFileSync(fullPath, 'utf-8').toString()
       let out = await decryptGPGMessage(body)
 
-      scanMarkdown({ body: out.message, path: '' })
+      parseOneMarkdown({ body: out.message, path: '' })
       wsIndex.updateFile(relPath, { uid: null })
       //console.log('TODO md.asc', relPath, out)
     } else if (isJavascriptVariant(file)) {

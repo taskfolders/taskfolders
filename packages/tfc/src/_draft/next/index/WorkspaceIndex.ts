@@ -32,6 +32,9 @@ export const pathIndexToPathItem = (kv: {
   if (index.after_v2) {
     item.after_v2 = TimeMark.fromValue(index.after_v2)
   }
+  if (index.focus) {
+    item.focus = TimeMark.fromValue(index.focus)
+  }
   item.flags = ensureWords(index.flags)
   return item
 }
@@ -44,6 +47,7 @@ export type PathIndex = {
   after?: Date
   after_v2: TimeMark
   done?
+  focus?
   before?: Date
   tags?: string[]
   flags?: FlagKey[]
@@ -212,6 +216,7 @@ export class WorkspaceIndex {
       sid?: any
       review?
       done?
+      focus?
       after?
       before?
       tags?
@@ -244,13 +249,14 @@ export class WorkspaceIndex {
 
     let target = this.data.paths[relPath]
 
-    let keys: Array<keyof PathItem> = [
+    let keys: Array<keyof PathIndex> = [
       'uid',
       'sid',
       'after',
       'before',
       'tags',
       'done',
+      'focus',
     ]
     //
 

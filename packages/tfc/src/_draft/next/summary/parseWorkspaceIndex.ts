@@ -9,6 +9,7 @@ import { ensureWords } from '../StandardMetadata.js'
 import * as Path from 'path'
 import { log } from '../../../dc.js'
 import { TimeMark } from '../TimeMark.js'
+import { getWeek } from 'date-fns'
 
 export const prettyNow = (all: PathItem[]) => {
   let r1 = all
@@ -45,6 +46,7 @@ export const parseWorkspaceIndex = async (
   // for .before and next .calendar event
   let waiting: PathItem[] = []
   let now: PathItem[] = []
+  let focus: PathItem[] = []
   let active: PathItem[] = []
 
   const pathItemFromIndex = (item: PathIndex) =>
@@ -79,6 +81,9 @@ export const parseWorkspaceIndex = async (
     }
     if (pItem.flags.includes('waiting')) {
       now.push(pItem)
+    }
+    if (pItem.focus) {
+      focus.push(pItem)
     }
 
     let hasTodoSections = () => {
@@ -130,7 +135,7 @@ export const parseWorkspaceIndex = async (
   })
 
   //
-  let blob = { calendar, waiting, now, active }
+  let blob = { calendar, waiting, now, focus, active }
   // log.dev(blob.active)
 
   return blob

@@ -10,7 +10,7 @@ import {
 } from 'date-fns'
 import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
 import { findUpWorkspaceFolder } from '../findUpWorkspace.js'
-import * as fs from 'fs'
+import * as fsRaw from 'fs'
 import {
   parseWorkspaceIndex,
   IndexResult,
@@ -94,6 +94,7 @@ const printTable = <T>(kv: {
 
 export class SummaryHandler {
   log = new NodeLogger()
+  fs = fsRaw
 
   // TODO multi index?
   index?: WorkspaceIndex
@@ -108,7 +109,8 @@ export class SummaryHandler {
   ) {}
 
   async _getIndex() {
-    let ws = await findUpWorkspaceFolder(this.params.cwd)
+    let { fs } = this
+    let ws = await findUpWorkspaceFolder(this.params.cwd, { fs })
 
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     let body = fs.readFileSync(path, 'utf-8').toString()
@@ -123,16 +125,17 @@ export class SummaryHandler {
     let res: IndexResult = {
       calendar: [],
       waiting: [],
+      focus: [],
       now: [],
       active: [],
     }
 
     if (this.params.allWorkspaces) {
-      await applyIndexForAllWorkspaces(res)
+      await applyIndexForAllWorkspaces(res, { fs: this.fs })
     } else {
       let index = await this._getIndex()
       this.index = index
-      let ws = await findUpWorkspaceFolder(this.params.cwd)
+      let ws = await findUpWorkspaceFolder(this.params.cwd, { fs: this.fs })
       // TODO #refactor #workspace
       res = await parseWorkspaceIndex(index, {
         basePath: ws.dir,
@@ -229,99 +232,104 @@ export class SummaryHandler {
           break
         }
         case 'calendar': {
-          printSection('Calendar')
-          log.indent()
-          const putLine = (
-            item: { title; item; date },
-            //CalendarItem
-          ) => {
-            let date = item.date.toISOString().slice(0, 10)
-            let link = NodeLogger.link({
-              text: item.title,
-              path: item.item.pathFull,
-            })
-            log.put(date, link)
-          }
-
-          let printAll = (val: { date; title; item }[]) => {
-            let all = val.sort(
-              (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
-            )
-            for (let item of all) {
-              putLine(item)
+          const printCalendar = () => {
+            printSection('Calendar')
+            log.indent()
+            const putLine = (
+              item: { title; item; date },
+              //CalendarItem
+            ) => {
+              let date = item.date.toISOString().slice(0, 10)
+              let link = NodeLogger.link({
+                text: item.title,
+                path: item.item.pathFull,
+              })
+              log.put(date, link)
             }
-          }
 
-          log = log.put('In a week').indent()
-          if (byNearTimeGroups.week) {
-            log.put('..todo')
-          } else {
-            log.put(log.style.dim('none'))
-          }
-          log = log.dedent()
+            let printAll = (val: { date; title; item }[]) => {
+              let all = val.sort(
+                (lhs, rhs) => lhs.date.getTime() - rhs.date.getTime(),
+              )
+              for (let item of all) {
+                putLine(item)
+              }
+            }
 
-          log = log.put('In a month').indent()
-          if (byNearTimeGroups.month) {
-            printAll(byNearTimeGroups.month)
-          } else {
-            log.put('..none')
-          }
-          log = log.dedent()
+            log = log.put('In a week').indent()
+            if (byNearTimeGroups.week) {
+              log.put('..todo')
+            } else {
+              log.put(log.style.dim('none'))
+            }
+            log = log.dedent()
 
-          log = log.put('In a year').indent()
-          if (byNearTimeGroups.year) {
-            printAll(byNearTimeGroups.year)
-          } else {
-            log.put('..none')
-          }
-          log = log.dedent()
+            log = log.put('In a month').indent()
+            if (byNearTimeGroups.month) {
+              printAll(byNearTimeGroups.month)
+            } else {
+              log.put('..none')
+            }
+            log = log.dedent()
 
+            log = log.put('In a year').indent()
+            if (byNearTimeGroups.year) {
+              printAll(byNearTimeGroups.year)
+            } else {
+              log.put('..none')
+            }
+            log = log.dedent()
+          }
+          printCalendar()
           break
         }
         case 'now': {
-          printSection('NOW')
-          log.indent()
-          // LOG group by inner dir
-          // console.log(a1)
-          let all = val as PathItem[]
+          const printNow = () => {
+            printSection('NOW')
+            log.indent()
+            // LOG group by inner dir
+            // console.log(a1)
+            let all = val as PathItem[]
 
-          type Row = { path; modified; due; after }
-          let rows: Row[] = []
-          all = all.sort(
-            (lhs, rhs) => rhs.mtime.getTime() - lhs.mtime.getTime(),
-          )
-          all.forEach(x => {
-            // if (x.show.startsWith('_')) return
-            let time = x.mtime.toISOString().slice(0, 10)
-            // let time = ''
+            type Row = { path; modified; due; after }
+            let rows: Row[] = []
+            all = all.sort(
+              (lhs, rhs) => rhs.mtime.getTime() - lhs.mtime.getTime(),
+            )
+            all.forEach(x => {
+              // if (x.show.startsWith('_')) return
+              let time = x.mtime.toISOString().slice(0, 10)
+              // let time = ''
 
-            let path = toPathPrint(x)
-            let next = {
-              path,
-              modified: timeDiff({ date: x.mtime, color: false }),
-              due: '',
-              after: x.after ? x.after.toISOString().slice(0, 10) : '',
-            }
+              let path = toPathPrint(x)
+              let next = {
+                path,
+                modified: timeDiff({ date: x.mtime, color: false }),
+                due: '',
+                after: x.after ? x.after.toISOString().slice(0, 10) : '',
+              }
 
-            if (x.after) {
-              if (x.after < now) {
+              if (x.after) {
+                if (x.after < now) {
+                  rows.push(next)
+                }
+              } else {
                 rows.push(next)
               }
-            } else {
-              rows.push(next)
-            }
-          })
+            })
 
-          printTable({
-            rows,
-            log,
-            config: {
-              path: { padding: PathPadding, head: '' },
-              modified: { padding: 12, head: 'Modified *' },
-            },
-          })
+            printTable({
+              rows,
+              log,
+              config: {
+                path: { padding: PathPadding, head: '' },
+                modified: { padding: 12, head: 'Modified *' },
+              },
+            })
 
-          log.dedent()
+            log.dedent()
+          }
+          printNow()
           break
         }
         // case 'review':
@@ -450,6 +458,34 @@ export class SummaryHandler {
 
           break
         }
+        case 'focus': {
+          const printFocus = () => {
+            printSection('Focus')
+            // let rows: Fox[] = []
+            let rows: { path }[] = []
+
+            let all = val as PathItem[]
+            for (let pItem of all) {
+              let weekFocus = getWeek(pItem.focus.date)
+              let weekNow = getWeek(new Date())
+              let row = { path: toPathPrint(pItem), week: weekFocus }
+              if (weekFocus !== weekNow) {
+                dimKeysApply(row)
+              }
+              rows.push(row)
+            }
+            printTable({
+              rows,
+              log,
+              config: {
+                path: { padding: PathPadding, head: '' },
+                // started: { padding: 12 },
+              },
+            })
+          }
+          printFocus()
+          break
+        }
 
         default:
           throw Error(`unknown key ${key}`)
@@ -477,19 +513,25 @@ export class SummaryHandler {
   }
 }
 
-async function applyIndexForAllWorkspaces(res: {
-  calendar: CalendarItem[]
-  waiting: PathItem[]
-  now: PathItem[]
-  active: PathItem[]
-}) {
+async function applyIndexForAllWorkspaces(
+  res: {
+    calendar: CalendarItem[]
+    waiting: PathItem[]
+    now: PathItem[]
+    focus: PathItem[]
+    active: PathItem[]
+  },
+  kv: {
+    fs: typeof fsRaw
+  },
+) {
   let loc = WorkspaceCollections.request()
   for (let val of Object.values(loc.data.workspaces)) {
     // TODO clean
     let folder = new Folder(val.dir)
     let path = folder.dataDir({ join: ['workspace-index.json'] })
 
-    let body = fs.readFileSync(path, 'utf-8').toString()
+    let body = kv.fs.readFileSync(path, 'utf-8').toString()
 
     let index = WorkspaceIndex.fromJSON(body, { path: val.dir })
 

@@ -25,6 +25,7 @@ type UserInput = {
 }
 
 export class StandardMetadata {
+  _now = new Date()
   readonly uid: string
   readonly sid: string
   readonly type: string
@@ -156,6 +157,23 @@ export class StandardMetadata {
     let val = this._raw.before
     if (!val) return val
     return toDate(val.toString())
+  }
+
+  get before_v2() {
+    let val = this._raw.before_v2
+    if (!val) return undefined
+    return TimeMark.fromValue(val)
+  }
+
+  get focus(): TimeMark {
+    let val = this._raw.focus
+    if (!val) return undefined
+    val = val.toString()
+    if (/\d{1,2}/.test(val)) {
+      let year = this._now.getUTCFullYear()
+      val = `${year}-W${val}`
+    }
+    return TimeMark.fromValue(val)
   }
 
   static fromJSON(doc) {

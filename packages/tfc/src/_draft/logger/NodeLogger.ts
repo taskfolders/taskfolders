@@ -93,6 +93,10 @@ export class NodeLogger {
     this.raw({ args, level: 'dev' })
     return this
   }
+  devSpy(...args) {
+    this.raw({ args, level: 'dev' })
+    return args[0]
+  }
 
   error(...args) {
     this.raw({ args, level: 'error' })
@@ -120,12 +124,18 @@ export class NodeLogger {
     // WARNING port changes here to NodeLoggerTesting
 
     let next = new NodeLogger()
-    next.options = JSON.parse(JSON.stringify(this.options))
+    Object.assign(next, this)
+    next.options = { ...this.options }
+    // next.options = JSON.parse(JSON.stringify(this.options))
     return next
   }
 
   indent() {
     let copy = this.clone()
+    // TODO just assign?
+    // copy._debug = this._debug
+    // copy._silent = this._silent
+    // copy._threshold_value = this._threshold_value
     copy.options.padding += 2
     copy.options.paddingLog += 2
     return copy
@@ -134,6 +144,7 @@ export class NodeLogger {
   dedent() {
     let copy = this.clone()
     copy.options.padding -= 2
+    copy.options.paddingLog -= 2
     return copy
   }
 

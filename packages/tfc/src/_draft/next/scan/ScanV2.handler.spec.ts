@@ -5,6 +5,7 @@ import { Folder } from '../Folder.js'
 import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
 import { memoryFilesystem } from '../summary/memoryFilesystem.js'
 import dedent from 'dedent'
+import { SummaryHandler } from '../summary/Summary.handler.js'
 
 it('scan all #scaffold', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
@@ -82,6 +83,7 @@ it.only('x in memory test', async () => {
     '/app/index.md': 'flags: workspace\n',
     '/app/foo.md': dedent`
        flags: now
+       focus: 28
        
        # TODO some task
        after: 2025
@@ -93,9 +95,14 @@ it.only('x in memory test', async () => {
 
   await sut.execute()
   let foo = sut.wsIndex.data.paths['foo.md']
-  expect(foo.sections_v2[0].lineNumber).toBe(3)
+  expect(foo.sections_v2[0].lineNumber).toBe(4)
   if (foo.sections_v2[0].type !== 'todo') throw Error('boom')
   expect(foo.sections_v2[0].after.value).toBe(2025)
   expect(foo.sections_v2[0].before.value).toBe('2026-02')
-  $dev(foo)
+  expect(foo.focus.value).toBe('2025-W28')
+
+  let sum = new SummaryHandler({ cwd: '/app' })
+  // sum.log._silent = true
+  sum.fs = sut.fs
+  await sum.execute()
 })
