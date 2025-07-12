@@ -194,9 +194,9 @@ export default class VerboseCustomReporter implements Reporter {
       return
     }
 
-    if (task.result?.note) {
-      throw Error('TODO note')
-    }
+    // if (task.result?.note) {
+    //   throw Error('TODO note')
+    // }
 
     const tests = getTests(task)
     for (const test of tests) {

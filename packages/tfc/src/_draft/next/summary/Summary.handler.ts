@@ -47,7 +47,7 @@ const toPathPrint = (x: PathItem) => {
 const PathPadding = 50
 
 const printOptions = {
-  hideAfterDays: 24,
+  hideAfterDays: 7,
 }
 
 const printTable = <T>(kv: {
@@ -412,13 +412,15 @@ export class SummaryHandler {
                   // TODO review #hack #dirty
                   // ... just want to see title when hovering link in terminal
                   // ?? just add queryParams to link utility?
-                  link = link.replace(
-                    `:${section.lineNumber}`,
-                    `:${section.lineNumber}?title=${section.title.replace(
-                      / /g,
-                      '_',
-                    )}`,
-                  )
+                  {
+                    // link = link.replace(
+                    //   `:${section.lineNumber}`,
+                    //   `:${section.lineNumber}?title=${section.title.replace(
+                    //     / /g,
+                    //     '_',
+                    //   )}`,
+                    // )
+                  }
                 }
                 row.path += ` ${link}`
               })

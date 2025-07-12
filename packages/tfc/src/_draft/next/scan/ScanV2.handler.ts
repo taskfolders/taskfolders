@@ -70,6 +70,7 @@ export class ScanV2Handler {
       })
       let sections = await parseMarkdownSections(md).catch(e => {
         log.error('could not parse sections', { path })
+        log.error(e)
         return []
       })
 
@@ -312,7 +313,7 @@ export class ScanV2Handler {
     let start = new Date().getTime()
 
     log.put()
-    log.print(th => ['TODO scan2', th.link({ path: __filename })])
+    log.print_DROP(th => ['TODO scan2', th.link({ path: __filename })])
     log.put()
 
     let workspace: Folder

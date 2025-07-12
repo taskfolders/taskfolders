@@ -1,14 +1,18 @@
 import { MarkdownDocument, MarkdownSections } from '@taskfolders/utils/markdown'
 import { log } from '../../../dc.js'
 import { StandardMetadata } from '../StandardMetadata.js'
+import { TimeMark } from '../TimeMark.js'
+import { cleanObjectCopy } from '../cleanObject.js'
 
 export type SectionSummary =
   | {
       type: 'todo'
-      lineNumber
-      title
+      lineNumber: number
+      title: string
+      after?: TimeMark
+      before?: TimeMark
     }
-  | { type: 'uid' | 'sid' | 'todo'; value: string; lineNumber: number }
+  | { type: 'uid' | 'sid'; value: string; lineNumber: number }
 
 export const parseMarkdownSections = async (
   md: MarkdownDocument,
@@ -34,11 +38,22 @@ export const parseMarkdownSections = async (
     }
 
     if (title?.startsWith('TODO')) {
-      acu.push({
+      let after: TimeMark
+      if (sec.data?.after) after = TimeMark.fromValue(sec.data.after)
+
+      let before: TimeMark
+      if (sec.data?.before) before = TimeMark.fromValue(sec.data.before)
+
+      let next: SectionSummary = {
         type: 'todo',
         lineNumber,
         title: title.replace(/^TODO\s+/, '').trim(),
-      })
+        after,
+        before,
+      }
+      // @ts-expect-error TODO
+      next = cleanObjectCopy(next)
+      acu.push(next)
     }
     if (sec.data) {
       let data = new StandardMetadata(sec.data)

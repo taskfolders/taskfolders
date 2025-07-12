@@ -4,6 +4,7 @@ import { join } from 'path'
 import { Folder } from '../Folder.js'
 import { WorkspaceIndex } from '../index/WorkspaceIndex.js'
 import { memoryFilesystem } from '../summary/memoryFilesystem.js'
+import dedent from 'dedent'
 
 it('scan all #scaffold', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
@@ -15,6 +16,10 @@ it('x', async () => {
   type One = {
     foo
     bar
+  }
+  type Panda<T extends {}> = {
+    tango: Record<keyof T, string>
+    delta: T
   }
 })
 
@@ -51,7 +56,7 @@ describe('exclude', () => {
   })
 })
 
-it.only('x in memory test', async () => {
+it('x in memory test', async () => {
   let sut = new ScanV2Handler({ dir: '/app' })
   sut.fs = memoryFilesystem({
     '/app/index.md': 'flags: workspace',
@@ -66,4 +71,31 @@ it.only('x in memory test', async () => {
 
   await sut.execute()
   $dev(sut.wsIndex)
+})
+
+it.only('x in memory test', async () => {
+  let sut = new ScanV2Handler({ dir: '/app' })
+  sut.log._debug = true
+  sut.log._silent = true
+  sut.log._threshold_value = 3
+  sut.fs = memoryFilesystem({
+    '/app/index.md': 'flags: workspace\n',
+    '/app/foo.md': dedent`
+       flags: now
+       
+       # TODO some task
+       after: 2025
+       before: 2026-02
+       
+       fox
+       `,
+  })
+
+  await sut.execute()
+  let foo = sut.wsIndex.data.paths['foo.md']
+  expect(foo.sections_v2[0].lineNumber).toBe(3)
+  if (foo.sections_v2[0].type !== 'todo') throw Error('boom')
+  expect(foo.sections_v2[0].after.value).toBe(2025)
+  expect(foo.sections_v2[0].before.value).toBe('2026-02')
+  $dev(foo)
 })

@@ -125,7 +125,8 @@ export function shellHyperlink(
       // vscode://file/Users/username/Documents/myfile.txt?lineNumber=50
       // TODO windows
       // vscode://file/C:/Users/username/Documents/myfile.txt?lineNumber=50
-      link = `vscode://file${filePath}`
+      //link = `vscode://file${filePath}`
+      link = `vscode://${filePath}`
       // if (lineNumber) link += `?lineNumber=${lineNumber}`
       if (lineNumber) link += `:${lineNumber}`
       if (kv.columnNumber) link += `:${kv.columnNumber}`

@@ -35,6 +35,13 @@ type LevelName = keyof typeof LogLevels
 
 const threshold_value = LogLevels[process.env.LOG_LEVEL ?? 'info']
 
+const levelNameToValue = (x: LevelName) => {
+  let value = LogLevels[x]
+
+  if (!value) throw new Error(`Invalid log level: ${x}`)
+  return value
+}
+
 let colorizeLevel = (level: LevelName): string => {
   level = Col[levelColors[level]](level.toUpperCase())
   if (level === 'dev') {
@@ -46,6 +53,16 @@ let colorizeLevel = (level: LevelName): string => {
 export class NodeLogger {
   static link = shellHyperlink
   static style = Col
+
+  // Printing
+  _debug = false
+  _silent = false
+  _threshold_value = LogLevels[process.env.LOG_LEVEL ?? 'info']
+  setLevel(level: LevelName) {
+    this._threshold_value = levelNameToValue(level)
+  }
+
+  // ...
 
   options: {
     start?: Date
@@ -134,7 +151,7 @@ export class NodeLogger {
   raw(kv: { level?: LevelName; message?; args?; depth? }) {
     let { args } = kv
 
-    if (LogLevels[kv.level] < threshold_value) return
+    if (LogLevels[kv.level] < this._threshold_value) return
 
     if (args.length === 1) {
       if (typeof args[0] === 'object') {
@@ -184,6 +201,18 @@ export class NodeLogger {
     line: string,
     kv: { output?: 'stdout' | 'stderr' } = { output: 'stdout' },
   ) {
+    if (this._debug) {
+      let caller = getCallingFile(__filename, {
+        afterFileName: __filename,
+      })
+
+      let label = shellHyperlink({
+        text: NodeLogger.style.magenta('debug'),
+        path: caller.path,
+        lineNumber: caller.lineNumber,
+      })
+      line = `${label} ${line}`
+    }
     if (kv.output === 'stderr') {
       console.error(line)
     } else {
@@ -191,12 +220,17 @@ export class NodeLogger {
     }
   }
 
-  print(cb: (ctx: { link: typeof shellHyperlink }) => any) {
+  /** @deprecated use .put */
+  print_DROP(cb: (ctx: { link: typeof shellHyperlink }) => any) {
+    if (this._silent) return this
+
     let ctx = { link: shellHyperlink }
     console.log(...[].concat(cb(ctx)))
   }
 
-  put(...args) {
+  put(...args): NodeLogger {
+    if (this._silent) return this
+
     let txt = args
       .map(x => {
         if (typeof x === 'string') return x
