@@ -23,6 +23,7 @@ import { WorkspaceCollections } from '../scan/WorkspaceCollections.js'
 import { timeDiff } from './timeDiff.js'
 
 import { URL } from 'node:url'
+import { dc as DC, DependencyContainer } from '../../../dc.js'
 const __filename = new URL('', import.meta.url).pathname
 
 type Fox = { path; started; due }
@@ -106,6 +107,7 @@ export class SummaryHandler {
 
   constructor(
     public params: { cwd: string; allWorkspaces?: boolean; showAll?: boolean },
+    public dc: DependencyContainer = DC,
   ) {}
 
   async _getIndex() {
@@ -159,27 +161,27 @@ export class SummaryHandler {
 
   async _printData(data: Awaited<ReturnType<typeof parseWorkspaceIndex>>) {
     let { log } = this
-    let today_str = new Date().toISOString().slice(0, 10)
-    let weekNumberNow = getWeek(new Date())
+    let now = new Date()
+    let today_str = now.toISOString().slice(0, 10)
+    let weekNumberNow = getWeek(now)
 
-    let printSection = x => log.put().put(log.style.blue(x))
+    let printSection = (x, rest = '') => log.put().put(log.style.blue(x), rest)
 
     log.put().put(`${today_str} : Week ${weekNumberNow} {theme name?}`).put()
 
-    let today = new Date()
     let byNearTimeGroups = Object.groupBy(data.calendar, item => {
       if (isThisWeek(item.date)) return 'week'
       if (
         isWithinInterval(item.date, {
-          start: addDays(today, 7),
-          end: addDays(today, 30),
+          start: addDays(now, 7),
+          end: addDays(now, 30),
         })
       )
         return 'month'
       if (
         isWithinInterval(item.date, {
-          start: addDays(today, 30),
-          end: addDays(today, 360),
+          start: addDays(now, 30),
+          end: addDays(now, 360),
         })
       )
         return 'year'
@@ -187,7 +189,6 @@ export class SummaryHandler {
       return 'rest'
     })
 
-    let now = new Date()
     for (let [key, val] of Object.entries(data)) {
       // TODO wtf? clean #type
       type foo = keyof typeof data
@@ -467,7 +468,7 @@ export class SummaryHandler {
             let all = val as PathItem[]
             for (let pItem of all) {
               let weekFocus = getWeek(pItem.focus.date)
-              let weekNow = getWeek(new Date())
+              let weekNow = getWeek(now)
               let row = { path: toPathPrint(pItem), week: weekFocus }
               if (weekFocus !== weekNow) {
                 dimKeysApply(row)
