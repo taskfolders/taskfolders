@@ -88,6 +88,13 @@ export class ScanV2Handler {
         shot.meta = meta
         // let item = wsIndexData.get(relPath)
 
+        if (meta.focus?.type === 'relative') {
+          shot.issues.push({
+            code: 'focus-relative',
+            message: 'Focus is relative, should be absolute',
+            data: { focus: meta.focus.value },
+          })
+        }
         // ---
         // checks
         let issues = StandardMetadata.sanitize(_data)

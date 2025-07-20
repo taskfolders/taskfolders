@@ -345,3 +345,14 @@ it('x #now', async () => {
   let r1 = await res.getData()
   expect(r1).toEqual({ parent: { child: 1 } })
 })
+
+// it.only('x', async () => {
+//   let body = dedent`
+//     fox: 1
+
+//     hi
+//   `
+//   console.log('..x')
+//   let md = extractFrontMatter(body, { guess: true })
+//   console.log('..after')
+// })

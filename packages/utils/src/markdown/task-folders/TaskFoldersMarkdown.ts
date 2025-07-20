@@ -19,7 +19,7 @@ const mdTypes = [
 ]
 
 export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatterReadModel> {
-  static async from(
+  static from(
     kv: ({ text?: string } | { file?: string }) & {
       coerce?: boolean
       strict?: boolean
@@ -37,27 +37,24 @@ export class TaskFoldersMarkdown extends MarkdownDocument<TaskFoldersFrontmatter
       throw Error('invalid params')
     }
 
-    let parse = await TaskFoldersMarkdown.parse(body, { coerce: kv.coerce })
+    let parse = TaskFoldersMarkdown.parse(body, { coerce: kv.coerce })
     return parse.taskfolder
   }
 
-  static async fromBody<T extends typeof MarkdownDocument<any>>(
+  static fromBody<T extends typeof MarkdownDocument<any>>(
     this: T,
     body: string,
     kv = {},
-  ): Promise<InstanceType<T>> {
-    let next = await super.fromBody(body)
+  ): InstanceType<T> {
+    let next = super.fromBody(body)
     let writeModel = TaskFoldersFrontmatterWriteModel.fromJSON(next.data)
     let readModel = TaskFoldersFrontmatterReadModel.fromWriteModel(writeModel)
     next.data = readModel
     return next as any //TaskFoldersMarkdownDocument
   }
 
-  static async parse(
-    body: string,
-    kv?: { coerce: boolean },
-  ): Promise<MarkdownParsed> {
-    let md = await MarkdownDocument.fromBody<any>(body, {
+  static parse(body: string, kv?: { coerce: boolean }): MarkdownParsed {
+    let md = MarkdownDocument.fromBody<any>(body, {
       implicitFrontmatter: true,
     })
     let taskfolder: TaskFoldersMarkdown

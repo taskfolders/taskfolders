@@ -2,8 +2,9 @@
 // import { CustomError } from '@taskfolders/core/errors'
 // import { splitText } from '@taskfolders/core/native/string'
 
-import { $dev } from '../logger/index.js'
+// import { $dev } from '../logger/index.js'
 import { CustomError } from '../errors/CustomError.js'
+import YAML from 'yaml'
 
 // import { parseAllDocuments, Document } from 'yaml'
 
@@ -51,12 +52,12 @@ function toParts_v2(kv: { txt; parts; error; doc; data; front }) {
     doc,
     error,
 
-    async getData() {
+    getData() {
       // TODO before:release dedup, dry this parse
       //  this should be the only way to get data
       //  this should be the only yaml parser???
-      const { parseAllDocuments } = await import('yaml').then(x => x.default)
-      let all = parseAllDocuments(front)
+      // const { parseAllDocuments } = await import('yaml').then(x => x.default)
+      let all = YAML.parseAllDocuments(front)
       let doc = all[0]
       data = doc.toJSON()
       return data
@@ -179,12 +180,12 @@ export function extractFrontMatter_v1(
   return { frontText: null, frontRaw: null, body: txt, bodyLineOffset: 0 }
 }
 
-export async function extractFrontMatter(
+export function extractFrontMatter(
   txt: string,
   kv: { guess? } = {},
-): Promise<MarkdownRawParts_2> {
-  let parts = extractFrontMatter_v1(txt, { guess: kv.guess })
-
+): MarkdownRawParts_2 {
+  let r1 = extractFrontMatter_v1(txt, { guess: kv.guess })
+  let parts = r1
   if (parts.error) {
     return toParts_v2({
       parts,
@@ -215,8 +216,8 @@ export async function extractFrontMatter(
       //   return next
       // })
 
-      let YAML = await import('yaml')
-      let out = YAML.parse(parts.frontText)
+      // let YAML = await import('yaml')
+      // let out = YAML.parse(parts.frontText)
       let final: MarkdownRawParts_2 = {
         _raw: txt,
         ...parts,
@@ -244,14 +245,11 @@ export async function extractFrontMatter(
         doc,
         error,
 
-        async getData() {
+        getData() {
           // TODO before:release dedup, dry this parse
           //  this should be the only way to get data
           //  this should be the only yaml parser???
-          const { parseAllDocuments } = await import('yaml').then(
-            x => x.default,
-          )
-          let all = parseAllDocuments(front)
+          let all = YAML.parseAllDocuments(front)
           let doc = all[0]
           data = doc.toJSON()
           return data
@@ -272,7 +270,7 @@ export async function extractFrontMatter(
 
       doc = all[0]
       if (all.length > 1) {
-        $dev('why two docs??')
+        console.warn('why two docs??')
       }
       data = doc.toJSON()
       // data = Yaml.load(front)
@@ -378,12 +376,12 @@ export async function extractFrontMatter(
     doc,
     error,
 
-    async getData() {
+    getData() {
       //console.log({ front })
       // TODO before:release dedup, dry this parse
       //  this should be the only way to get data
       //  this should be the only yaml parser???
-      const { parseAllDocuments } = await import('yaml').then(x => x.default)
+      const { parseAllDocuments } = YAML
 
       let all = parseAllDocuments(front)
 
