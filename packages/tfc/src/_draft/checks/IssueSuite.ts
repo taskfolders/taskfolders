@@ -16,7 +16,7 @@ type FixDSL = {
   title?: string
   before?: string | object
   after?: string | object
-  execute?
+  execute?(ctx: NodeLogger)
 }
 
 class HandlerContext {
@@ -113,7 +113,10 @@ type TestFunction = {
   execute: HandlerFunction
   caller?
 }
-type ConfigData = { issues: Record<string, RuleConfigRecord>; fixes: any }
+export type ConfigData = {
+  issues: Record<string, RuleConfigRecord>
+  fixes?: any
+}
 
 export class IssueSuite {
   _config: ConfigData = { issues: {}, fixes: {} }

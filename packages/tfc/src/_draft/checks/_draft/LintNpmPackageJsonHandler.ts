@@ -49,7 +49,8 @@ export class LintNpmPackageHandler implements LintHandler {
     this.before = JSON.parse(JSON.stringify(packageDoc))
 
     let suite = new IssueSuite()
-    suite.log.dev({ file, dir: this.params.dir })
+    // suite._config = { issues: {} }
+
     suite.log.info('Start linting', file)
     let { test } = suite
 
@@ -115,10 +116,10 @@ export class LintNpmPackageHandler implements LintHandler {
     })
 
     test('dev-misplaced', async t => {
-      let devOnly = ['vitest', 'eslint', 'webpack']
+      let devOnlyKeys = ['vitest', 'eslint', 'webpack', '@eslint']
       let prodKeys = Object.keys(packageDoc.dependencies)
       let types = prodKeys.filter(x => x.startsWith('@types/'))
-      let devs = [...types]
+      let shouldBeDev = [...types]
       if (types.length) {
         t.fail({
           title: '@type packages should be defined as dev dependency',
@@ -126,16 +127,19 @@ export class LintNpmPackageHandler implements LintHandler {
         })
       }
 
-      if (devs.length) {
+      let others = prodKeys.filter(x => {
+        if (devOnlyKeys.some(key => x.startsWith(key))) return true
+      })
+
+      if (shouldBeDev.length) {
         await t.fix({
           code: 'move-into-dev',
           // before: doc,
           // after: { ...doc, private: true },
           execute(ctx) {
-            // ctx.log.put('Hello')
             // ctx.log.dev('Hello')
             packageDoc.devDependencies ??= {}
-            for (let key of devs) {
+            for (let key of shouldBeDev) {
               packageDoc.devDependencies[key] = packageDoc.dependencies[key]
               delete packageDoc.dependencies[key]
             }
@@ -143,11 +147,6 @@ export class LintNpmPackageHandler implements LintHandler {
           },
         })
       }
-
-      let a1 = ['@eslint', 'webpack']
-      let shouldBeDev = prodKeys.filter(x => {
-        if (a1.some(key => x.startsWith(key))) return true
-      })
     })
 
     this.suite = suite

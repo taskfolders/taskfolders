@@ -1,9 +1,10 @@
 import fs from 'fs'
-import path from 'path'
+import path, { join } from 'path'
 import { fileURLToPath } from 'url'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { LintHandler } from '../_draft/LintNpmPackageJsonHandler.js'
+import { ConfigData } from '../IssueSuite.js'
 
 // Required to emulate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url)
@@ -33,21 +34,58 @@ const argv = await yargs(hideBin(process.argv))
 
   .help().argv
 
-// Resolve and read the spec file
-const specPath = path.resolve(__dirname, argv.spec)
+const specs = {
+  // npm: import.meta.resolve('../_draft/LintNpmPackageJsonHandler.ts'),
+  npm: () => import('../_draft/LintNpmPackageJsonHandler.js'),
+}
+// Object.keys(specs).forEach(key => {
+//   specs[key] = specs[key].replace(/^file:\/\//, '')
+// })
 
-if (!fs.existsSync(specPath)) {
-  console.error(`Spec file not found: ${specPath}`)
+class LintApp {
+  async execute() {
+    let specPath: string
+    specPath = path.resolve(__dirname, argv.spec)
+    let spec
+    if (fs.existsSync(specPath)) {
+      spec = await import(specPath)
+    } else {
+      // console.error(`Spec file not found: ${specPath}`)
 
-  // eslint-disable-next-line n/no-process-exit
-  process.exit(1)
+      let load = await specs[argv.spec]?.()
+      if (!load) {
+        console.log('Could not find spec', {
+          spec: argv.spec,
+          keys: Object.keys(specs),
+        })
+        return { exitCode: 1 }
+      }
+      spec = load
+    }
+
+    let handler = new spec.default({ dir: process.cwd() }) as LintHandler
+
+    // console.log('Loaded spec file:\n', spec)
+    let suite = await handler.setup()
+
+    let conf: ConfigData = {
+      issues: {
+        publish: {
+          enabled: false,
+          level: 'warning',
+        },
+      },
+    }
+
+    handler.suite._config = conf
+
+    await suite.executeForShell()
+    if (argv.write) {
+      await handler.write()
+    }
+  }
 }
 
-let spec = await import(specPath)
-let handler = new spec.default({ dir: process.cwd() }) as LintHandler
-// console.log('Loaded spec file:\n', spec)
-let suite = await handler.setup()
-await suite.executeForShell()
-if (argv.write) {
-  await handler.write()
-}
+let app = new LintApp()
+let res = await app.execute()
+process.exitCode = res?.exitCode
