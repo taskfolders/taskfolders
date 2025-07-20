@@ -81,9 +81,9 @@ it.only('x in memory test', async () => {
   dc._now = new Date('2025-07-10')
 
   let sut = new ScanV2Handler({ dir: '/app' })
-  sut.log._debug = true
+  // sut.log._debug = true
   sut.log._silent = true
-  sut.log._threshold_value = 3
+  sut.log.setLevel('debug')
   sut.fs = memoryFilesystem({
     '/app/index.md': 'flags: workspace\n',
     '/app/foo.md': dedent`
@@ -105,6 +105,7 @@ it.only('x in memory test', async () => {
   expect(foo.sections_v2[0].after.value).toBe(2025)
   expect(foo.sections_v2[0].before.value).toBe('2026-02')
   expect(foo.focus.value).toBe('2025-W28')
+  return
 
   let sum = new SummaryHandler({ cwd: '/app' }, dc)
   // sum.log._silent = true

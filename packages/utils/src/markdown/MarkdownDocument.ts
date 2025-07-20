@@ -18,20 +18,24 @@ export class MarkdownDocument<T = unknown> {
     this.content = content
   }
 
-  static async fromBody<T extends {}>(
+  static fromBody<T extends object>(
     // this: T,
     body: string,
     kv: { implicitFrontmatter?: boolean; unsafe?: boolean } = {},
     //): Promise<InstanceType<T>> {
-  ): Promise<MarkdownDocument<T>> {
-    let fm = await extractFrontMatter(body, {
-      guess: kv.implicitFrontmatter,
-    }).catch(e => {
+  ): MarkdownDocument<T> {
+    let fm: ReturnType<typeof extractFrontMatter>
+    try {
+      fm = extractFrontMatter(body, {
+        guess: kv.implicitFrontmatter,
+      })
+    } catch (e) {
       let error = new Error('Unreadable frontmatter')
       error.cause = e
       throw error
-    })
-    let data = (await fm.getData()) as T
+    }
+
+    let data = fm.getData() as T
     // if (process.env.NODE_ENV === 'test') {
     //   Object.freeze(data)
     // }
@@ -47,7 +51,7 @@ export class MarkdownDocument<T = unknown> {
     //   writable: false,
     // })
 
-    return obj as any
+    return obj
   }
 
   setData<T>(data: T): MarkdownDocument<T> {

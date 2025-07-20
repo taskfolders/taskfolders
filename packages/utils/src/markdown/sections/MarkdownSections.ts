@@ -6,34 +6,37 @@ export class MarkdownSections {
   isModified
   all: { heading: string; body: string; data }[] = []
 
-  static async parse(body: string): Promise<MarkdownSections> {
+  static parse(body: string): MarkdownSections {
     let obj = new this()
     let acuSections = []
     let acuLines = []
     let heading
     if (!body) return obj
 
-    let finishSection = async () => {
+    let finishSection = () => {
       let txt = acuLines.join('\n')
-      let parts = await extractFrontMatter(txt, {
-        guess: true,
-      }).catch(e => {
+      let parts
+      try {
+        parts = extractFrontMatter(txt, {
+          guess: true,
+        })
+      } catch (e) {
         let error = Error('Unreadable markdown section frontmatter')
         // @ts-expect-error TODO
         error.code = 'md-section-unreadable-fm'
         error.cause = e
         throw error
-      })
+      }
       //console.dir('..parts')
       //console.dir({ ...parts })
 
-      let data = await parts.getData()
+      let data = parts.getData()
       acuSections.push({ heading, body: parts.body, data })
     }
 
     for (let line of body.split('\n')) {
       if (line.startsWith('# ')) {
-        await finishSection()
+        finishSection()
         heading = line
         acuLines = []
       } else {
@@ -42,7 +45,7 @@ export class MarkdownSections {
     }
 
     // finish last section
-    await finishSection()
+    finishSection()
 
     obj.all = acuSections
 

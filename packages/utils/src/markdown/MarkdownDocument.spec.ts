@@ -83,15 +83,13 @@ it('x #story', async () => {
 
 it('x bad fm #edge', async () => {
   let res
-  await MarkdownDocument.fromBody(
+  MarkdownDocument.fromBody(
     dedent`
       ---
       fox: 1
       bar
       --- `,
-  ).catch(e => {
-    res = e
-  })
+  )
 })
 
 it('x edit md', async () => {
@@ -129,3 +127,12 @@ it('convert to string', async () => {
   md = await MarkdownDocument.fromBody(body, { implicitFrontmatter: true })
   expect(body).toBe(md.toString())
 })
+
+// it.only('x', async () => {
+//   let body = dedent`
+//     fox: 1
+
+//     hi
+//   `
+//   let md = MarkdownDocument.fromBody(body, { implicitFrontmatter: true })
+// })

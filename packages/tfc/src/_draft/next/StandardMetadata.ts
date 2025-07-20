@@ -169,11 +169,17 @@ export class StandardMetadata {
     let val = this._raw.focus
     if (!val) return undefined
     val = val.toString()
+    let type: TimeMark['type']
     if (/\d{1,2}/.test(val)) {
       let year = this._now.getUTCFullYear()
       val = `${year}-W${val}`
+      type = 'relative'
     }
-    return TimeMark.fromValue(val)
+    let res = TimeMark.fromValue(val)
+    if (type) {
+      res.type = type
+    }
+    return res
   }
 
   static fromJSON(doc) {
