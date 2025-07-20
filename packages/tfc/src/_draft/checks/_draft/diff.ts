@@ -1,6 +1,6 @@
 import { diffChars, diffLines } from 'diff'
 
-export const diff = (kv: { before; after }) => {
+export const diff = (kv: { before; after; type?: 'lines' }) => {
   let acu = []
 
   let before =
@@ -11,8 +11,10 @@ export const diff = (kv: { before; after }) => {
   let after =
     typeof kv.after === 'string' ? kv.after : JSON.stringify(kv.before, null, 2)
 
-  // let changes = diffLines(before, after)
   let changes = diffChars(before, after)
+  if (kv.type === 'lines') {
+    changes = diffLines(before, after)
+  }
 
   for (const part of changes) {
     if (!part.removed && !part.added) continue

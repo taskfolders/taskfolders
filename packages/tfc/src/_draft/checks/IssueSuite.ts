@@ -16,6 +16,7 @@ type FixDSL = {
   title?: string
   before?: string | object
   after?: string | object
+  execute?
 }
 
 class HandlerContext {
@@ -112,9 +113,10 @@ type TestFunction = {
   execute: HandlerFunction
   caller?
 }
+type ConfigData = { issues: Record<string, RuleConfigRecord>; fixes: any }
 
 export class IssueSuite {
-  _config = { issues: {} as Record<string, RuleConfigRecord>, fixes: {} }
+  _config: ConfigData = { issues: {}, fixes: {} }
 
   _tests: TestFunction[] = []
   title: string
@@ -184,6 +186,7 @@ export class IssueSuite {
           text: label,
         })
       }
+      label = NodeLogger.style.blue(label)
 
       log.put(`${label}: ${test.code ?? test.title}`)
     }
@@ -298,7 +301,20 @@ export class IssueSuite {
         error,
       }
       acu.push(item)
+
+      // notify for print
       this._testEnd$.next(item)
+
+      // Apply fixes
+      let fixRules = ['move-into-dev']
+      let foundFix = ctx._fixes?.find(x => fixRules.includes(x.code))
+      if (foundFix) {
+        log
+          .indent()
+          .put('...')
+          .put(`${NodeLogger.style.yellow('Run FIX')} - ${foundFix.code}`)
+        await foundFix.execute({ log: log.indent().indent() })
+      }
     }
 
     if (acu.some(r => r.error)) {
