@@ -110,6 +110,7 @@ type TestFunction = {
   code: string
   /**@deprecated */
   title
+  titlePath?: string[]
   execute: HandlerFunction
   caller?
 }
@@ -124,12 +125,14 @@ export class IssueSuite {
   _tests: TestFunction[] = []
   title: string
   _printMode: 'after' | 'stream' = 'after'
+  _prefix: string
 
   _testStart$ = new Subject<TestFunction>()
   _testEnd$ = new Subject<FinalResult>()
 
-  constructor(kv: { title?: string } = {}) {
+  constructor(kv: { title?: string; prefix?: string } = {}) {
     if (kv.title) this.title = kv.title
+    this._prefix = kv.prefix
   }
 
   setupPrintStream() {
@@ -146,27 +149,38 @@ export class IssueSuite {
   // test(code: string, cb: HandlerFunction)
   test: {
     (cb: HandlerFunction): IssueSuite
-    (code: string, cb?: HandlerFunction): IssueSuite
+    (code: string | { code?; title? }, cb?: HandlerFunction): IssueSuite
   } = (t1, t2?) => {
     let caller = getCallingFile(__filename, { afterFileName: __filename })
 
     try {
       let cb
       let title
+      let code
       if (typeof t1 === 'function') {
         cb = t1
         // title = '_untitled_'
       } else {
-        title = t1
+        if (typeof t1 === 'string') {
+          code = t1
+        } else {
+          code = t1.code
+          title = t1.title
+        }
         cb =
           t2 ??
           (t => {
             t.pending()
           })
       }
+      // code = title
+      if (this._prefix) {
+        code = `${this._prefix}/${code}`
+      }
       this._tests.push({
-        code: title,
+        code,
         title,
+        titlePath: [title].filter(Boolean),
         execute: cb,
         caller,
       })

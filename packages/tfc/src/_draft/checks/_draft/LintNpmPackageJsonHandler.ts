@@ -49,6 +49,7 @@ export class LintNpmPackageHandler implements LintHandler {
     this.before = JSON.parse(JSON.stringify(packageDoc))
 
     let suite = new IssueSuite()
+    suite._prefix = 'npm'
     // suite._config = { issues: {} }
 
     suite.log.info('Start linting', file)

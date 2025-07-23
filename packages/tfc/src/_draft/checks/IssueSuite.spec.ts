@@ -177,3 +177,21 @@ describe('fixes', () => {
     console.log(res)
   })
 })
+
+describe('x', () => {
+  it.only('x test fields', async () => {
+    let sut = new IssueSuite()
+
+    sut.test('one', t => {}).test({ code: 'two', title: 'Second test' })
+    await sut.execute()
+    $dev(sut._tests)
+  })
+
+  it('x prefix', async () => {
+    let sut = new IssueSuite({ prefix: 'panda' })
+
+    sut.test('foo', t => {})
+    sut._config.fixes['make-public'] = {}
+    expect(sut._tests[0].code).toBe('panda/foo')
+  })
+})
