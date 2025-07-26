@@ -190,6 +190,18 @@ export class TfcApp {
       })
 
       .command({
+        command: 'inbox',
+        describe: 'DRAFT move in from inbox',
+        handler: async argv => {
+          const { PullInboxHandler } = await import(
+            './handlers/PullInbox/PullInboxHandler.js'
+          )
+          let handler = new PullInboxHandler()
+          await handler.execute()
+        },
+      })
+
+      .command({
         command: 'edit reference',
         describe: 'DRAFT edit',
         handler: async argv => {
