@@ -27,20 +27,24 @@ class OneIssue<T = unknown> {
   titlePath?: string[]
   message: string
   data?: T
-}
-
-type Shot = {
-  pathRelative
-  pathFull
-  issues: OneIssue[]
-  meta?: StandardMetadata
-  index: WorkspaceIndex
+  static create<T = unknown>(kv: {
+    code: string
+    titlePath?: string[]
+    message: string
+    data?: T
+  }): OneIssue<T> {
+    let isu = new OneIssue<T>()
+    isu.code = kv.code
+    isu.titlePath = kv.titlePath
+    isu.message = kv.message
+    isu.data = kv.data
+    return isu
+  }
 }
 
 export class ScanV2Handler {
   fs = fs
   log = new NodeLogger()
-  _shots: Shot[] = []
 
   workspace: Folder
   stats = { files: 0, errors: 0 }
@@ -52,26 +56,21 @@ export class ScanV2Handler {
     file: string,
     folder: Folder,
     folders: Folder[],
-  ): Promise<{ shot: Shot }> {
+  ): Promise<{ pathItem: PathItem }> {
     let { log, stats, workspace, wsIndex, fs } = this
 
     let fullPath = join(folder.dir, file)
     let relPath = workspace.relative(fullPath)
-    let shot: Shot = {
-      pathRelative: relPath,
-      pathFull: fullPath,
-      issues: [],
-      index: wsIndex,
-    }
 
+    let pathItem = new PathItem({ pathRelative: relPath, base: folder.dir })
     if (!fs.existsSync(fullPath)) {
       log.warn('File does not exist', fullPath)
-      return { shot }
+      return { pathItem }
     }
 
     if (file.endsWith('.md.asc')) {
       log.info('Skip', file)
-      return { shot }
+      return { pathItem }
     }
 
     // log.info('scan file', relPath)
@@ -97,15 +96,15 @@ export class ScanV2Handler {
       if (md.data) {
         let _data = md.data as any
         let meta = new StandardMetadata(_data)
-        shot.meta = meta
         // let item = wsIndexData.get(relPath)
 
         if (meta.focus?.type === 'relative') {
-          shot.issues.push({
+          let issue = OneIssue.create({
             code: 'focus-relative',
             message: 'Focus is relative, should be absolute',
             data: { focus: meta.focus.value },
           })
+          pathItem.issues.push(issue)
         }
         // ---
         // checks
@@ -113,15 +112,16 @@ export class ScanV2Handler {
         if (!issues.ok) {
           // log.warn('Document frontmatter has issues', issues.issues)
           for (let isu of issues.issues) {
-            shot.issues.push(isu)
+            pathItem.issues.push(isu)
           }
         }
         if (meta.after_v2?.type === 'reference') {
-          shot.issues.push({
+          let issue = OneIssue.create({
             code: 'invalid-reference',
             message: 'todo validate reference',
             data: { reference: meta.after_v2.value },
           })
+          pathItem.issues.push(issue)
         }
 
         // ---
@@ -145,7 +145,7 @@ export class ScanV2Handler {
             let caller
 
             if (!x.date) {
-              shot.issues.push({
+              pathItem.issues.push({
                 code: 'missing-date',
                 message: 'Calendar with no date',
               })
@@ -208,7 +208,7 @@ export class ScanV2Handler {
         wsIndex.updateFile(relPath, { uid: data.uid })
       }
     } else if (file.endsWith('.md.asc')) {
-      log.info('Scan file', relPath)
+      log.debug('Scan file', relPath)
       let body = fs.readFileSync(fullPath, 'utf-8').toString()
       let out = await decryptGPGMessage(body)
 
@@ -216,7 +216,7 @@ export class ScanV2Handler {
       wsIndex.updateFile(relPath, { uid: null })
       //console.log('TODO md.asc', relPath, out)
     } else if (isJavascriptVariant(file)) {
-      log.info('Scan file', relPath)
+      log.debug('Scan file', relPath)
       let body = fs.readFileSync(fullPath, 'utf-8')
       let sections = parseGenericCodeSections({ body, marker: '//' })
       if (sections.length) {
@@ -230,7 +230,7 @@ export class ScanV2Handler {
         })
       }
     } else if (file.match(/\.(tf|py|bash|sh)$/)) {
-      log.info('Scan file', relPath)
+      log.debug('Scan file', relPath)
       let body = fs.readFileSync(fullPath, 'utf-8')
       let sections = parseGenericCodeSections({ body, marker: '#' })
       if (sections.length) {
@@ -252,11 +252,10 @@ export class ScanV2Handler {
       }
     }
 
-    this._shots.push(shot)
-    return { shot }
+    return { pathItem }
   }
 
-  async _scanFolder(folder: Folder) {
+  async _scanFolder(folder: Folder, pathItems: PathItem[]) {
     let { log, stats, workspace, wsIndex: wsIndexData } = this
 
     let files = folder.ls()
@@ -288,26 +287,8 @@ export class ScanV2Handler {
 
     for (let file of files) {
       try {
-        let { shot } = await this._scanOneFile(file, folder, folders)
-        if (shot.issues.length) {
-          let link = NodeLogger.link({
-            text: shot.pathRelative,
-            path: shot.pathFull,
-          })
-          log.warn(`File "${link}" has issues`)
-          let lg = log.indent()
-          lg = lg.put('issues').indent()
-          for (let issue of shot.issues) {
-            if (issue.issues) {
-              for (let isu of issue.issues) {
-                lg.put(isu)
-              }
-            } else {
-              lg.put(`:${log.style.cyan(issue.code)} ${issue.message}`)
-              lg.indent().put(issue.data)
-            }
-          }
-        }
+        let { pathItem } = await this._scanOneFile(file, folder, folders)
+        pathItems.push(pathItem)
       } catch (err) {
         stats.errors++
         let link = NodeLogger.link({
@@ -324,7 +305,7 @@ export class ScanV2Handler {
     for (let folder of folders) {
       let relPath = workspace.relative(folder.dir)
       //log.info('folder -', relPath)
-      await this._scanFolder(folder).catch(err => {
+      await this._scanFolder(folder, pathItems).catch(err => {
         log.info('Error scanning folder', relPath)
       })
     }
@@ -388,7 +369,7 @@ export class ScanV2Handler {
     })
   }
 
-  async _postScan() {
+  async _postScan(pathItems: PathItem[]) {
     let { log } = this
     log.put().info('Starting post scan...')
 
@@ -396,39 +377,7 @@ export class ScanV2Handler {
     if (this.params.allWorkspaces) {
       log.warn('TODO support for multi-ws')
     }
-    if (!this._shots[0]) {
-      log.warn('No scan results')
-    }
-    this._shots[0]?.index._refreshIndex()
-
-    for (let shot of this._shots) {
-      let after = shot.meta?.after_v2
-      if (after && after.type === 'reference') {
-        let reference = after.value
-        let found = shot.index.findByReference(reference)
-        if (!found) {
-          log
-            .warn(`File ${shot.pathRelative}`)
-            .indent()
-            .put(`unknown reference "${reference}" in :after`)
-        }
-      }
-    }
-
-    //
-    let items = Object.entries(this.wsIndex.data.paths).map(([path, value]) => {
-      let next: PathIndex = {
-        pathRelative: path,
-        ...value,
-      }
-      return pathIndexToPathItem({
-        index: next,
-        baseDir: this.workspace.dir,
-        wsName: 'x',
-      })
-    })
-
-    for (let item of items) {
+    for (let item of pathItems) {
       if (item.after_v2?.type === 'reference') {
         let ref = item.after_v2
         if (ref.type === 'reference') {
@@ -443,12 +392,13 @@ export class ScanV2Handler {
         }
       }
     }
-
-    await this._printResult(items)
   }
 
   _printResult(items: PathItem[]) {
     let log = this.log
+    if (items.length) {
+      log.warn(`Issues found`).put()
+    }
     for (let item of items) {
       if (!item.issues.length) continue
       let file = NodeLogger.link({
@@ -456,12 +406,13 @@ export class ScanV2Handler {
         path: item.pathFull,
       })
 
-      log.put(`File ${file} has issues`)
+      log.put(`${file}`)
       for (let issue of item.issues) {
         log.indent().put(`:${log.style.cyan(issue.code)} ${issue.message}`)
         if (issue.data) {
           log.indent().put(issue.data)
         }
+        log.put()
       }
     }
   }
@@ -475,8 +426,10 @@ export class ScanV2Handler {
   }) {
     let { workspace, wsIndexData, log, stats, start } = kv
 
-    await this._scanFolder(workspace)
-    await this._postScan()
+    let pathItems: PathItem[] = []
+    await this._scanFolder(workspace, pathItems)
+    await this._postScan(pathItems)
+    await this._printResult(pathItems)
 
     this.fs.writeFileSync(
       wsIndexData.pathIndexFile,

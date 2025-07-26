@@ -68,9 +68,10 @@ export class PathItem {
     return this._stat.ino
   }
 
-  constructor(kv: { pathRelative: string; after?: Date }) {
+  constructor(kv: { pathRelative: string; after?: Date; base?: string }) {
     // TODO no guess .?
     this.path = kv?.pathRelative
+    this.base = kv.base
     this.after = kv?.after
   }
 

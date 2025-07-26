@@ -62,6 +62,7 @@ export type PathIndex = {
   inode?
   mtime?
 }
+
 export class WorkspaceIndex {
   findByReference(ref: string): PathItem {
     let found = this._index.sid[ref]
@@ -361,6 +362,22 @@ export class WorkspaceIndex {
       obj.loadJSON(json)
     }
     return obj
+  }
+
+  // TODO review
+  toPathItems() {
+    let items = Object.entries(this.data.paths).map(([path, value]) => {
+      let next: PathIndex = {
+        pathRelative: path,
+        ...value,
+      }
+      return pathIndexToPathItem({
+        index: next,
+        baseDir: this.pathBaseDir,
+        wsName: 'x',
+      })
+    })
+    return items
   }
 }
 

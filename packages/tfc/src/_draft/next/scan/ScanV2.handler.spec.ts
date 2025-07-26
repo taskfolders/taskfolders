@@ -76,7 +76,7 @@ it('x in memory test', async () => {
   // $dev(sut.wsIndex)
 })
 
-it('x in memory test', async () => {
+it.only('x in memory test', async () => {
   let dc = new DependencyContainer()
   dc._now = new Date('2025-07-10')
 
@@ -116,7 +116,7 @@ it('x in memory test', async () => {
   // $dev(sum.log._lines)
 })
 
-it.only('x in memory test', async () => {
+it('x in memory test', async () => {
   let dc = new DependencyContainer()
   dc._now = new Date('2025-07-10')
 
