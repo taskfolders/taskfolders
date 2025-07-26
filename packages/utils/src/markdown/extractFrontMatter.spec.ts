@@ -8,6 +8,7 @@ import {
   FrontAndBodyParser,
 } from './extractFrontMatter.js'
 import { MarkdownDocument } from './MarkdownDocument.js'
+import { inspect } from 'node:util'
 let splitText = x => x.split('\n')
 let fromYaml
 
@@ -344,6 +345,11 @@ it('x #now', async () => {
     `)
   let r1 = await res.getData()
   expect(r1).toEqual({ parent: { child: 1 } })
+})
+
+it.skip('x #edge', async () => {
+  let md = extractFrontMatter('ep:210', { guess: true })
+  // console.log(inspect(md, { customInspect: false, depth: 10 }))
 })
 
 // it.only('x', async () => {

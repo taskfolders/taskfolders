@@ -8,7 +8,7 @@ import YAML from 'yaml'
 
 // import { parseAllDocuments, Document } from 'yaml'
 
-const dataKeyRx = /^\s*[a-zA-Z_-]+:[^/\\]/
+const dataKeyRx = /^\s*[a-zA-Z_-]+:\s+[^/\\]/
 let splitText = x => x.split('\n')
 
 export class FrontAndBodyParser {
@@ -186,6 +186,7 @@ export function extractFrontMatter(
 ): MarkdownRawParts_2 {
   let r1 = extractFrontMatter_v1(txt, { guess: kv.guess })
   let parts = r1
+
   if (parts.error) {
     return toParts_v2({
       parts,
@@ -249,17 +250,19 @@ export function extractFrontMatter(
           // TODO before:release dedup, dry this parse
           //  this should be the only way to get data
           //  this should be the only yaml parser???
+          let a1 = YAML.parse(front)
           let all = YAML.parseAllDocuments(front)
           let doc = all[0]
           data = doc.toJSON()
           return data
         },
 
-        [Symbol.for('nodejs.util.inspect.custom')]() {
-          let str = [`chars:${txt?.length}`, data ? '+fm' : null].join(' ')
-          return `<MarkdownParts ${str} >`
-        },
+        // [Symbol.for('nodejs.util.inspect.custom')]() {
+        //   let str = [`chars:${txt?.length}`, data ? '+fm' : null].join(' ')
+        //   return `<MarkdownParts ${str} >`
+        // },
       }
+
       return final
 
       let all //= parseAllDocuments(front)

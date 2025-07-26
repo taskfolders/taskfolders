@@ -106,7 +106,6 @@ export class StandardMetadata {
           let res = Reflect.get(target, prop, receiver)
           if (res) return res
         }
-        // Forward to _raw
         if (prop in target._raw) {
           return (
             // @ts-expect-error TODO

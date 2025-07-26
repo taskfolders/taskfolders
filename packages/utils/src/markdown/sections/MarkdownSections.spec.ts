@@ -390,6 +390,15 @@ describe.skip('x - OLD', () => {
   }) // #draft
 })
 
+it.only('x #edge', async () => {
+  let sut = await MarkdownSections.parse(dedent`
+      # Tango
+      ep:210
+
+      # Hello
+      one `)
+  $dev(sut)
+})
 describe('x - NEW', () => {
   it('x', async () => {
     let doc = dedent`

@@ -105,3 +105,5 @@ it('x after #todo #now', async () => {
   })
   expect(sut.after).toBeCloseTo(new Date('2025-01-08').getTime())
 })
+
+it('x #edge', async () => {})

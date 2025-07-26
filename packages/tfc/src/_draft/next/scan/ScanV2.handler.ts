@@ -160,6 +160,7 @@ export class ScanV2Handler {
       let sec = await MarkdownSections.parse(md.content)
       for (let s of sec.all) {
         if (!s.data) continue
+
         let data = new StandardMetadata(s.data)
 
         if (data?.uid) {
