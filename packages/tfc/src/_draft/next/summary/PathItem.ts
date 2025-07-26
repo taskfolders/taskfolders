@@ -74,9 +74,13 @@ export class PathItem {
     this.after = kv?.after
   }
 
+  issues: any[] = []
   sections: SectionSummary[] = [];
 
   [Symbol.for('nodejs.util.inspect.custom')]() {
-    return `<${this.constructor.name} {${this.wsName}}:${this.path}>`
+    let path = `${this.wsName}:${this.path}`
+    let issues = this.issues.length ? '+issues' : ''
+    let parts = [path, issues].filter(Boolean).join(' ')
+    return `<${this.constructor.name} ${parts}>`
   }
 }

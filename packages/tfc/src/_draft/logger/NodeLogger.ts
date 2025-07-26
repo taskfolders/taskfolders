@@ -126,6 +126,7 @@ export class NodeLogger {
     let next = new NodeLogger()
     Object.assign(next, this)
     next.options = { ...this.options }
+    next._silent = this._silent
     // next.options = JSON.parse(JSON.stringify(this.options))
     return next
   }

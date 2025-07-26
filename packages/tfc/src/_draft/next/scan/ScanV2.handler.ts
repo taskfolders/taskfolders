@@ -5,7 +5,11 @@ import { decryptGPGMessage } from '../../gpg/decryptGPGMessage.js'
 import { cleanObjectCopy } from '../cleanObject.js'
 import { Folder } from '../Folder.js'
 import { NodeLogger } from '../../logger/NodeLogger.js'
-import { WorkspaceIndex, PathIndex } from '../index/WorkspaceIndex.js'
+import {
+  WorkspaceIndex,
+  PathIndex,
+  pathIndexToPathItem,
+} from '../index/WorkspaceIndex.js'
 import { StandardMetadata } from '../StandardMetadata.js'
 import { WorkspaceCollections } from './WorkspaceCollections.js'
 import { toDate } from '../toDate.js'
@@ -14,13 +18,21 @@ import { ByteSugar } from '@taskfolders/utils/fs'
 import { relative } from 'node:path'
 import { parseMarkdownSections } from './parseMarkdownSections.js'
 import { parseGenericCodeSections } from './parseGenericCodeSections.js'
+import { PathItem } from '../summary/PathItem.js'
 
 const isJavascriptVariant = file => file.match(/\.(js|ts|cjs|mjs|tsx|jsx)$/)
+
+class OneIssue<T = unknown> {
+  code: string
+  titlePath?: string[]
+  message: string
+  data?: T
+}
 
 type Shot = {
   pathRelative
   pathFull
-  issues
+  issues: OneIssue[]
   meta?: StandardMetadata
   index: WorkspaceIndex
 }
@@ -40,7 +52,7 @@ export class ScanV2Handler {
     file: string,
     folder: Folder,
     folders: Folder[],
-  ): Promise<Shot> {
+  ): Promise<{ shot: Shot }> {
     let { log, stats, workspace, wsIndex, fs } = this
 
     let fullPath = join(folder.dir, file)
@@ -54,12 +66,12 @@ export class ScanV2Handler {
 
     if (!fs.existsSync(fullPath)) {
       log.warn('File does not exist', fullPath)
-      return shot
+      return { shot }
     }
 
     if (file.endsWith('.md.asc')) {
       log.info('Skip', file)
-      return shot
+      return { shot }
     }
 
     // log.info('scan file', relPath)
@@ -241,7 +253,7 @@ export class ScanV2Handler {
     }
 
     this._shots.push(shot)
-    return shot
+    return { shot }
   }
 
   async _scanFolder(folder: Folder) {
@@ -276,21 +288,23 @@ export class ScanV2Handler {
 
     for (let file of files) {
       try {
-        let shot = await this._scanOneFile(file, folder, folders)
+        let { shot } = await this._scanOneFile(file, folder, folders)
         if (shot.issues.length) {
           let link = NodeLogger.link({
             text: shot.pathRelative,
             path: shot.pathFull,
           })
           log.warn(`File "${link}" has issues`)
-          let lg = log.indent().put('issues').indent()
+          let lg = log.indent()
+          lg = lg.put('issues').indent()
           for (let issue of shot.issues) {
             if (issue.issues) {
               for (let isu of issue.issues) {
                 lg.put(isu)
               }
             } else {
-              lg.put(issue)
+              lg.put(`:${log.style.cyan(issue.code)} ${issue.message}`)
+              lg.indent().put(issue.data)
             }
           }
         }
@@ -397,6 +411,56 @@ export class ScanV2Handler {
             .warn(`File ${shot.pathRelative}`)
             .indent()
             .put(`unknown reference "${reference}" in :after`)
+        }
+      }
+    }
+
+    //
+    let items = Object.entries(this.wsIndex.data.paths).map(([path, value]) => {
+      let next: PathIndex = {
+        pathRelative: path,
+        ...value,
+      }
+      return pathIndexToPathItem({
+        index: next,
+        baseDir: this.workspace.dir,
+        wsName: 'x',
+      })
+    })
+
+    for (let item of items) {
+      if (item.after_v2?.type === 'reference') {
+        let ref = item.after_v2
+        if (ref.type === 'reference') {
+          let found = this.wsIndex.findByReference(ref.value)
+          if (!found) {
+            let issue = {
+              code: 'unknown-reference',
+              data: { field: 'after_v2', reference: ref.value },
+            }
+            item.issues.push(issue)
+          }
+        }
+      }
+    }
+
+    await this._printResult(items)
+  }
+
+  _printResult(items: PathItem[]) {
+    let log = this.log
+    for (let item of items) {
+      if (!item.issues.length) continue
+      let file = NodeLogger.link({
+        text: item.pathRelative,
+        path: item.pathFull,
+      })
+
+      log.put(`File ${file} has issues`)
+      for (let issue of item.issues) {
+        log.indent().put(`:${log.style.cyan(issue.code)} ${issue.message}`)
+        if (issue.data) {
+          log.indent().put(issue.data)
         }
       }
     }

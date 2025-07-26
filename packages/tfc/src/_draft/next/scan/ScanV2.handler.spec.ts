@@ -73,17 +73,17 @@ it('x in memory test', async () => {
   })
 
   await sut.execute()
-  $dev(sut.wsIndex)
+  // $dev(sut.wsIndex)
 })
 
-it.only('x in memory test', async () => {
+it('x in memory test', async () => {
   let dc = new DependencyContainer()
   dc._now = new Date('2025-07-10')
 
   let sut = new ScanV2Handler({ dir: '/app' })
   // sut.log._debug = true
-  sut.log._silent = true
-  sut.log.setLevel('debug')
+  // sut.log._silent = true
+  // sut.log.setLevel('debug')
   sut.fs = memoryFilesystem({
     '/app/index.md': 'flags: workspace\n',
     '/app/foo.md': dedent`
@@ -114,6 +114,27 @@ it.only('x in memory test', async () => {
   // sum.log._silent = false
   await sum.execute()
   // $dev(sum.log._lines)
+})
+
+it.only('x in memory test', async () => {
+  let dc = new DependencyContainer()
+  dc._now = new Date('2025-07-10')
+
+  let sut = new ScanV2Handler({ dir: '/app' })
+  // sut.log._debug = true
+  // sut.log._silent = true
+  // sut.log.setLevel('debug')
+  sut.fs = memoryFilesystem({
+    '/app/index.md': 'flags: workspace\n',
+    '/app/one.md': dedent`
+       after: two-more
+       `,
+    '/app/two.md': dedent`
+       sid: two
+       `,
+  })
+
+  await sut.execute()
 })
 
 class NodeLoggerTestDouble extends NodeLogger {
