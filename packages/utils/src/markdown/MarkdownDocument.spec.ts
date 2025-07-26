@@ -83,13 +83,21 @@ it('x #story', async () => {
 
 it('x bad fm #edge', async () => {
   let res
-  MarkdownDocument.fromBody(
+  let md1 = MarkdownDocument.fromBody(
     dedent`
       ---
       fox: 1
       bar
       --- `,
   )
+
+  // no body
+  let md2 = MarkdownDocument.fromBody(dedent`
+    ---
+    type: foo
+    ---`)
+  let txt = md2.toString().split('\n')
+  expect(txt).toEqual(['---', 'type: foo', '---'])
 })
 
 it('x edit md', async () => {

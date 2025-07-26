@@ -69,11 +69,13 @@ export class MarkdownDocument<T = unknown> {
     let parts = [delimiter, YAML.stringify(this.data).trim(), delimiter].filter(
       Boolean,
     )
-    let lines = this.content.split('\n')
-    if (lines[0] !== '') {
-      parts.push('')
+    if (this.content) {
+      let lines = this.content.split('\n')
+      if (lines[0] !== '') {
+        parts.push('')
+      }
+      parts = parts.concat(lines)
     }
-    parts = parts.concat(lines)
 
     return parts.join('\n')
   }
