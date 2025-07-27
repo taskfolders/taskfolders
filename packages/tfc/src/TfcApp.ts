@@ -184,6 +184,18 @@ export class TfcApp {
       })
 
       .command({
+        command: 'log',
+        describe: 'DRAFT convert string to folder path',
+        handler: async argv => {
+          const { AddLogEventHandler } = await import(
+            './handlers/AddLogEvent/AddLogEventHandler.js'
+          )
+          let handler = new AddLogEventHandler({})
+          await handler.execute()
+        },
+      })
+
+      .command({
         command: 'dir path-id',
         describe: 'DRAFT convert string to folder path',
         handler: async argv => {},

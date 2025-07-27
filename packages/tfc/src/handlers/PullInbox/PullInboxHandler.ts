@@ -20,6 +20,7 @@ export class PullInboxHandler {
     public params: {
       cwd?
       createInboxDir?: boolean
+      ansiPrint?: boolean
     } = { cwd: process.cwd() },
   ) {}
 
@@ -35,8 +36,13 @@ export class PullInboxHandler {
       choices.push(new inquirer.Separator(`\nLatest files in ${item.dir}`))
       for (const f of item.latest) {
         let basename = Path.basename(f.path)
+        basename = NodeLogger.link({
+          text: basename,
+          path: f.path,
+        })
 
-        choices.push({ name: basename, value: `${f.path}` })
+        let url = 'file:///tmp'
+        choices.push({ name: basename, value: `${f.path}`, url })
       }
     }
 
@@ -94,8 +100,24 @@ export class PullInboxHandler {
       }
     }
 
+    if (this.params.ansiPrint) {
+      for (let item of acu) {
+        log.put(`Latest files in ${item.dir}`)
+        for (let file of item.latest) {
+          let path = file.path
+          if (path.length > 50) {
+            path = file.path.slice(0, 40)
+            path += '...' + file.path.slice(-8)
+          }
+          // path = NodeLogger.link({ text: path, path: join(dir, file.path) })
+          // log.put(`${path}`)
+        }
+      }
+      return
+    }
+
     let selected = await this._select(acu)
-    console.log({ selected })
+
     let inboxDir = join(this.params.cwd, '_inbox')
     if (!fs.existsSync(inboxDir)) {
       if (this.params.createInboxDir) {
