@@ -184,17 +184,34 @@ export class TfcApp {
       })
 
       .command({
-        command: 'log',
+        command: 'log <message...>',
         describe: 'DRAFT convert string to folder path',
         handler: async argv => {
           const { AddLogEventHandler } = await import(
             './handlers/AddLogEvent/AddLogEventHandler.js'
           )
-          let handler = new AddLogEventHandler({})
+
+          let handler = new AddLogEventHandler({
+            cwd: process.cwd(),
+            message: argv.message.join(' '),
+          })
           await handler.execute()
         },
       })
+      // .command({
+      //   command: 'log:ls',
+      //   describe: 'DRAFT convert string to folder path',
+      //   handler: async argv => {
+      //     const { AddLogEventHandler } = await import(
+      //       './handlers/AddLogEvent/AddLogEventHandler.js'
+      //     )
 
+      //     let handler = new AddLogEventHandler({
+      //       cwd: process.cwd(),
+      //     })
+      //     // await handler.execute()
+      //   },
+      // })
       .command({
         command: 'dir path-id',
         describe: 'DRAFT convert string to folder path',
@@ -202,7 +219,7 @@ export class TfcApp {
       })
 
       .command({
-        command: 'inbox',
+        command: 'inbox [pick]',
         describe: 'DRAFT move in from inbox',
         handler: async argv => {
           const { PullInboxHandler } = await import(
