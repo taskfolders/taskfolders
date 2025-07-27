@@ -97,3 +97,13 @@ it('x data', async () => {
   sut.data = { foo: 'bar', baz: 123 }
   sut.info('hi')
 })
+
+it('x', async () => {
+  let sut = new NodeLogger()
+  class Panda {
+    [Symbol.for('nodejs.util.inspect.custom')]() {
+      return `<${this.constructor.name} >`
+    }
+  }
+  sut.dev(new Panda())
+})

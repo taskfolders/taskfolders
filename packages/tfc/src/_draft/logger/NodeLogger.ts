@@ -58,6 +58,7 @@ export class NodeLogger {
   _debug = false
   _silent = false
   _threshold_value = LogLevels[process.env.LOG_LEVEL ?? 'info']
+  _inspect = { customInspect: false }
   setLevel(level: LevelName) {
     this._threshold_value = levelNameToValue(level)
   }
@@ -101,6 +102,12 @@ export class NodeLogger {
   error(...args) {
     this.raw({ args, level: 'error' })
     return this
+  }
+
+  inspect() {
+    let copy = this.clone()
+    copy._inspect = { customInspect: false }
+    return copy
   }
 
   time(cb?: () => Promise<any>) {
@@ -167,7 +174,13 @@ export class NodeLogger {
 
     if (args.length === 1) {
       if (typeof args[0] === 'object') {
-        args = [inspect(args[0], { depth: null, colors: true })]
+        args = [
+          inspect(args[0], {
+            depth: null,
+            colors: true,
+            customInspect: this._inspect.customInspect,
+          }),
+        ]
       }
     } else if (args.length === 2) {
       if (typeof args[1] === 'object') {

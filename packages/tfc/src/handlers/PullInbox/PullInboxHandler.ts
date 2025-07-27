@@ -16,7 +16,12 @@ export class PullInboxHandler {
   log = new NodeLogger()
   fs = fs
 
-  constructor(public params: { cwd } = { cwd: process.cwd() }) {}
+  constructor(
+    public params: {
+      cwd?
+      createInboxDir?: boolean
+    } = { cwd: process.cwd() },
+  ) {}
 
   dirs = [
     join(process.env.HOME, 'Downloads'),
@@ -92,6 +97,13 @@ export class PullInboxHandler {
     let selected = await this._select(acu)
     console.log({ selected })
     let inboxDir = join(this.params.cwd, '_inbox')
+    if (!fs.existsSync(inboxDir)) {
+      if (this.params.createInboxDir) {
+        fs.mkdirSync(inboxDir, { recursive: true })
+      } else {
+        return
+      }
+    }
     if (fs.existsSync(inboxDir)) {
       for (let file of selected) {
         log.info(`Move file ${file}`)
