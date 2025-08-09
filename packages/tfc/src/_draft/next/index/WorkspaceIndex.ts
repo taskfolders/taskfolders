@@ -69,6 +69,7 @@ export class WorkspaceIndex {
     if (found) return found
     return this._index.uid[ref]
   }
+
   _index = {
     /** @deprecated */
     uids: {},
@@ -131,6 +132,7 @@ export class WorkspaceIndex {
   static fromJSON(body: string, kv: { path }) {
     let index = new WorkspaceIndex({ path: kv.path })
     index.loadJSON(body)
+    index._refreshIndex()
 
     return index
   }
@@ -165,21 +167,37 @@ export class WorkspaceIndex {
 
   _refreshIndex() {
     this._items = []
+    let _items_v2 = this.data.items
     let wsName = 'xx'
     let baseDir = this.pathBaseDir
 
+    // TODO review drop?
     Object.entries(this.data.paths).forEach(([pathRelative, index]) => {
-      this._items.push(
-        pathIndexToPathItem({
-          // TODO review.. why not already .index.pathRelative?
-          index: { pathRelative, ...index },
-          wsName,
-          baseDir,
-        }),
-      )
+      let item = pathIndexToPathItem({
+        // TODO review.. why not already .index.pathRelative?
+        index: { pathRelative, ...index },
+        wsName,
+        baseDir,
+      })
+      this._items.push(item)
     })
 
+    // TODO review drop?
     for (let item of this._items) {
+      if (item.sid) {
+        this._index.sid[item.sid] = item
+      }
+      if (item.uid) {
+        this._index.uid[item.uid] = item
+      }
+    }
+
+    for (let index of _items_v2) {
+      let item = pathIndexToPathItem({
+        index,
+        wsName,
+        baseDir,
+      })
       if (item.sid) {
         this._index.sid[item.sid] = item
       }
@@ -361,6 +379,7 @@ export class WorkspaceIndex {
       let json = fs.readFileSync(path).toString()
       obj.loadJSON(json)
     }
+    await obj._refreshIndex()
     return obj
   }
 

@@ -13,15 +13,17 @@ it.skip('x', async () => {
   // console.log(res)
 })
 
-it('x read one #scaffold #live', async () => {
-  let baseDir = join(process.env.HOME, 'work/fgo')
+it.only('x read one #scaffold #live', async () => {
+  let baseDir = join(process.env.HOME, 'work/fgo/demo-ws')
   let indexDir = join(baseDir, '_data/taskfolders.com')
   let sut = await WorkspaceIndex.fromDir({ baseDir, indexDir })
+
   // let r1 = sut.get('action/now-fgo/index.md')
   let r1 = sut.get('demo/index.md')
   let r2 = sut.data
   // console.log({ ...r1 })
-  console.log(sut.data.paths['demo/index.md'])
+  // console.log(sut.data.paths['demo/index.md'])
+  let r3 = sut.findByReference('panda')
 })
 
 it('x process one #scaffold #live', async () => {
@@ -69,3 +71,5 @@ it('x upsert sections', async () => {
 
   console.log(sut.toJSON())
 })
+
+it('x', async () => {})

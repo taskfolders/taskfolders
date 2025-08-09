@@ -20,6 +20,8 @@ import { parseMarkdownSections } from './parseMarkdownSections.js'
 import { parseGenericCodeSections } from './parseGenericCodeSections.js'
 import { PathItem } from '../summary/PathItem.js'
 
+const options = { parseSecrets: true }
+
 const isJavascriptVariant = file => file.match(/\.(js|ts|cjs|mjs|tsx|jsx)$/)
 
 class OneIssue<T = unknown> {
@@ -68,9 +70,11 @@ export class ScanV2Handler {
       return { pathItem }
     }
 
-    if (file.endsWith('.md.asc')) {
-      log.info('Skip', file)
-      return { pathItem }
+    if (options.parseSecrets === false) {
+      if (file.endsWith('.md.asc')) {
+        log.info('Skip', file)
+        return { pathItem }
+      }
     }
 
     // log.info('scan file', relPath)

@@ -21,7 +21,9 @@ export const parseMarkdownSections = async (
   let full = md.toString().split('\n')
   let acu: SectionSummary[] = []
   let task = /^- \[ \]/m
+
   for (let sec of mds.all) {
+    // $dev(sec)
     let title
     let lineNumber
     if (sec.heading) {
@@ -29,7 +31,7 @@ export const parseMarkdownSections = async (
       lineNumber = full.findIndex(x => x.startsWith(sec.heading)) + 1
     }
 
-    if (sec.body.match(task)) {
+    if (sec.body?.match(task)) {
       acu.push({
         type: 'todo',
         lineNumber,

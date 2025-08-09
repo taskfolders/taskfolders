@@ -81,7 +81,7 @@ export class TfcApp {
         describe: 'NEW Show file by sid/uid',
         handler: async argv => {
           const { ReadReferenceHandler } = await import(
-            './_draft/next/ReadReference.handler.js'
+            './features/read/_drop/ReadReference.handler.js'
           )
           let han = new ReadReferenceHandler({
             cwd: process.cwd(),
@@ -227,6 +227,68 @@ export class TfcApp {
           )
           let handler = new PullInboxHandler()
           await handler.execute()
+        },
+      })
+
+      .command({
+        command: 'status',
+        describe: 'DRAFT status',
+        handler: async argv => {
+          const { ShowFolderStatusHandler } = await import(
+            './features/status/ShowFolderStatusHandler.js'
+          )
+
+          await new ShowFolderStatusHandler({
+            cwd: process.cwd(),
+            // reference: argv.reference,
+          }).execute()
+        },
+      })
+
+      .command({
+        command: 'read reference',
+        describe: 'DRAFT read markdown data',
+        builder: {
+          json: {
+            describe: 'Print as json',
+            alias: 'j',
+            type: 'string',
+          },
+        },
+
+        handler: async argv => {
+          const { ReadMarkdownHandler } = await import(
+            './features/read/ReadMarkdownHandler.js'
+          )
+
+          let stream
+          if (!process.stdin.isTTY) {
+            // Data is being piped in
+            stream = await new Promise(resolve => {
+              let data = ''
+              process.stdin.on('data', chunk => (data += chunk))
+              process.stdin.on('end', () => {
+                console.log('Received piped data:', data)
+                stream = data
+              })
+            })
+          } else {
+            // console.log('No piped data, running in interactive mode')
+          }
+
+          let reference
+          if (!stream) {
+            reference = argv.reference
+          }
+
+          await new ReadMarkdownHandler({
+            cwd: process.cwd(),
+            reference: reference,
+            options: {
+              json: argv.json !== undefined,
+            },
+            // reference: argv.reference,
+          }).execute()
         },
       })
 

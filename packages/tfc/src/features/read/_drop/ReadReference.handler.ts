@@ -1,10 +1,10 @@
-import { findUpWorkspaceFolder } from './findUpWorkspace.js'
-import { NodeLogger } from '../logger/NodeLogger.js'
-import { WorkspaceIndex } from './index/WorkspaceIndex.js'
+import { findUpWorkspaceFolder } from '../../../_draft/next/findUpWorkspace.js'
+import { NodeLogger } from '../../../_draft/logger/NodeLogger.js'
+import { WorkspaceIndex } from '../../../_draft/next/index/WorkspaceIndex.js'
 import { readFileSync } from 'fs'
 import * as fs from 'fs'
 import { join } from 'path/posix'
-import { decryptGPGMessage } from '../gpg/decryptGPGMessage.js'
+import { decryptGPGMessage } from '../../../_draft/gpg/decryptGPGMessage.js'
 import { MarkdownDocument } from '@taskfolders/utils/markdown'
 
 export class ReadReferenceHandler {
@@ -17,13 +17,15 @@ export class ReadReferenceHandler {
     // TODO log.raw({__filename})
     log.info('ShowHandler.execute called', __filename)
     let ws = await findUpWorkspaceFolder(process.cwd())
-    log.info(ws)
+    // log.info(ws)
     let path = ws.dataDir({ join: ['workspace-index.json'] })
     log.info('Reading workspace index from', path)
     let body = fs.readFileSync(path, 'utf-8').toString()
     let index = WorkspaceIndex.fromJSON(body, { path })
 
-    let found = index.find({ uid: this.params.id })
+    let found = index.findByReference(this.params.id)
+    // let found = index.find({ uid: this.params.id })
+    // console.log({ found, id: this.params.id })
     log.info('Found item:', found)
     let p2 = join(ws.dir, found.path)
     let body_2 = fs.readFileSync(p2, 'utf-8').toString()
