@@ -306,6 +306,20 @@ export class TfcApp {
         },
       })
 
+      .command({
+        command: 'time',
+        describe: 'DRAFT edit',
+        handler: async argv => {
+          const { RunTimerHandler } = await import(
+            './features/time-tracking/RunTimerHandler.js'
+          )
+
+          await new RunTimerHandler({
+            // reference: argv.reference,
+          }).execute()
+        },
+      })
+
       .command(
         '$0',
         false, // describe:false to hide in help
