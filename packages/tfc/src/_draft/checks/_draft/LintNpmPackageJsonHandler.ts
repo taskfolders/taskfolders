@@ -6,6 +6,7 @@ import { $dev, log } from '../../../dc.js'
 import { diff } from './diff.js'
 import { createPatch } from 'diff'
 import * as Color from 'colorette'
+import { LintHandler } from './LintHandler.js'
 
 type NpmPackage = {
   name
@@ -17,17 +18,6 @@ type NpmPackage = {
   engines: {
     node?: string
   }
-}
-
-class BaseHandler {
-  params: Record<string, unknown>
-  execute: () => void | Promise<void>
-}
-
-export class LintHandler extends BaseHandler {
-  suite: IssueSuite
-  setup
-  write
 }
 
 export class LintNpmPackageHandler implements LintHandler {

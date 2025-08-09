@@ -3,7 +3,7 @@ import path, { join } from 'path'
 import { fileURLToPath } from 'url'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { LintHandler } from '../_draft/LintNpmPackageJsonHandler.js'
+import { LintHandler } from '../_draft/LintHandler.js'
 import { ConfigData } from '../IssueSuite.js'
 
 // Required to emulate __dirname in ESM
