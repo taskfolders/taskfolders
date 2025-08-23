@@ -12,7 +12,8 @@ const soundFile = '/tmp/alarm-end.mp3'
 import { exec } from 'node:child_process'
 function playSound(filePath) {
   return new Promise((resolve, reject) => {
-    exec(`paplay "${filePath}"`, err => {
+    let linux = `paplay "${filePath}"`
+    exec(linux, err => {
       if (err) {
         reject(err)
       } else {
