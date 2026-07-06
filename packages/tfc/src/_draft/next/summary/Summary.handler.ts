@@ -175,6 +175,11 @@ export class SummaryHandler {
 
       let rows = all
         .map(x => {
+          if (!x) return null
+          if (!x.after_v2) {
+            console.log('??? FIX ME')
+            return null
+          }
           //let started = x.after ? x.after.toISOString().slice(0, 10) : ''
           let started = x.after_v2.date
             ? timeDiff({ date: x.after_v2.date })
