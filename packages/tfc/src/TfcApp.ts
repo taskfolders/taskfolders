@@ -320,6 +320,21 @@ export class TfcApp {
         },
       })
 
+      .command({
+        command: 'lint <file>',
+        describe: 'Lint frontmatter against TF data schema',
+        handler: async argv => {
+          const { LintFrontmatterHandler } = await import(
+            './_draft/checks/_draft/LintFrontmatterHandler.js'
+          )
+          let handler = new LintFrontmatterHandler({ file: argv.file })
+          await handler.execute()
+          if (handler.hasErrors) {
+            process.exitCode = 1
+          }
+        },
+      })
+
       .command(
         '$0',
         false, // describe:false to hide in help
