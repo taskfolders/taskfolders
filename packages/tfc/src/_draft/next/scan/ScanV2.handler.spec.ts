@@ -80,7 +80,7 @@ it.only('x in memory test', async () => {
   let dc = new DependencyContainer()
   dc._now = new Date('2025-07-10')
 
-  let sut = new ScanV2Handler({ dir: '/app' })
+  let sut = new ScanV2Handler({ dir: '/app', now: dc._now })
   // sut.log._debug = true
   // sut.log._silent = true
   // sut.log.setLevel('debug')

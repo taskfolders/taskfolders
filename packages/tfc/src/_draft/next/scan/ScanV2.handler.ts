@@ -52,7 +52,7 @@ export class ScanV2Handler {
   stats = { files: 0, errors: 0 }
   wsIndex: WorkspaceIndex
 
-  constructor(public params: { dir: string; allWorkspaces?: boolean }) {}
+  constructor(public params: { dir: string; allWorkspaces?: boolean; now?: Date }) {}
 
   async _scanOneFile(
     file: string,
@@ -99,8 +99,7 @@ export class ScanV2Handler {
       // TODO #now use data_std and decide what/when index? or index all .md?
       if (md.data) {
         let _data = md.data as any
-        let meta = new StandardMetadata(_data)
-        // let item = wsIndexData.get(relPath)
+        let meta = new StandardMetadata(_data, { now: this.params.now })
 
         if (meta.focus?.type === 'relative') {
           let issue = OneIssue.create({
@@ -177,7 +176,7 @@ export class ScanV2Handler {
       for (let s of sec.all) {
         if (!s.data) continue
 
-        let data = new StandardMetadata(s.data)
+        let data = new StandardMetadata(s.data, { now: this.params.now })
 
         if (data?.uid) {
           let dat = cleanObjectCopy({

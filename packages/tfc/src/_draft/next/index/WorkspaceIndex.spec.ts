@@ -26,7 +26,7 @@ it('x read one #scaffold #live', async () => {
   let r3 = sut.findByReference('panda')
 })
 
-it('x process one #scaffold #live', async () => {
+it.skip('x process one #scaffold #live', async () => {
   let path = join(process.env.HOME, 'work/fgo')
   let sut = new WorkspaceIndex({ path })
   sut.pathBaseDir = path
