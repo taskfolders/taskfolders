@@ -179,7 +179,7 @@ describe('fixes', () => {
 })
 
 describe('x', () => {
-  it.only('x test fields', async () => {
+  it('x test fields #focus', async () => {
     let sut = new IssueSuite()
 
     sut.test('one', t => {}).test({ code: 'two', title: 'Second test' })

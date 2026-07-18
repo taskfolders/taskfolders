@@ -34,7 +34,7 @@ it('x', async () => {
   console.log(res)
 })
 
-it('x', async () => {
+it('x #live', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
   let sut = await SummaryHandler.create({ cwd, allWorkspaces: true })
   let res = await sut._getData()

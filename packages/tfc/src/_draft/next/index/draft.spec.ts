@@ -76,13 +76,13 @@ async function fetchGlobalIndex() {
   return sut
 }
 
-it('x', async () => {
+it('x #live', async () => {
   let sut = await fetchGlobalIndex()
   let item = sut.findReference('tv-shows')
   expect(item.pathRelative).toContain('tv-shows/index.md')
 })
 
-it.only('x', async () => {
+it('x #focus #live', async () => {
   let dir = Path.join(process.env.HOME, 'work/fgo/demo')
 
   let sut = await findWorkspaceForPath(dir)

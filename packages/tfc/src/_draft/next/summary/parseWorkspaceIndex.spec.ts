@@ -19,7 +19,7 @@ it('x #scaffold #live', async () => {
 
 import { Volume, vol } from 'memfs'
 import { memoryFilesystem } from './memoryFilesystem.js'
-it.only('pretty now', async () => {
+it('pretty now #focus', async () => {
   let fsMem = memoryFilesystem({
     '/app/action/now/ikea.md': 'flags: now\n\nhi',
     '/app/action/now/second.md': '',
