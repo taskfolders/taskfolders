@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://taskfolders.com/schemas/frontmatter/v1",
+  "title": "TaskFolders Document Frontmatter",
+  "description": "Schema for YAML frontmatter in TaskFolders markdown documents",
+  "type": "object",
+  "properties": {
+    "type": {
+      "description": "Document type URI",
+      "type": "string",
+      "default": "https://taskfolders.com/docs/markdown/v1",
+      "examples": [
+        "https://taskfolders.com/docs/markdown/v1",
+        "https://taskfolders.com/docs/markdown"
+      ]
+    },
+    "uid": {
+      "description": "Globally unique identifier (UUID v4)",
+      "type": "string",
+      "format": "uuid"
+    },
+    "sid": {
+      "description": "Short human-readable identifier. Lowercase kebab-case, 2-10 chars.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "title": {
+      "description": "Document title",
+      "type": "string"
+    },
+    "flags": {
+      "description": "Space or comma-separated markers, or array of strings",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ],
+      "examples": ["workspace", "workspace, pinned"]
+    },
+    "labels": {
+      "description": "Search/filter labels",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "tags": {
+      "description": "Categorization tags",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "parent": {
+      "description": "Relative path to a parent document or directory",
+      "type": "string",
+      "examples": ["../tf-syntax-markdown"]
+    },
+    "after": {
+      "description": "Not actionable until this date (ISO 8601)",
+      "type": "string",
+      "format": "date"
+    },
+    "before": {
+      "description": "Deadline — overdue after this date (ISO 8601)",
+      "type": "string",
+      "format": "date"
+    },
+    "done": {
+      "description": "Completion date (ISO 8601)",
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "description": "Current state of the document or task",
+      "type": "string",
+      "examples": ["draft", "active", "done", "TODO"]
+    },
+    "links": {
+      "description": "References to other sections or documents by uid",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
+    "review": {
+      "description": "Review schedule configuration",
+      "type": "object",
+      "properties": {
+        "latest": {
+          "description": "Date of the most recent review (ISO 8601)",
+          "type": "string",
+          "format": "date"
+        },
+        "frequency": {
+          "description": "How often to review (ISO duration or human shorthand)",
+          "type": "string",
+          "examples": ["1 month", "2 weeks", "P30D"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "scripts": {
+      "description": "Named script definitions for workspace automation",
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string",
+            "description": "Shorthand: command string"
+          },
+          {
+            "type": "object",
+            "description": "Full script definition",
+            "properties": {
+              "run": {
+                "description": "Command to execute",
+                "type": "string"
+              },
+              "title": {
+                "description": "Human-readable name",
+                "type": "string"
+              },
+              "dir": {
+                "description": "Working directory context",
+                "type": "string",
+                "enum": ["source", "package", "cwd"]
+              },
+              "describe": {
+                "description": "Description of what the script does",
+                "type": "string"
+              },
+              "alias": {
+                "description": "Short alias for the script",
+                "type": "string"
+              }
+            },
+            "required": ["run"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "exclude": {
+      "description": "Paths to exclude from indexing. `true` excludes the entire directory.",
+      "oneOf": [
+        { "type": "boolean", "const": true },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "calendar": {
+      "description": "Calendar events attached to this document",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "Event date (ISO 8601)",
+            "type": "string",
+            "format": "date"
+          },
+          "title": {
+            "description": "Event title",
+            "type": "string"
+          },
+          "tags": {
+            "description": "Event tags",
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "recurrence": {
+            "description": "Recurrence rule",
+            "type": "object",
+            "properties": {
+              "frequency": {
+                "type": "string",
+                "enum": ["WEEKLY", "MONTHLY", "YEARLY"]
+              },
+              "interval": {
+                "description": "Repeat every N periods",
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": ["frequency"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["date", "title"],
+        "additionalProperties": false
+      }
+    },
+    "custom": {
+      "description": "User-defined fields (ignored by TaskFolders tooling)",
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

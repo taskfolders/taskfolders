@@ -9,7 +9,7 @@ import { SummaryHandler } from '../summary/Summary.handler.js'
 import { DependencyContainer } from '../../../dc.js'
 import { NodeLogger } from '../../logger/NodeLogger.js'
 
-it('scan all #scaffold', async () => {
+it('scan all #scaffold #live', async () => {
   let cwd = join(process.env.HOME, 'work/fgo')
   let sut = new ScanV2Handler({ dir: cwd })
   await sut.execute()
@@ -76,11 +76,11 @@ it('x in memory test', async () => {
   // $dev(sut.wsIndex)
 })
 
-it.only('x in memory test', async () => {
+it('x in memory test #focus', async () => {
   let dc = new DependencyContainer()
   dc._now = new Date('2025-07-10')
 
-  let sut = new ScanV2Handler({ dir: '/app' })
+  let sut = new ScanV2Handler({ dir: '/app', now: dc._now })
   // sut.log._debug = true
   // sut.log._silent = true
   // sut.log.setLevel('debug')

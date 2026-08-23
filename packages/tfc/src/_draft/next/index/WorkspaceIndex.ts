@@ -364,6 +364,30 @@ export class WorkspaceIndex {
     return copy
   }
 
+  toJSONFull() {
+    this._refreshIndex()
+    let base = this.toJSON()
+
+    let sid: Record<string, string> = {}
+    let uid: Record<string, string> = {}
+
+    for (let [path, entry] of Object.entries(this.data.paths)) {
+      if (entry.sid) {
+        sid[entry.sid] = path
+      }
+      if (entry.uid) {
+        uid[entry.uid] = path
+      }
+    }
+
+    let { items, ...rest } = base
+
+    return {
+      ...rest,
+      _index: { sid, uid },
+    }
+  }
+
   write() {
     this.fs.writeFileSync(
       this.pathIndexFile,

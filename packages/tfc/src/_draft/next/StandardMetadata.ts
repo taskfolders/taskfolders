@@ -25,7 +25,7 @@ type UserInput = {
 }
 
 export class StandardMetadata {
-  _now = new Date()
+  _now: Date
   readonly uid: string
   readonly sid: string
   readonly type: string
@@ -84,8 +84,10 @@ export class StandardMetadata {
     this._raw.tags = value
   }
 
-  constructor(public _raw: Record<string, any>) {
+  constructor(public _raw: Record<string, any>, kv?: { now?: Date }) {
+    this._now = kv?.now ?? new Date()
     _raw ??= {}
+    this._raw = _raw
     if (_raw.review) {
       this.review = _raw.review
       // this.review.next = toDate(_raw.review.next)
